@@ -73,8 +73,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Inventory</h1>
         <div class="profile">
-            <span class="avatar">JD</span>
-            <div class="pinfo"><b>Jaylon Dorwart</b><small>Admin</small></div>
+            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
                 <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
@@ -88,7 +88,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span class="sortby">Sort by:</span>
                 <select class="fsel" id="fSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">Name</option><option value="stock">Stock</option></select>
                 <select class="fsel" id="fCat"><option value="">All Category</option><option>Linen</option><option>Toiletries</option><option>Refreshments</option><option>Electronics</option><option>Housekeeping</option><option>Guest Comfort</option><option>Kitchen</option></select>
-                <button class="pill" onclick="openModal('addItem')">Add Item</button>
+                @if(auth()->user()->role !== 'staff')<button class="pill" onclick="openModal('addItem')">Add Item</button>@endif
             </div>
         </div>
         <div class="tbl">
@@ -124,7 +124,7 @@ const chk='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>';
 const avl={available:'Available',low:'Low',out:'Out of Stock'};
 const data=@json($items);
 function render(list){
- document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${r.emoji||''}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button class="vd" onclick="showDetail(r.emoji+' '+r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button class="reorder" onclick="post('/inventory/${r.id}/reorder','POST')">Reorder</button><button class="vd" title="Delete" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">🗑</button></span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
+ document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${r.emoji||''}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button class="vd" onclick="showDetail(r.emoji+' '+r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button class="reorder" onclick="post('/inventory/${r.id}/reorder','POST')">Reorder</button>${IS_ADMIN?`<button class="vd" title="Delete" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">🗑</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
  document.querySelectorAll('.cb').forEach(c=>c.onclick=()=>{c.classList.toggle('ck');c.closest('.trow').classList.toggle('on')});
 }
 function applyFilters(){

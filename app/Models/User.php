@@ -21,7 +21,20 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    /** Tabs each role may access (admin = all). */
+    public const ACCESS = [
+        'admin'   => ['dashboard','reservation','rooms','housekeeping','inventory','calendar','invoice','expenses','reviews','concierge','guest-profile'],
+        'manager' => ['dashboard','reservation','rooms','housekeeping','inventory','calendar','invoice','expenses','reviews','concierge','guest-profile'],
+        'staff'   => ['dashboard','reservation','housekeeping','inventory','calendar','guest-profile'],
+    ];
+
+    public function can_access($tab)
+    {
+        return in_array($tab, self::ACCESS[$this->role] ?? []);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

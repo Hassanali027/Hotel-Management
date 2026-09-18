@@ -37,19 +37,24 @@
     <nav class="app-menu" aria-label="Main navigation">
         <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a class="{{ request()->is('reservation') ? 'active' : '' }}" href="{{ url('/reservation') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>Reservation</a>
-        <a class="{{ request()->is('rooms') ? 'active' : '' }}" href="{{ url('/rooms') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7"/></svg>Rooms</a>
+        @if(auth()->user()->can_access('rooms'))<a class="{{ request()->is('rooms') ? 'active' : '' }}" href="{{ url('/rooms') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7"/></svg>Rooms</a>@endif
         <a class="{{ request()->is('housekeeping') ? 'active' : '' }}" href="{{ url('/housekeeping') }}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 21V9a2 2 0 0 1 2-2h2l1-3h6l1 3h2a2 2 0 0 1 2 2v12"/><path d="M4 13h16"/></svg>Housekeeping</a>
         <a class="{{ request()->is('inventory') ? 'active' : '' }}" href="{{ url('/inventory') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Inventory</a>
         <a class="{{ request()->is('calendar') ? 'active' : '' }}" href="{{ url('/calendar') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Calendar</a>
-        <div class="financial-group {{ (request()->is('invoice') || request()->is('expenses')) ? 'open' : '' }}">
+        @if(auth()->user()->can_access('invoice'))<div class="financial-group {{ (request()->is('invoice') || request()->is('expenses')) ? 'open' : '' }}">
             <a href="#" class="financial-toggle" onclick="event.preventDefault(); this.parentElement.classList.toggle('open');"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>Financials <span class="app-chevron">⌄</span></a>
             <div class="financial-submenu">
                 <a class="{{ request()->is('invoice') ? 'active' : '' }}" href="{{ url('/invoice') }}">Invoice</a>
                 <a class="{{ request()->is('expenses') ? 'active' : '' }}" href="{{ url('/expenses') }}">Expenses</a>
             </div>
-        </div>
-        <a class="{{ request()->is('reviews') ? 'active' : '' }}" href="{{ url('/reviews') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>Reviews</a>
-        <a class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Concierge</a>
+        </div>@endif
+        @if(auth()->user()->can_access('reviews'))<a class="{{ request()->is('reviews') ? 'active' : '' }}" href="{{ url('/reviews') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>Reviews</a>@endif
+        @if(auth()->user()->can_access('concierge'))<a class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Concierge</a>@endif
     </nav>
+    <form method="POST" action="{{ url('/logout') }}" style="margin-top:8px">@csrf
+        <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;height:44px;border:0;border-radius:9px;padding:0 12px;background:transparent;color:#b3352f;font:600 15px Lato,Arial,sans-serif;cursor:pointer">
+            <svg class="icon" viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Logout ({{ ucfirst(auth()->user()->role ?? '') }})
+        </button>
+    </form>
     <section class="app-upgrade"><img class="upgrade-visual" src="{{ asset('images/OBJECTS.png') }}" alt="Hotel illustration"><h2>Elevate Hospitality<br>Standards</h2><p>Enhanced Reporting, Faster Check-Ins, &amp; Integrated Marketing Tools</p><button>Update Now</button></section>
 </aside>

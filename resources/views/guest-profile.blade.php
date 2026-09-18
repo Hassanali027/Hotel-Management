@@ -116,8 +116,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div><h1>Guest Profile</h1><div class="bc"><a href="{{ url('/reservation') }}">Reservation</a> / Guest Profile</div></div>
         </div>
         <div class="profile">
-            <span class="avatar">JD</span>
-            <div class="pinfo"><b>Jaylon Dorwart</b><small>Admin</small></div>
+            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
                 <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                 <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
@@ -165,7 +165,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="pair"><div class="l">Special Amenities</div><div class="amen"><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Complimentary breakfast</div><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Free Wi-Fi</div><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Access to gym and pool</div></div></div>
                 <div class="pair"><div class="l">Extras</div><div class="v">-</div></div>
             </div>
-            <div class="binfo-btns"><button class="bbtn edit" onclick="location.href='{{ url('/reservation') }}'">Edit</button><button class="bbtn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/{{ $booking->id }}','DELETE')">Cancel Booking</button></div>
+            <div class="binfo-btns"><button class="bbtn edit" onclick="location.href='{{ url('/reservation') }}'">Edit</button>@if(auth()->user()->role === 'admin')<button class="bbtn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/{{ $booking->id }}','DELETE')">Cancel Booking</button>@endif</div>
         </section>
         <section class="card roominfo">
             <div class="chd"><h2>Room Info</h2><a href="{{ url('/rooms') }}" class="vd">View Detail</a></div>

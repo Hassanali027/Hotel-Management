@@ -1,5 +1,6 @@
 {{-- Shared CRUD helpers: csrf token, modal styles, post() helper --}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<script>window.ROLE='{{ auth()->user()->role ?? '' }}';window.IS_ADMIN=(ROLE==='admin');window.CAN_MANAGE=(ROLE==='admin'||ROLE==='manager');</script>
 <style>
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:100;zoom:1}
 .modal-ov.open{display:flex}
