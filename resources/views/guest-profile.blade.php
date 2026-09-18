@@ -225,26 +225,29 @@
         .search-box { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--gray-line); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--gray-20); min-width: 200px; }
         .date-filter { display: flex; align-items: center; gap: 6px; background: var(--white); border: 1px solid var(--gray-line); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--black); font-weight: 500; cursor: pointer; }
         .date-filter i { font-size: 13px; color: var(--gray-20); }
-        table { width: 100%; border-collapse: collapse; }
-        thead tr { background: var(--gray-bg); border-bottom: 1px solid var(--gray-line); }
-        thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-10); white-space: nowrap; }
-        tbody tr { border-bottom: 1px solid var(--gray-line); transition: background 0.15s; }
-        tbody tr:last-child { border-bottom: none; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        thead tr { background: var(--blue-subtle); }
+        thead th { padding: 16px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-10); white-space: nowrap; }
+        thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; padding-left: 20px; }
+        thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; padding-right: 16px; }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: #FAFAFA; }
-        tbody td { padding: 12px 14px; font-size: 12px; color: var(--black); vertical-align: middle; }
+        tbody td { border-bottom: 1px solid var(--gray-line); padding: 12px 14px; font-size: 12px; color: var(--black); vertical-align: middle; }
         .room-thumb { width: 60px; height: 44px; border-radius: 8px; overflow: hidden; }
         .room-thumb img { width: 100%; height: 100%; object-fit: cover; }
         .booking-id-cell { font-weight: 700; font-size: 13px; }
         .date-cell .date { font-size: 12px; font-weight: 600; }
         .date-cell .time { font-size: 11px; color: var(--gray-20); }
-        .badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 700; }
+        .badge { display: inline-flex; align-items: center; justify-content: center; gap: 5px; border-radius: 9px; height: 18px; padding: 2px 8px 2px 6px; font-size: 11px; font-weight: 400; color: var(--black); box-sizing: border-box; }
         .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
-        .badge-deluxe { background: #E8F5E9; color: #388E3C; }
-        .badge-deluxe::before { background: #388E3C; }
-        .badge-suite { background: #E3F2FD; color: #1565C0; }
-        .badge-suite::before { background: #1565C0; }
+        .badge-deluxe { background: var(--lime-10); }
+        .badge-deluxe::before { background: var(--lime-00); }
+        .badge-suite { background: var(--lime-00); }
+        .badge-suite::before { background: var(--lime-dark); }
         .row-menu-btn { background: none; border: none; cursor: pointer; color: var(--gray-20); font-size: 18px; padding: 4px 6px; border-radius: 4px; }
-        .sort-arrows { display: inline-block; margin-left: 4px; font-size: 9px; color: var(--gray-20); vertical-align: middle; }
+        .sort-arrows { display: inline-flex; margin-left: 4px; color: var(--gray-20); vertical-align: middle; }
+        .sort-arrows svg { width: 7px; height: 11px; stroke: currentColor; }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -465,14 +468,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Image <span class="sort-arrows">&#8597;</span></th>
-                        <th>Booking ID <span class="sort-arrows">&#8597;</span></th>
-                        <th>Booking Date <span class="sort-arrows">&#8597;</span></th>
-                        <th>Room Type <span class="sort-arrows">&#8597;</span></th>
-                        <th>Room Number <span class="sort-arrows">&#8597;</span></th>
-                        <th>Check-In <span class="sort-arrows">&#8597;</span></th>
-                        <th>Check-Out <span class="sort-arrows">&#8597;</span></th>
-                        <th>Guests <span class="sort-arrows">&#8597;</span></th>
+                        <th>Image <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Booking ID <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Booking Date <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Room Type <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Room Number <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Check-In <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Check-Out <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
+                        <th>Guests <span class="sort-arrows"><svg viewBox="0 0 10 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4L5 1L8 4M2 8L5 11L8 8"/></svg></span></th>
                         <th></th>
                     </tr>
                 </thead>
