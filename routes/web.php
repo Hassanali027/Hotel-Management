@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('Dashboard');
 });
-Route::get('/', function () {
+Route::get('/reservation', function () {
     return view('reservation');
 });
 
