@@ -36,7 +36,8 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .search{height:44px;width:280px;border:0;border-radius:11px;background:#f4f4f4;padding:0 16px 0 42px;font-size:14px;color:#333;font-family:inherit}
 .search::placeholder{color:#b0b0b0}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:1.3fr .95fr 1fr .75fr 1.5fr .95fr 2.05fr;align-items:center;min-width:1250px}
+.thead,.trow{display:grid;grid-template-columns:1.15fr .8fr .95fr .7fr 2.15fr .85fr 1.55fr;align-items:center;min-width:1250px}
+.trow>span:nth-child(5){white-space:nowrap}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 22px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}

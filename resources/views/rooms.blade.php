@@ -110,7 +110,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div id="roomlist"></div>
         </div>
         <aside class="detail">
-            <div class="dtop"><h2>Room Detail</h2><button class="edit" onclick="openModal('addRoom')">Edit</button></div>
+            <div class="dtop"><h2>Room Detail</h2><div style="display:flex;gap:8px"><button class="edit" onclick="openModal('addRoom')">Edit</button><button class="edit" style="background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this room?'))post('/rooms/'+selectedId,'DELETE')">Delete</button></div></div>
             <div class="dtitle"><h1 id="dName">{{ $featured->name }} Room</h1><span class="st" id="dStatus">{{ ucfirst($featured->status) }}</span></div>
             <div class="docc" id="dOcc">Occupied: {{ $featured->availability_used }}/{{ $featured->availability_total }} Rooms</div>
             <div class="gallery">
