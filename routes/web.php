@@ -19,4 +19,7 @@ Route::get('/', function () {
 Route::get('/reservation', function () {
     return view('reservation');
 });
+Route::get('/guest-profile', function () {
+    return view('guest-profile');
+});
 
