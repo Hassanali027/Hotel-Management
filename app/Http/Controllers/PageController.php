@@ -167,10 +167,41 @@ class PageController extends Controller
         return view('invoice', ['bookings' => Booking::orderBy('id')->get()]);
     }
 
+    public function invoiceToggle($id)
+    {
+        $b = Booking::findOrFail($id);
+        $b->update(['invoice_status' => $b->invoice_status === 'paid' ? 'unpaid' : 'paid']);
+        return back();
+    }
+
     /* ===================== EXPENSES ===================== */
     public function expenses()
     {
-        return view('expenses', ['expenses' => Expense::orderBy('id')->get()]);
+        $expenses = Expense::orderBy('id')->get();
+        $palette = ['Salaries and Wages'=>'#d2f3e4','Utilities'=>'#b6d8cb','Maintenance and Repairs'=>'#cbd877','Supplies'=>'#e8fb82','Marketing and Advertising'=>'#f4fac3','Miscellaneous'=>'#eefbf4'];
+        $byCat = $expenses->groupBy('category')->map(function ($g) {
+            return $g->sum('amount');
+        })->sortDesc();
+        $totalExpense = (int) $expenses->sum('amount');
+        $totalIncome  = (int) Booking::where('invoice_status', 'paid')->sum('amount');
+
+        $cats = [];
+        foreach ($byCat as $name => $amt) {
+            $cats[] = [
+                'name'    => $name,
+                'amount'  => (int) $amt,
+                'percent' => $totalExpense ? round($amt / $totalExpense * 100, 2) : 0,
+                'color'   => $palette[$name] ?? '#d2f3e4',
+            ];
+        }
+
+        return view('expenses', [
+            'expenses'     => $expenses,
+            'cats'         => $cats,
+            'totalExpense' => $totalExpense,
+            'totalIncome'  => $totalIncome,
+            'totalBalance' => $totalIncome - $totalExpense,
+        ]);
     }
 
     public function expenseStore(Request $r)

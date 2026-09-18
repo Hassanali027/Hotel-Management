@@ -130,15 +130,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="stat-row">
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h2"/></svg></span>Total Balance<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">$15,650</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>3.56%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">${{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>3.56%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></span>Total Income<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">$45,650</div><div class="sc-delta"><span class="p down"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7 17 17M17 17H9M17 17V9"/></svg>1.25%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">${{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p down"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7 17 17M17 17H9M17 17V9"/></svg>1.25%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l-4 4 4 4"/></svg></span>Total Expenses<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">$30,000</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>4.79%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">${{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>4.79%</span><small>from last week</small></div></div>
                 </div>
             </div>
             <div class="earn">
@@ -152,14 +152,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
         <div class="donut-card">
             <div class="toggle"><button>Income</button><button class="on">Expense</button></div>
-            <div class="donut"><div class="hole"><b>$30,000</b><span>Total Expense</span></div></div>
+            @php $acc=0; $stops=[]; foreach($cats as $c){ $end=$acc+$c['percent']; $stops[]=$c['color'].' '.$acc.'% '.max($acc,$end-0.8).'%'; $stops[]='#fff '.max($acc,$end-0.8).'% '.$end.'%'; $acc=$end; } $conic=count($stops)?'conic-gradient('.implode(',',$stops).')':'conic-gradient(var(--mint) 0 100%)'; @endphp
+            <div class="donut" id="donut" style="background:{{ $conic }}"><div class="hole"><b>${{ number_format($totalExpense) }}</b><span>Total Expense</span></div></div>
             <div class="dlegend">
-                <div class="dl-row"><i style="background:var(--mint)"></i><span>Salaries and Wages <span class="pct">(50%)</span></span><b>$15,000</b></div>
-                <div class="dl-row"><i style="background:var(--mint-d)"></i><span>Utilitie <span class="pct">(16.67%)</span></span><b>$5,000</b></div>
-                <div class="dl-row"><i style="background:var(--olive)"></i><span>Maintenance and Repairs <span class="pct">(13.33%)</span></span><b>$4,000</b></div>
-                <div class="dl-row"><i style="background:var(--lime)"></i><span>Supplies <span class="pct">(10%)</span></span><b>$3,000</b></div>
-                <div class="dl-row"><i style="background:var(--plime)"></i><span>Marketing and Advertising <span class="pct">(6.67%)</span></span><b>$2,000</b></div>
-                <div class="dl-row"><i style="background:var(--pmint)"></i><span>Miscellaneous <span class="pct">(3.33%)</span></span><b>$1,000</b></div>
+                @foreach($cats as $c)
+                <div class="dl-row"><i style="background:{{ $c['color'] }}"></i><span>{{ $c['name'] }} <span class="pct">({{ rtrim(rtrim(number_format($c['percent'],2),'0'),'.') }}%)</span></span><b>${{ number_format($c['amount']) }}</b></div>
+                @endforeach
+                @if(!count($cats))<div class="dl-row"><span style="color:#aaa">No expenses yet</span></div>@endif
             </div>
         </div>
     </div>

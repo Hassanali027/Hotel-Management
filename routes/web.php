@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/inventory', [PageController::class, 'invStore']);
         Route::post('/schedules', [PageController::class, 'scheduleStore']);
         Route::post('/tasks', [PageController::class, 'taskStore']);
+        Route::post('/invoices/{id}/toggle', [PageController::class, 'invoiceToggle']);
     });
 
     // ---- Admin only: deletes ----
