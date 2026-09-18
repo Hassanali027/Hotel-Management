@@ -132,14 +132,16 @@ class PageController extends Controller
             'guests'=>'nullable','description'=>'nullable','price'=>'nullable|integer',
             'availability_used'=>'nullable|integer','availability_total'=>'nullable|integer',
         ]);
-        if ($r->hasFile('image')) {
-            $file = $r->file('image');
-            $name = 'room_'.time().'.'.$file->getClientOriginalExtension();
-            $file->move(public_path('uploads'), $name);
-            $data['image'] = 'uploads/'.$name;
-        } else {
-            $data['image'] = 'images/room-info-hero.jpg';
+        $paths = [];
+        if ($r->hasFile('images')) {
+            foreach ($r->file('images') as $file) {
+                $name = 'room_'.time().'_'.mt_rand(1000, 9999).'.'.$file->getClientOriginalExtension();
+                $file->move(public_path('uploads'), $name);
+                $paths[] = 'uploads/'.$name;
+            }
         }
+        $data['image'] = $paths[0] ?? 'images/room-info-hero.jpg';
+        $data['gallery'] = $paths;
         Room::create($data);
         return back()->with('ok', 'Room added');
     }

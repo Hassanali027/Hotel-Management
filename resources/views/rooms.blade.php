@@ -116,9 +116,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="gallery">
                 <img class="ghero" id="dHero" src="{{ asset($featured->image) }}" alt="{{ $featured->name }} room">
                 <div class="gthumbs">
-                    <img src="{{ asset('images/room-info-hero.jpg') }}" alt="">
-                    <img src="{{ asset('images/room-info-hero.jpg') }}" alt="">
-                    <img src="{{ asset('images/room-info-hero.jpg') }}" alt="">
+                    <div id="dThumbs" style="display:flex;flex-direction:column;gap:12px"></div>
                     <button class="viewall" onclick="window.open(document.getElementById('dHero').src,'_blank')">View All</button>
                 </div>
             </div>
@@ -159,7 +157,10 @@ const rooms=@json($rooms);
   document.getElementById('dName').textContent=r.name+' Room';
   document.getElementById('dStatus').textContent=(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1);
   document.getElementById('dOcc').textContent='Occupied: '+r.availability_used+'/'+r.availability_total+' Rooms';
-  document.getElementById('dHero').src='{{ asset('') }}'+r.image;
+  const _b='{{ asset('') }}';
+  document.getElementById('dHero').src=_b+r.image;
+  const gal=(r.gallery&&r.gallery.length)?r.gallery:[r.image];
+  document.getElementById('dThumbs').innerHTML=gal.slice(0,3).map(g=>`<img src="${_b}${g}" alt="" style="width:100%;height:88px;object-fit:cover;border-radius:11px;cursor:pointer" onclick="document.getElementById('dHero').src='${_b}${g}'">`).join('');
   document.getElementById('dSpecs').innerHTML='<span>'+m2+(r.size||'')+'</span><span>'+bed+(r.bed||'')+'</span><span>'+gst+(r.guests||'')+'</span>';
   document.getElementById('dDesc').textContent=r.description||'';
   const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
@@ -173,7 +174,7 @@ const rooms=@json($rooms);
  const _init=rooms.find(x=>x.id===selectedId)||rooms[0];if(_init)renderDetail(_init);
 </script>
 <div class="modal-ov" id="addRoom"><div class="modal"><h3>Add Room</h3><form method="POST" action="{{ url('/rooms') }}" enctype="multipart/form-data">@csrf
-<label>Room Image</label><input type="file" name="image" accept="image/*" style="height:auto;padding:9px 12px">
+<label>Room Images (select multiple)</label><input type="file" name="images[]" accept="image/*" multiple style="height:auto;padding:9px 12px">
 <label>Room Name</label><input name="name" placeholder="Deluxe" required>
 <div class="mrow"><div><label>Status</label><select name="status"><option value="available">Available</option><option value="occupied">Occupied</option></select></div><div><label>Price / night</label><input type="number" name="price" value="100"></div></div>
 <div class="mrow"><div><label>Size</label><input name="size" placeholder="35 m²"></div><div><label>Bed</label><input name="bed" placeholder="King Bed"></div></div>
