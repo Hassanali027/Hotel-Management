@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Expense - Lodgify</title>
+<title>Expense - HotelPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -130,15 +130,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="stat-row">
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h2"/></svg></span>Total Balance<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">${{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>3.56%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>3.56%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></span>Total Income<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">${{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p down"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7 17 17M17 17H9M17 17V9"/></svg>1.25%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p down"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7 17 17M17 17H9M17 17V9"/></svg>1.25%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l-4 4 4 4"/></svg></span>Total Expenses<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">${{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>4.79%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>4.79%</span><small>from last week</small></div></div>
                 </div>
             </div>
             <div class="earn">
@@ -153,10 +153,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <div class="donut-card">
             <div class="toggle"><button>Income</button><button class="on">Expense</button></div>
             @php $acc=0; $stops=[]; foreach($cats as $c){ $end=$acc+$c['percent']; $stops[]=$c['color'].' '.$acc.'% '.max($acc,$end-0.8).'%'; $stops[]='#fff '.max($acc,$end-0.8).'% '.$end.'%'; $acc=$end; } $conic=count($stops)?'conic-gradient('.implode(',',$stops).')':'conic-gradient(var(--mint) 0 100%)'; @endphp
-            <div class="donut" id="donut" style="background:{{ $conic }}"><div class="hole"><b>${{ number_format($totalExpense) }}</b><span>Total Expense</span></div></div>
+            <div class="donut" id="donut" style="background:{{ $conic }}"><div class="hole"><b>PKR {{ number_format($totalExpense) }}</b><span>Total Expense</span></div></div>
             <div class="dlegend">
                 @foreach($cats as $c)
-                <div class="dl-row"><i style="background:{{ $c['color'] }}"></i><span>{{ $c['name'] }} <span class="pct">({{ rtrim(rtrim(number_format($c['percent'],2),'0'),'.') }}%)</span></span><b>${{ number_format($c['amount']) }}</b></div>
+                <div class="dl-row"><i style="background:{{ $c['color'] }}"></i><span>{{ $c['name'] }} <span class="pct">({{ rtrim(rtrim(number_format($c['percent'],2),'0'),'.') }}%)</span></span><b>PKR {{ number_format($c['amount']) }}</b></div>
                 @endforeach
                 @if(!count($cats))<div class="dl-row"><span style="color:#aaa">No expenses yet</span></div>@endif
             </div>
@@ -191,7 +191,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
     </section>
     <footer>
-        <div class="flinks"><span>Copyright © 2024 Lodgify</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="flinks"><span>Copyright © 2024 HotelPro</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
         <div class="fsoc">
             <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
             <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
@@ -207,7 +207,7 @@ const H=140, MAX=30;
 const earn=[['Jan',22,15],['Feb',17,15],['Mar',12,16],['Apr',17,15],['May',22,18],['Jun',26,21],['Jul',21.5,15.6,1],['Aug',15,8],['Sep',20,15],['Oct',19,16],['Nov',20,15],['Dec',24,15]];
 document.getElementById('eplot').insertAdjacentHTML('beforeend', earn.map(m=>{
  const up=Math.round(m[1]/MAX*H), dn=Math.round(m[2]/MAX*H);
- const tip=m[3]?`<div class="tip"><b>July 2028</b><div class="r"><span>Income</span><b>$21,500</b></div><div class="r"><span>Expense</span><b>$15,600</b></div></div>`:'';
+ const tip=m[3]?`<div class="tip"><b>July 2028</b><div class="r"><span>Income</span><b>PKR 21,500</b></div><div class="r"><span>Expense</span><b>PKR 15,600</b></div></div>`:'';
  return `<div class="mo ${m[3]?'hl':''}">${tip}<div class="up" style="height:${up}px"></div><div class="dn" style="height:${dn}px"></div><span class="ml">${m[0]}</span></div>`;
 }).join(''));
 // Transactions
@@ -215,7 +215,7 @@ const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($expenses);
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
-function render(list){document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>$${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: $'+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.txt','LODGIFY EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: $'+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${IS_ADMIN?`<button class="eye" title="Delete" onclick="if(confirm('Delete this expense?'))post('/expenses/'+e.id,'DELETE')">🗑</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>PKR ${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.txt','HOTELPRO EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: PKR '+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${IS_ADMIN?`<button class="eye" title="Delete" onclick="if(confirm('Delete this expense?'))post('/expenses/'+e.id,'DELETE')">🗑</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;pgReset('exp');paginateRender('exp',sortList('exp',data.filter(e=>(!cat||e.category===cat)&&(!q||[e.name,e.category].join(' ').toLowerCase().includes(q)))),8,render);}
 ['fSearch','fCat','fStatus'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Guest Profile - Lodgify</title>
+<title>Guest Profile - HotelPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -143,7 +143,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="brow">
                 <div class="pair"><div class="l">Room Type</div><div class="v">{{ $booking->room_type }}</div></div>
                 <div class="pair"><div class="l">Room Number</div><div class="v">{{ $booking->room_number }}</div></div>
-                <div class="pair"><div class="l">Price</div><div class="v">${{ $booking->price_per_night }}<span style="color:var(--label);font-size:13px">/night</span></div></div>
+                <div class="pair"><div class="l">Price</div><div class="v">PKR {{ $booking->price_per_night }}<span style="color:var(--label);font-size:13px">/night</span></div></div>
             </div>
             <div class="brow">
                 <div class="pair"><div class="l">Guests</div><div class="v">2 Adults</div></div>
@@ -172,11 +172,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <img class="rimg" src="{{ asset('images/room-info-hero.jpg') }}" alt="Room">
             <div class="rspecs"><span><svg viewBox="0 0 24 24"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>35 m²</span><span><svg viewBox="0 0 24 24"><path d="M2 10V6h20v12M2 14h20"/></svg>King Bed</span><span><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0"/></svg>2 guests</span></div>
             <div class="psum"><h3>Price Summary</h3><span class="paid">Paid</span></div>
-            <div class="pline"><span>Room and offer</span><span>$450.00</span></div>
-            <div class="pline"><span>Extras</span><span>$0.00</span></div>
-            <div class="pline"><span>8% VAT</span><span>$36.00</span></div>
-            <div class="pline"><span>City Tax</span><span>$49.50</span></div>
-            <div class="ptotal"><span>Total Price</span><span>$535.50</span></div>
+            <div class="pline"><span>Room and offer</span><span>PKR 450.00</span></div>
+            <div class="pline"><span>Extras</span><span>PKR 0.00</span></div>
+            <div class="pline"><span>8% VAT</span><span>PKR 36.00</span></div>
+            <div class="pline"><span>City Tax</span><span>PKR 49.50</span></div>
+            <div class="ptotal"><span>Total Price</span><span>PKR 535.50</span></div>
             <div class="pnote-l">Notes</div>
             <div class="pnote">Invoice sent to corporate account; payment confirmed by BIG Corporation</div>
         </section>
@@ -205,7 +205,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
     </section>
     <footer>
-        <div class="flinks"><span>Copyright © 2024 Lodgify</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="flinks"><span>Copyright © 2024 HotelPro</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
         <div class="fsoc">
             <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
             <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>

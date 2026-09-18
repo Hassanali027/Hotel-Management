@@ -33,7 +33,7 @@
     }
 </style>
 <aside class="app-sidebar">
-    <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>Lodgify</div>
+    <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>HotelPro</div>
     <nav class="app-menu" aria-label="Main navigation">
         <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a class="{{ request()->is('reservation') ? 'active' : '' }}" href="{{ url('/reservation') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>Reservation</a>

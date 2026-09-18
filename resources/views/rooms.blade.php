@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rooms - Lodgify</title>
+<title>Rooms - HotelPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -132,7 +132,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </aside>
     </div>
     <footer>
-        <div class="flinks"><span>Copyright © 2024 Lodgify</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="flinks"><span>Copyright © 2024 HotelPro</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
         <div class="fsoc">
             <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
             <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
@@ -152,7 +152,7 @@ const rooms=@json($rooms);
  const facIcons={'High-speed Wi-Fi':'<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/>','In-room safe':'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="13" cy="12" r="3"/>','Mini-fridge':'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M6 10h12M10 5v2M10 13v3"/>','Flat-screen TV':'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/>','Air conditioning':'<rect x="2" y="4" width="20" height="9" rx="2"/><path d="M6 17v1M10 17v2M14 17v1M18 17v2"/>','Coffee/tea maker':'<path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2M6 3v2M10 3v2M14 3v2"/>'};
  let selectedId={{ $featured->id }};
  function currentList(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const ty=document.getElementById('fType').value;const sort=document.getElementById('fSort').value;let l=rooms.filter(r=>(!ty||r.name===ty)&&(!q||[r.name,r.description,r.bed].join(' ').toLowerCase().includes(q)));if(sort==='low')l=[...l].sort((a,b)=>a.price-b.price);else if(sort==='high')l=[...l].sort((a,b)=>b.price-a.price);return l;}
- function render(list){document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">$${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
+ function render(list){document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
  function renderDetail(r){
   document.getElementById('dName').textContent=r.name+' Room';
   document.getElementById('dStatus').textContent=(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1);

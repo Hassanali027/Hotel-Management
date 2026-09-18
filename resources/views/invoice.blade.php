@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Invoice - Lodgify</title>
+<title>Invoice - HotelPro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -108,7 +108,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
     </section>
     <footer>
-        <div class="flinks"><span>Copyright © 2024 Lodgify</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="flinks"><span>Copyright © 2024 HotelPro</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
         <div class="fsoc">
             <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
             <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
@@ -122,13 +122,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($bookings);
-function money(n){return '$'+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function money(n){return 'PKR '+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
 function invCalc(b){const room=+b.amount||0;const vat=+(room*0.08).toFixed(2);const nights=parseInt(b.duration)||1;const city=+(nights*16.5).toFixed(2);const total=+(room+vat+city).toFixed(2);return{room,vat,city,total,nights};}
 window.INV={};
 function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice_status==='paid';
  const html=`<div style="font-size:13px;color:#333">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #e8fb82;padding-bottom:12px;margin-bottom:14px">
-   <div><div style="font-size:20px;font-weight:800;color:#151515">Lodgify</div><div style="color:#999;font-size:11px">Hotel Management System</div></div>
+   <div><div style="font-size:20px;font-weight:800;color:#151515">HotelPro</div><div style="color:#999;font-size:11px">Hotel Management System</div></div>
    <div style="text-align:right"><div style="font-weight:800;letter-spacing:1px">INVOICE</div><div style="color:#666">${b.code}</div><div style="color:#999;font-size:11px">${new Date().toLocaleDateString()}</div></div>
   </div>
   <div style="display:flex;justify-content:space-between;margin-bottom:14px">
@@ -138,7 +138,7 @@ function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice
   <div style="background:#f7f9f2;border-radius:10px;padding:12px 14px;margin-bottom:14px">
    <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Room</span><b>${b.room_label||''}</b></div>
    <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Duration</span><b>${b.duration||''}</b></div>
-   <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Rate / night</span><b>$${b.price_per_night}</b></div>
+   <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Rate / night</span><b>PKR ${b.price_per_night}</b></div>
   </div>
   <div>
    <div style="display:flex;justify-content:space-between;margin:6px 0"><span>Room charge (${c.nights} night${c.nights>1?'s':''})</span><span>${money(c.room)}</span></div>
@@ -154,10 +154,10 @@ function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice
  showDetail('', html);
 }
 function downloadInvoice(id){const b=INV[id];const c=invCalc(b);
- const t=['LODGIFY  —  INVOICE','================================','','Invoice No : '+b.code,'Date       : '+new Date().toLocaleDateString(),'Bill To    : '+b.guest_name,'Room       : '+(b.room_label||''),'Duration   : '+(b.duration||''),'Rate/night : $'+b.price_per_night,'','--------------------------------','Room charge ('+c.nights+' nights)   '+money(c.room),'VAT (8%)                 '+money(c.vat),'City tax                 '+money(c.city),'--------------------------------','TOTAL                    '+money(c.total),'','Status     : '+(b.invoice_status==='paid'?'PAID':'UNPAID'),'','Thank you for staying with Lodgify.'].join('\n');
+ const t=['HOTELPRO  —  INVOICE','================================','','Invoice No : '+b.code,'Date       : '+new Date().toLocaleDateString(),'Bill To    : '+b.guest_name,'Room       : '+(b.room_label||''),'Duration   : '+(b.duration||''),'Rate/night : PKR '+b.price_per_night,'','--------------------------------','Room charge ('+c.nights+' nights)   '+money(c.room),'VAT (8%)                 '+money(c.vat),'City tax                 '+money(c.city),'--------------------------------','TOTAL                    '+money(c.total),'','Status     : '+(b.invoice_status==='paid'?'PAID':'UNPAID'),'','Thank you for staying with HotelPro.'].join('\n');
  downloadFile('invoice-'+b.code+'.txt',t);
 }
-function render(list){list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const paid=b.invoice_status==='paid';return `<div class="trow"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>$${b.price_per_night}</span><span>${b.duration||''}</span><span>$${b.amount}</span><span><em class="st ${paid?'paid':'unpaid'}">${paid?'Paid':'Unpaid'}</em></span><span class="act"><button class="eye" title="View invoice" onclick="showInvoice(${b.id})">${eye}</button><button class="dl" onclick="downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const paid=b.invoice_status==='paid';return `<div class="trow"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>PKR ${b.price_per_night}</span><span>${b.duration||''}</span><span>PKR ${b.amount}</span><span><em class="st ${paid?'paid':'unpaid'}">${paid?'Paid':'Unpaid'}</em></span><span class="act"><button class="eye" title="View invoice" onclick="showInvoice(${b.id})">${eye}</button><button class="dl" onclick="downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const st=document.getElementById('fStatus').value;pgReset('inv');paginateRender('inv',sortList('inv',data.filter(b=>(!st||b.invoice_status===st)&&(!q||[b.guest_name,b.code,b.room_label].join(' ').toLowerCase().includes(q)))),8,render);}
 document.getElementById('fSearch').addEventListener('input',applyFilters);
 document.getElementById('fStatus').addEventListener('change',applyFilters);
