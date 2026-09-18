@@ -1,47 +1,182 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lodgify - Reviews</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root{--mint:#cff3e3;--mint2:#b6d8cb;--lime:#e9fa86;--olive:#cddb77;--pale:#f4fac3;--bg:#f7f7f6;--ink:#101010;--muted:#777;--line:#e8e8e8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Lato,Arial,sans-serif}.app{display:grid;grid-template-columns:192px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;background:#fff;padding:24px 16px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:8px;padding:0 10px 25px;font-size:15px;font-weight:700}.brand-mark{width:16px;height:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:2px}.brand-mark i{background:var(--mint2)}.brand-mark i:nth-child(2),.brand-mark i:nth-child(3){background:var(--lime)}.menu{display:grid;gap:4px}.menu a{height:34px;border-radius:7px;padding:0 10px;display:flex;align-items:center;gap:9px;text-decoration:none;color:#a6a6a6;font-size:10px}.menu a.active{background:var(--lime);color:#111}.menu svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.promo{margin-top:auto;width:160px;padding:48px 16px 14px;background:var(--mint);border-radius:0 0 10px 10px;position:relative}.promo img{position:absolute;width:102px;left:50%;top:-37px;transform:translateX(-50%)}.promo h3{font-size:13px;line-height:1.35;margin:0 0 9px}.promo p{font-size:8px;line-height:1.45;margin:0 0 11px}.promo button,.filter{border:0;background:var(--lime);border-radius:7px;padding:8px 11px;font:600 10px Lato;white-space:nowrap}.main{padding:22px;min-width:0}.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.card{background:#fff;border-radius:14px;padding:18px;position:relative;min-width:0}.card-title{font-size:16px;margin:0;font-weight:600}.dots{position:absolute;right:18px;top:13px;border:0;background:none;font-size:16px;letter-spacing:2px}.filter{position:absolute;right:18px;top:15px}.legend{display:flex;gap:20px;margin:12px 0 5px;color:#777;font-size:10px}.legend span:before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--mint);margin-right:6px}.legend span:last-child:before{background:var(--lime)}.review-chart{height:148px;display:flex;align-items:flex-end;justify-content:space-around;position:relative;margin-left:28px;border-bottom:1px dashed #ddd;padding:0 14px;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(25% - 1px),#e8e8e8 calc(25% - 1px),#e8e8e8 25%)}.chart-axis{position:absolute;right:calc(100% + 7px);top:-4px;height:calc(100% + 8px);display:flex;flex-direction:column;justify-content:space-between;color:#8b8b8b;font-size:7px}.review-bar{width:22px;height:var(--h);background:var(--mint);border-radius:5px 5px 0 0;position:relative}.review-bar:after{content:'';position:absolute;left:0;bottom:0;width:100%;height:var(--n);background:var(--lime);border-radius:5px 5px 0 0}.review-bar>span{position:absolute;top:calc(100% + 8px);left:-8px;width:40px;text-align:center;color:#777;font-size:8px}.statistics,.rating{height:255px}.rating-body{display:grid;grid-template-columns:190px 1fr;gap:25px;align-items:center;height:200px}.gauge{width:170px;height:85px;overflow:hidden;position:relative;margin:auto}.gauge:before{content:'';position:absolute;width:170px;height:170px;border-radius:50%;background:conic-gradient(from 270deg,var(--mint) 0 38%,#fff 38% 39%,var(--mint2) 39% 50%,transparent 50%);}.gauge:after{content:'';position:absolute;inset:28px 28px auto;width:114px;height:114px;border-radius:50%;background:#fff}.gauge-score{position:absolute;inset:43px 0 auto;text-align:center;z-index:1;font-size:26px;font-weight:700}.gauge-score small{font-size:12px;color:#777}.impressive{text-align:center;background:var(--lime);border-radius:7px;padding:10px;margin-top:7px;font-size:14px;font-weight:700}.impressive small{display:block;color:#777;font-size:8px;font-weight:400;margin-top:4px}.rate-list{display:grid;gap:13px}.rate-row{display:grid;grid-template-columns:100px 1fr 25px;gap:8px;align-items:center;color:#777;font-size:10px}.rate-row span{height:6px;border-radius:5px;background:#f0f5cf;overflow:hidden}.rate-row i{display:block;height:100%;background:var(--mint);border-radius:5px}.rate-row b{color:#111;font-weight:400}.map-card{height:405px;margin-bottom:18px}.map-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:25px;height:325px;margin-top:16px}.world-map{width:100%;height:100%;background:#fafafa;border-radius:9px;display:block}.land{fill:#a9aaac}.hot{fill:var(--lime)}.warm{fill:var(--mint)}.country-summary{padding:4px 0}.country-summary small{font-size:9px;color:#777}.country-summary strong{display:block;font-size:27px;margin:5px 0 20px}.country-list{display:grid;gap:13px}.country{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:9px;font-size:9px;color:#777}.country i{width:10px;height:10px;border-radius:2px;background:var(--lime)}.country:nth-child(2) i{background:#dce88d}.country:nth-child(3) i{background:var(--pale)}.country:nth-child(4) i{background:var(--mint2)}.country:nth-child(5) i,.country:nth-child(6) i{background:var(--mint)}.country:nth-child(7) i{background:#999}.country:nth-child(8) i{background:#ddd}.country b{color:#111}.reviews-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 12px}.reviews-head h2{font-size:14px;margin:0}.sort{display:flex;align-items:center;gap:8px;color:#aaa;font-size:9px}.reviews-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.review{min-height:205px}.person{display:flex;align-items:center;gap:9px;margin-bottom:12px}.avatar{width:34px;height:34px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-weight:700;font-size:11px}.person b{display:block;font-size:11px}.person small{font-size:8px;color:#777}.stars{color:#f2c94c;font-size:11px;letter-spacing:1px;margin-bottom:10px}.stars span{color:#777;font-size:8px;letter-spacing:0}.review p{font-size:10px;line-height:1.55;margin:0}.review-title{font-weight:700}.footer{margin-top:18px;color:#aaa;font-size:10px;text-align:center}
-        @media(max-width:1050px){.top-grid{grid-template-columns:1fr}.statistics,.rating{height:auto;min-height:255px}.reviews-grid{grid-template-columns:repeat(2,1fr)}}
-        @media(max-width:950px){.map-layout{grid-template-columns:1fr;height:auto;gap:16px}.map-card{height:auto}.world-map{height:280px}.country-list{grid-template-columns:1fr 1fr}}
-        @media(max-width:700px){.app{display:block}.sidebar{height:auto;position:relative;padding:18px}.brand{padding-bottom:15px}.menu{display:flex;overflow:auto}.menu a{white-space:nowrap;height:42px;font-size:13px}.menu svg,.promo{display:none}.main{padding:14px}.rating-body{grid-template-columns:1fr;height:auto;gap:18px}.map-layout{height:auto}.world-map{height:250px}.reviews-grid,.country-list{grid-template-columns:1fr}.rate-row{grid-template-columns:80px 1fr 25px}}
-    </style>
-    <style>
-        .app{display:block}
-        .statistics>.filter,.rating>.filter{font-size:0}
-        .statistics>.filter::before{content:'▣ Last 7 Days';font:600 10px Lato,Arial,sans-serif}
-        .rating>.filter::before{content:'This Week';font:600 10px Lato,Arial,sans-serif}
-        .statistics>.filter::after,.rating>.filter::after{content:'';display:inline-block;width:5px;height:5px;margin-left:7px;border-right:1.5px solid #111;border-bottom:1.5px solid #111;transform:translateY(-2px) rotate(45deg)}
-        .review-chart{padding-inline:20px 26px}
-        .review-bar{width:16px}
-        .review-bar::after{left:calc(100% + 5px);width:16px;border-radius:4px 4px 0 0}
-        .review-bar>span{left:-4px;width:42px}
-        .world-map{display:flex;align-items:center;justify-content:center;overflow:hidden;padding:10px}
-        .world-map img{display:block;width:100%;height:100%;object-fit:contain}
-        .sort>.filter{font-size:0}
-        .sort>.filter::before{content:'Newest';font:600 10px Lato,Arial,sans-serif}
-        .sort>.filter::after{content:'';display:inline-block;width:5px;height:5px;margin-left:7px;border-right:1.5px solid #111;border-bottom:1.5px solid #111;transform:translateY(-2px) rotate(45deg)}
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reviews - Lodgify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--lime:#e8fb82;--mint:#d2f3e4;--mint-d:#b6d8cb;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52;--star:#f2c94c}
+*{box-sizing:border-box}
+body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
+@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
+@media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
+.main{flex:1;min-width:0;padding:26px 30px 16px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.top h1{font-size:30px;font-weight:800;margin:0}
+.profile{display:flex;align-items:center;gap:13px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-weight:700;font-size:15px}
+.pinfo b{display:block;font-size:16px;line-height:1.1}.pinfo small{color:#888;font-size:13px}
+.tools{display:flex;gap:10px;margin-left:14px}
+.tool{width:44px;height:44px;border:1px solid #e8e8e8;background:#fff;border-radius:11px;display:grid;place-items:center;cursor:pointer;position:relative}
+.tool svg{width:20px;height:20px;fill:none;stroke:#4a4a4a;stroke-width:1.8}
+.tool.bell:after{content:'';position:absolute;top:9px;right:11px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff}
+.card{background:#fff;border-radius:18px;padding:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.chd{display:flex;justify-content:space-between;align-items:center}
+.chd h2{font-size:19px;margin:0}
+.sel{height:40px;border:0;border-radius:10px;background:var(--lime);padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#2f3a0c;cursor:pointer}
+.sel svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8}
+.legend{display:flex;gap:20px;margin:14px 0 6px;font-size:14px;color:#666}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.legend .lp{background:var(--mint)}.legend .ln{background:var(--lime)}
+.ec{display:flex;gap:12px}
+.ey{display:flex;flex-direction:column;justify-content:space-between;height:230px;font-size:12px;color:#aaa;text-align:right;flex:0 0 34px;padding:2px 0}
+.eplot{position:relative;flex:1;height:230px;display:flex;align-items:stretch}
+.gl{position:absolute;left:0;right:0;border-top:1px dashed #ededed}
+.g0{top:50%;border-top:1px dashed #d9d9d9}.g1{top:25%}.g3{top:75%}
+.mo{position:relative;flex:1}
+.mo .up{position:absolute;left:50%;transform:translateX(-50%);bottom:50%;width:22px;background:var(--mint);border-radius:6px 6px 0 0}
+.mo .dn{position:absolute;left:50%;transform:translateX(-50%);top:50%;width:22px;background:var(--lime);border-radius:0 0 6px 6px}
+.mo .ml{position:absolute;top:calc(100% + 8px);left:0;right:0;text-align:center;font-size:12px;color:#888}
+/* rating */
+.rbody{display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center;margin-top:10px}
+.gauge{position:relative;text-align:center}
+.gauge svg{width:200px;height:118px}
+.gscore{position:absolute;left:0;right:0;top:52px;text-align:center}
+.gscore small{display:block;color:#8a8a8a;font-size:13px}
+.gscore b{font-size:30px}.gscore b span{font-size:16px;color:#8a8a8a;font-weight:400}
+.impress{margin-top:6px;background:var(--lime);border-radius:10px;padding:12px;text-align:center;font-size:16px;font-weight:700;color:#2f3a0c}
+.impress small{display:block;font-weight:400;color:#5b6b2f;font-size:12px;margin-top:3px}
+.rlist{display:grid;gap:16px}
+.rrow{display:grid;grid-template-columns:100px 1fr 32px;gap:12px;align-items:center;font-size:14px;color:#555}
+.rrow .bar{height:7px;border-radius:5px;background:#eef7f1;overflow:hidden}
+.rrow .bar i{display:block;height:100%;background:var(--mint-d);border-radius:5px}
+.rrow b{color:#111;font-weight:700;text-align:right}
+/* country */
+.country-card{margin-bottom:20px}
+.clay{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:26px;margin-top:16px}
+.cmap{background:#fafafa;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:360px}
+.cmap img{width:100%;height:100%;object-fit:contain}
+.csum small{color:#8a8a8a;font-size:14px}
+.csum strong{display:block;font-size:32px;margin:6px 0 18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.clist{display:grid;gap:16px}
+.crow{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:center;font-size:14px;color:#555}
+.crow i{width:13px;height:13px;border-radius:3px}
+.crow b{color:#111}
+/* customer reviews */
+.crhead{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 16px}
+.crhead h2{font-size:20px;margin:0}
+.crsort{display:flex;align-items:center;gap:10px;color:#9a9a9a;font-size:14px}
+.rev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.rev{background:#fff;border-radius:16px;padding:20px}
+.person{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.person .av{width:44px;height:44px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-weight:700;font-size:14px}
+.person b{display:block;font-size:15px}
+.stars{color:var(--star);font-size:15px;letter-spacing:1px;margin-bottom:12px}
+.stars small{color:#9a9a9a;font-size:13px;letter-spacing:0;margin-left:6px}
+.rev p{font-size:14px;line-height:1.6;color:#5a5a5a;margin:0}
+footer{display:flex;justify-content:space-between;align-items:center;padding:20px 6px 8px;color:#9a9a9a;font-size:14px;flex-wrap:wrap;gap:14px}
+.flinks{display:flex;gap:26px}.flinks a{color:#9a9a9a;text-decoration:none}.flinks span:first-child{color:#666}
+.fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}.clay{grid-template-columns:1fr}.rev-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.rbody{grid-template-columns:1fr}.rev-grid{grid-template-columns:1fr}footer{flex-direction:column;align-items:flex-start}}
+</style>
 </head>
 <body>
-<div class="app">
-    <main class="main">
-        <section class="top-grid">
-            <article class="card statistics"><h2 class="card-title">Review Statistics</h2><button class="filter" type="button">▣ Last 7 Days⌄</button><div class="legend"><span>Positive</span><span>Negative</span></div><div class="review-chart"><div class="chart-axis"><span>20K</span><span>15K</span><span>0</span><span>-15K</span><span>-30K</span></div><div class="review-bar" style="--h:88%;--n:26%"><span>12 Jun</span></div><div class="review-bar" style="--h:75%;--n:12%"><span>13 Jun</span></div><div class="review-bar" style="--h:67%;--n:30%"><span>14 Jun</span></div><div class="review-bar" style="--h:77%;--n:24%"><span>15 Jun</span></div><div class="review-bar" style="--h:82%;--n:18%"><span>16 Jun</span></div><div class="review-bar" style="--h:72%;--n:25%"><span>17 Jun</span></div><div class="review-bar" style="--h:80%;--n:15%"><span>18 Jun</span></div></div></article>
-            <article class="card rating"><h2 class="card-title">Overall Rating</h2><button class="filter">This Week⌄</button><div class="rating-body"><div><div class="gauge"><div class="gauge-score">4.6<small>/5</small></div></div><div class="impressive">Impressive<small>from 2546 reviews</small></div></div><div class="rate-list"><div class="rate-row">Facilities<span><i style="width:88%"></i></span><b>4.4</b></div><div class="rate-row">Cleanliness<span><i style="width:94%"></i></span><b>4.7</b></div><div class="rate-row">Services<span><i style="width:92%"></i></span><b>4.6</b></div><div class="rate-row">Comfort<span><i style="width:96%"></i></span><b>4.8</b></div><div class="rate-row">Food and Dining<span><i style="width:90%"></i></span><b>4.5</b></div></div></div></article>
-        </section>
-        <section class="card map-card"><h2 class="card-title">Reviews by Country</h2><button class="dots">•••</button><div class="map-layout"><div class="world-map"><img src="{{ asset('images/World.png') }}" alt="World reviews map"></div><aside class="country-summary"><small>Total Customers</small><strong>17,850</strong><div class="country-list"><div class="country"><i></i><span>United States of America</span><b>23%</b></div><div class="country"><i></i><span>China</span><b>20%</b></div><div class="country"><i></i><span>United Kingdom</span><b>18%</b></div><div class="country"><i></i><span>Netherlands</span><b>13%</b></div><div class="country"><i></i><span>Australia</span><b>11%</b></div><div class="country"><i></i><span>Saudi Arabia</span><b>9%</b></div><div class="country"><i></i><span>United Emirates Arab</span><b>8%</b></div><div class="country"><i></i><span>Indonesia</span><b>4%</b></div></div></aside></div></section>
-        <div class="reviews-head"><h2>Customer Reviews</h2><div class="sort">Sort by: <button class="filter" style="position:static">Newest⌄</button>•••</div></div>
-        <section class="reviews-grid"><article class="card review"><div class="person"><span class="avatar">JM</span><div><b>Johan Manulang</b><small>June 15, 2024</small></div></div><div class="stars">★★★★★ <span>5/5</span></div><p><span class="review-title">“Fantastic stay!</span> The room was exceptionally clean and comfortable, and the staff were incredibly helpful and friendly. The location was perfect for our needs.”</p></article><article class="card review"><div class="person"><span class="avatar">SM</span><div><b>Suzi Matsuda</b><small>June 12, 2024</small></div></div><div class="stars">★★★★☆ <span>4/5</span></div><p><span class="review-title">“Great location and very friendly staff!</span> The room was cozy and well-maintained. The breakfast could have offered more variety, but overall it was a very good experience.”</p></article><article class="card review"><div class="person"><span class="avatar">DW</span><div><b>Donnie Wong</b><small>June 10, 2024</small></div></div><div class="stars">★★★☆☆ <span>3/5</span></div><p><span class="review-title">“The room was nice and the bed was comfortable,</span> but there were some maintenance issues. The air conditioning was not working properly.”</p></article><article class="card review"><div class="person"><span class="avatar">IL</span><div><b>Isla de Lacosta</b><small>June 8, 2024</small></div></div><div class="stars">★★★★★ <span>5/5</span></div><p><span class="review-title">“Amazing service and a beautiful hotel.</span> The amenities were top-notch, especially the spa, which I thoroughly enjoyed. The staff were very attentive.”</p></article></section>
-        <div class="footer">Copyright © 2024 Lodgify</div>
-    </main>
-</div>
+@include('partials.sidebar')
+<main class="main">
+    <header class="top">
+        <h1>Reviews</h1>
+        <div class="profile">
+            <span class="avatar">JD</span>
+            <div class="pinfo"><b>Jaylon Dorwart</b><small>Admin</small></div>
+            <div class="tools">
+                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+            </div>
+        </div>
+    </header>
+    <section class="grid2">
+        <div class="card">
+            <div class="chd"><h2>Review Statistics</h2><button class="sel"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Last 7 Days<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="legend"><span><i class="lp"></i>Positive</span><span><i class="ln"></i>Negative</span></div>
+            <div class="ec">
+                <div class="ey"><span>30K</span><span>15K</span><span>0</span><span>-15K</span><span>-30K</span></div>
+                <div class="eplot" id="eplot"><div class="gl g1"></div><div class="gl g0"></div><div class="gl g3"></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="chd"><h2>Overall Rating</h2><button class="sel">This Week<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="rbody">
+                <div>
+                    <div class="gauge">
+                        <svg viewBox="0 0 200 118"><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#e6f4ec" stroke-width="20" stroke-linecap="round"/><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#bfe8d3" stroke-width="20" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="33"/></svg>
+                        <div class="gscore"><small>Rating</small><b>4.6<span>/5</span></b></div>
+                    </div>
+                    <div class="impress">Impressive<small>from 2546 reviews</small></div>
+                </div>
+                <div class="rlist">
+                    <div class="rrow">Facilities<span class="bar"><i style="width:88%"></i></span><b>4.4</b></div>
+                    <div class="rrow">Cleanliness<span class="bar"><i style="width:88%"></i></span><b>4.4</b></div>
+                    <div class="rrow">Services<span class="bar"><i style="width:92%"></i></span><b>4.6</b></div>
+                    <div class="rrow">Comfort<span class="bar"><i style="width:96%"></i></span><b>4.8</b></div>
+                    <div class="rrow">Food and Dining<span class="bar"><i style="width:90%"></i></span><b>4.5</b></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="card country-card">
+        <div class="chd"><h2>Reviews by Country</h2><span style="color:#c4c4c4;font-size:18px">···</span></div>
+        <div class="clay">
+            <div class="cmap"><img src="{{ asset('images/World.png') }}" alt="World reviews map"></div>
+            <aside class="csum">
+                <small>Total Customers</small>
+                <strong>17,850</strong>
+                <div class="clist">
+                    <div class="crow"><i style="background:#cbd877"></i><span>United States of America</span><b>23%</b></div>
+                    <div class="crow"><i style="background:#e8fb82"></i><span>China</span><b>20%</b></div>
+                    <div class="crow"><i style="background:#f4fac3"></i><span>United Kingdom</span><b>18%</b></div>
+                    <div class="crow"><i style="background:#b6d8cb"></i><span>Netherlands</span><b>13%</b></div>
+                    <div class="crow"><i style="background:#d2f3e4"></i><span>Australia</span><b>11%</b></div>
+                    <div class="crow"><i style="background:#e3f6ec"></i><span>Saudi Arabia</span><b>9%</b></div>
+                    <div class="crow"><i style="background:#9a9a9a"></i><span>Uni Emirates Arab</span><b>8%</b></div>
+                    <div class="crow"><i style="background:#dddddd"></i><span>Indonesia</span><b>4%</b></div>
+                </div>
+            </aside>
+        </div>
+    </section>
+    <div class="crhead"><h2>Customer Reviews</h2><div class="crsort">Sort by: <select class="fsel lime" id="fSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="high">Highest Rated</option><option value="low">Lowest Rated</option></select> <span style="font-size:18px;color:#c4c4c4">···</span></div></div>
+    <section class="rev-grid" id="revgrid"></section>
+    <footer>
+        <div class="flinks"><span>Copyright © 2024 Lodgify</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="fsoc">
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
+            <a href="#"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#fff"/></svg></a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+    </footer>
+</main>
+<script>
+// diverging positive/negative bars (K). [label,posK,negK]
+const H=105,MAX=30;
+const _MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function _day(off){const d=new Date();d.setDate(d.getDate()-6+off);return d.getDate()+' '+_MON[d.getMonth()];}
+const _vals=[[28,7],[23,6],[16,9],[21,7],[24,4],[19,7],[23,9]];
+const stats=_vals.map((v,i)=>[_day(i),v[0],v[1]]);
+document.getElementById('eplot').insertAdjacentHTML('beforeend',stats.map(m=>`<div class="mo"><div class="up" style="height:${Math.round(m[1]/MAX*H)}px"></div><div class="dn" style="height:${Math.round(m[2]/MAX*H)}px"></div><span class="ml">${m[0]}</span></div>`).join(''));
+// customer reviews
+const st=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
+const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
+const revs=@json($reviews);
+function render(list){document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date}</small></div><p>${r.text}</p></article>`).join('');}
+document.getElementById('fSort').addEventListener('change',e=>{const s=e.target.value;let l=[...revs];if(s==='newest')l.sort((a,b)=>b.id-a.id);else if(s==='oldest')l.sort((a,b)=>a.id-b.id);else if(s==='high')l.sort((a,b)=>b.rating-a.rating);else if(s==='low')l.sort((a,b)=>a.rating-b.rating);render(l);});
+render(revs);
+</script>
 </body>
 </html>
