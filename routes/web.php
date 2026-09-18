@@ -20,3 +20,7 @@ Route::get('/reservation', function () {
     return view('reservation');
 });
 
+Route::get('/reviews', function () {
+    return view('reviews');
+});
+
