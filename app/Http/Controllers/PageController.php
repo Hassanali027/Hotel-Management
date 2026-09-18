@@ -29,8 +29,8 @@ class PageController extends Controller
             'activities'   => Activity::all(),
             // stat cards
             'newBookings'  => Booking::count(),
-            'checkIn'      => Booking::where('status', 'confirmed')->count(),
-            'checkOut'     => Booking::where('status', 'pending')->count(),
+            'checkIn'      => Booking::where('status', 'checked_in')->count(),
+            'checkOut'     => Booking::where('status', 'checked_out')->count(),
             'totalRevenue' => (int) Booking::where('invoice_status', 'paid')->sum('amount'),
             // room availability
             'occupied'     => $occupied,
@@ -108,6 +108,15 @@ class PageController extends Controller
     public function bookingConfirm($id)
     {
         Booking::findOrFail($id)->update(['status' => 'confirmed']);
+        return back();
+    }
+
+    public function bookingStatus($id, $status)
+    {
+        $allowed = ['pending', 'confirmed', 'checked_in', 'checked_out'];
+        if (in_array($status, $allowed)) {
+            Booking::findOrFail($id)->update(['status' => $status]);
+        }
         return back();
     }
 

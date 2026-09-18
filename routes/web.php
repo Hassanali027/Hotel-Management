@@ -25,6 +25,7 @@ Route::get('/guest-profile', [PageController::class, 'guestProfile']);
 // ---- Bookings / Reservation ----
 Route::post('/bookings', [PageController::class, 'bookingStore']);
 Route::post('/bookings/{id}/confirm', [PageController::class, 'bookingConfirm']);
+Route::post('/bookings/{id}/status/{status}', [PageController::class, 'bookingStatus']);
 Route::delete('/bookings/{id}', [PageController::class, 'bookingDestroy']);
 
 // ---- Rooms ----

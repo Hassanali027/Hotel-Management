@@ -68,8 +68,8 @@ class DatabaseSeeder extends Seeder
         $hk = [
             ['Room 101','Deluxe','progress','high','1st','Checked-In','Guest requested extra towels and pillows.',0],
             ['Room 102','Standard','ready','low','1st','Reserved','Ensure room is stocked with amenities.',0],
-            ['Room 103','Suite','needs','high','2nd','Checked-Out','Deep clean due to extended stay.',1],
-            ['Room 201','Standard','progress','medium','2nd','Checked-In','Guest requested fresh linens.',1],
+            ['Room 103','Suite','needs','high','2nd','Checked-Out','Deep clean due to extended stay.',0],
+            ['Room 201','Standard','progress','medium','2nd','Checked-In','Guest requested fresh linens.',0],
             ['Room 202','Standard','needs','medium','2nd','Checked-Out','Ensure bathroom amenities are replenished.',0],
             ['Room 203','Deluxe','ready','low','2nd','Reserved','Check minibar supplies and restock if necessary.',0],
             ['Room 301','Suite','inspect','medium','3rd','Checked-Out','Verify that all electronics are functioning properly.',0],
