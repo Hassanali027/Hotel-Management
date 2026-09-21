@@ -24,6 +24,7 @@
     .app-sidebar .app-upgrade h2{margin:0 0 10px!important;font-size:16px!important;font-weight:700!important;line-height:1.35!important;color:#101010}
     .app-sidebar .app-upgrade p{margin:0 0 14px!important;font-size:10px!important;font-weight:400!important;line-height:1.5!important;color:#6a6a6a!important}
     .app-sidebar .app-upgrade button{background:#e9fa86!important;border:0!important;border-radius:9px!important;padding:11px 15px!important;font:700 12px Lato,Arial,sans-serif!important;cursor:pointer}
+    .app-menu-toggle{display:none!important}
     @media(max-width:700px){
         .app-sidebar{width:100%!important;flex-basis:auto!important;min-height:auto!important;padding:22px 16px!important}
         .app-sidebar .app-menu{display:flex!important;overflow-x:auto}
@@ -31,10 +32,24 @@
         .app-sidebar .icon{display:none!important}
         .app-sidebar .financial-group,.app-sidebar .app-upgrade{display:none!important}
     }
+    @media(max-width:768px){
+        /* Every page uses this sidebar: stack navigation above its content on phones. */
+        body{display:block!important;overflow-x:hidden!important}
+        .app-sidebar{width:100%!important;min-height:auto!important;padding:16px!important;position:relative!important}
+        .app-sidebar .app-brand{padding:0 52px 0 8px!important;font-size:16px!important;min-height:42px!important}
+        .app-menu-toggle{display:grid!important;place-items:center!important;position:absolute!important;right:16px!important;top:16px!important;width:40px!important;height:40px!important;border:0!important;border-radius:9px!important;background:#e9fa86!important;color:#2f3a0c!important;font-size:22px!important;line-height:1!important;cursor:pointer!important}
+        .app-sidebar .app-menu{display:none!important;margin-top:14px!important;gap:5px!important}
+        .app-sidebar .app-menu.open{display:grid!important}
+        .app-sidebar .app-menu>a,.app-sidebar .financial-toggle{height:42px!important;font-size:14px!important}
+        .app-sidebar .icon{display:block!important}
+        .app-sidebar .financial-group{display:block!important}
+        .app-sidebar .app-upgrade{display:none!important}
+    }
 </style>
 <aside class="app-sidebar">
     <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>Indus Resort Restaurant</div>
-    <nav class="app-menu" aria-label="Main navigation">
+    <button class="app-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleAppMenu(this)">☰</button>
+    <nav class="app-menu" id="appMenu" aria-label="Main navigation">
         <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a class="{{ request()->is('reservation') ? 'active' : '' }}" href="{{ url('/reservation') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>Reservation</a>
         @if(auth()->user()->can_access('rooms'))<a class="{{ request()->is('rooms') ? 'active' : '' }}" href="{{ url('/rooms') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7"/></svg>Rooms</a>@endif
@@ -50,11 +65,12 @@
         </div>@endif
         @if(auth()->user()->can_access('reviews'))<a class="{{ request()->is('reviews') ? 'active' : '' }}" href="{{ url('/reviews') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>Reviews</a>@endif
         @if(auth()->user()->can_access('concierge'))<a class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Concierge</a>@endif
+        <form method="POST" action="{{ url('/logout') }}" style="margin-top:8px">@csrf
+            <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;height:44px;border:0;border-radius:9px;padding:0 12px;background:transparent;color:#b3352f;font:600 15px Lato,Arial,sans-serif;cursor:pointer">
+                <svg class="icon" viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Logout ({{ ucfirst(auth()->user()->role ?? '') }})
+            </button>
+        </form>
     </nav>
-    <form method="POST" action="{{ url('/logout') }}" style="margin-top:8px">@csrf
-        <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;height:44px;border:0;border-radius:9px;padding:0 12px;background:transparent;color:#b3352f;font:600 15px Lato,Arial,sans-serif;cursor:pointer">
-            <svg class="icon" viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Logout ({{ ucfirst(auth()->user()->role ?? '') }})
-        </button>
-    </form>
     <section class="app-upgrade"><img class="upgrade-visual" src="{{ asset('images/OBJECTS.png') }}" alt="Hotel illustration"><h2>Elevate Hospitality<br>Standards</h2><p>Enhanced Reporting, Faster Check-Ins, &amp; Integrated Marketing Tools</p><button>Update Now</button></section>
 </aside>
+<script>function toggleAppMenu(button){const menu=document.getElementById('appMenu');const open=menu.classList.toggle('open');button.setAttribute('aria-expanded',String(open));button.textContent=open?'×':'☰';}</script>

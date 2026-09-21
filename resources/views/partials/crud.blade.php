@@ -59,6 +59,7 @@ function downloadPdf(name, content){
 }
 function downloadFile(name,content){if(name.toLowerCase().endsWith('.pdf'))return downloadPdf(name,content);const b=new Blob([content],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);}
 function showDetail(title,html){const t=document.getElementById('detailTitle'),b=document.getElementById('detailBody');if(t)t.textContent=title;if(b)b.innerHTML=html;openModal('detailModal');}
+document.addEventListener('click',event=>{const button=event.target.closest('.tool');if(!button)return;if(button.classList.contains('bell')){showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.');return;}showDetail('Settings','<b>Indus Resort Restaurant</b><br>System settings are available to the administrator.');});
 window.SORT={};
 function sortCol(key,f,apply){const st=SORT[key]=SORT[key]||{};if(st.f===f)st.a=!st.a;else{st.f=f;st.a=true;}apply();}
 function sortList(key,list){const st=SORT[key];if(!st||!st.f)return list;return [...list].sort((a,b)=>{let x=a[st.f],y=b[st.f];const nx=parseFloat(x),ny=parseFloat(y);if(!isNaN(nx)&&!isNaN(ny)&&String(x).match(/^[$]?[\d.]+/)&&String(y).match(/^[$]?[\d.]+/))return (nx-ny)*(st.a?1:-1);return String(x==null?'':x).localeCompare(String(y==null?'':y))*(st.a?1:-1);});}
