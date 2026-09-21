@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Expense - HotelPro</title>
+<title>Expense - Indus Resort Restaurant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -58,7 +58,8 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .mo .dn{position:absolute;left:50%;transform:translateX(-50%);top:50%;width:24px;background:var(--lime);border-radius:0 0 7px 7px}
 .mo .ml{position:absolute;top:calc(100% + 10px);left:0;right:0;text-align:center;font-size:12px;color:#888}
 .mo.hl .up,.mo.hl .dn{outline:6px solid rgba(210,243,228,.5);border-radius:8px}
-.tip{position:absolute;bottom:calc(50% + 90px);left:50%;transform:translateX(-50%);background:var(--lime);border-radius:10px;padding:10px 12px;font-size:12px;white-space:nowrap;z-index:3;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.tip{display:none;position:absolute;bottom:calc(50% + 90px);left:50%;transform:translateX(-50%);background:var(--lime);border-radius:10px;padding:10px 12px;font-size:12px;white-space:nowrap;z-index:3;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.mo:hover .tip{display:block}
 .tip b{font-weight:700}.tip .r{display:flex;justify-content:space-between;gap:18px;margin-top:4px}.tip .r span:first-child{color:#5b6b2f}
 /* donut card */
 .donut-card{background:#fff;border-radius:16px;padding:20px;display:flex;flex-direction:column}
@@ -130,31 +131,31 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="stat-row">
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h2"/></svg></span>Total Balance<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>3.56%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p {{ $balanceChange < 0 ? 'down' : '' }}">{{ $balanceChange < 0 ? '↘' : '↗' }} {{ number_format(abs($balanceChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></span>Total Income<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p down"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 7 17 17M17 17H9M17 17V9"/></svg>1.25%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p {{ $incomeChange < 0 ? 'down' : '' }}">{{ $incomeChange < 0 ? '↘' : '↗' }} {{ number_format(abs($incomeChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l-4 4 4 4"/></svg></span>Total Expenses<span class="dots">···</span></div>
-                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M17 7H9M17 7v8"/></svg>4.79%</span><small>from last week</small></div></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p {{ $expenseChange < 0 ? 'down' : '' }}">{{ $expenseChange < 0 ? '↘' : '↗' }} {{ number_format(abs($expenseChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
             </div>
             <div class="earn">
                 <div class="earn-top"><h2>Earnings</h2><button class="yearsel"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
                 <div class="legend"><span><i class="li"></i>Income</span><span><i class="le"></i>Expense</span></div>
                 <div class="ec">
-                    <div class="ey"><span>30K</span><span>15K</span><span>0</span><span>-15K</span><span>-30K</span></div>
+                    <div class="ey"><span>{{ number_format($chartMax / 1000, 0) }}K</span><span>{{ number_format($chartMax / 2000, 0) }}K</span><span>0</span><span>-{{ number_format($chartMax / 2000, 0) }}K</span><span>-{{ number_format($chartMax / 1000, 0) }}K</span></div>
                     <div class="eplot" id="eplot"><div class="gl g1"></div><div class="gl g0"></div><div class="gl g3"></div></div>
                 </div>
             </div>
         </div>
         <div class="donut-card">
-            <div class="toggle"><button>Income</button><button class="on">Expense</button></div>
+            <div class="toggle"><button type="button" id="incomeToggle" onclick="showDonut('income')">Income</button><button type="button" id="expenseToggle" class="on" onclick="showDonut('expense')">Expense</button></div>
             @php $acc=0; $stops=[]; foreach($cats as $c){ $end=$acc+$c['percent']; $stops[]=$c['color'].' '.$acc.'% '.max($acc,$end-0.8).'%'; $stops[]='#fff '.max($acc,$end-0.8).'% '.$end.'%'; $acc=$end; } $conic=count($stops)?'conic-gradient('.implode(',',$stops).')':'conic-gradient(var(--mint) 0 100%)'; @endphp
-            <div class="donut" id="donut" style="background:{{ $conic }}"><div class="hole"><b>PKR {{ number_format($totalExpense) }}</b><span>Total Expense</span></div></div>
-            <div class="dlegend">
+            <div class="donut" id="donut" style="background:{{ $conic }}"><div class="hole"><b id="donutTotal">PKR {{ number_format($totalExpense) }}</b><span id="donutLabel">Total Expense</span></div></div>
+            <div class="dlegend" id="donutLegend">
                 @foreach($cats as $c)
                 <div class="dl-row"><i style="background:{{ $c['color'] }}"></i><span>{{ $c['name'] }} <span class="pct">({{ rtrim(rtrim(number_format($c['percent'],2),'0'),'.') }}%)</span></span><b>PKR {{ number_format($c['amount']) }}</b></div>
                 @endforeach
@@ -191,40 +192,49 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
     </section>
     <footer>
-        <div class="flinks"><span>Copyright © 2024 HotelPro</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
+        <div class="flinks"><span>Copyright © 2026 Indus Resort Restaurant</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
         <div class="fsoc">
-            <a href="#"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
-            <a href="#"><svg viewBox="0 0 24 24"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
-            <a href="#"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
-            <a href="#"><svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#fff"/></svg></a>
-            <a href="#"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+            <a href="https://www.facebook.com/people/Indus-Resort/61590518813137/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+            <a href="https://wa.me/923000053333" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5 5 16.3A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.4 7.8c.2-.5.5-.5.7-.5h.5c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.5.6c-.1.1-.1.3 0 .4.4.8 1.1 1.5 1.9 1.9.1.1.3.1.4 0l.6-.5c.2-.2.4-.2.7-.1l1.8.8c.3.1.4.3.4.5v.5c0 .2-.1.5-.5.7-.4.2-1.2.4-2.3-.1-1-.5-2.2-1.4-3.2-2.4-1-1-1.9-2.2-2.4-3.2-.5-1.1-.3-1.9-.1-2.3Z"/></svg></a>
+            <a href="https://www.instagram.com/indus_resort/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+
+
         </div>
     </footer>
 </main>
 <script>
 // Earnings diverging bars. [month, incomeK, expenseK, highlight]
-const H=140, MAX=30;
-const earn=[['Jan',22,15],['Feb',17,15],['Mar',12,16],['Apr',17,15],['May',22,18],['Jun',26,21],['Jul',21.5,15.6,1],['Aug',15,8],['Sep',20,15],['Oct',19,16],['Nov',20,15],['Dec',24,15]];
+const H=140, MAX={{ $chartMax }};
+const earn=@json($earnings);
 document.getElementById('eplot').insertAdjacentHTML('beforeend', earn.map(m=>{
- const up=Math.round(m[1]/MAX*H), dn=Math.round(m[2]/MAX*H);
- const tip=m[3]?`<div class="tip"><b>July 2028</b><div class="r"><span>Income</span><b>PKR 21,500</b></div><div class="r"><span>Expense</span><b>PKR 15,600</b></div></div>`:'';
- return `<div class="mo ${m[3]?'hl':''}">${tip}<div class="up" style="height:${up}px"></div><div class="dn" style="height:${dn}px"></div><span class="ml">${m[0]}</span></div>`;
+ const up=Math.round(m.income/MAX*H), dn=Math.round(m.expense/MAX*H);
+ const tip='<div class="tip"><b>'+m.month+' {{ $chartYear }}</b><div class="r"><span>Income</span><b>PKR '+m.income.toLocaleString()+'</b></div><div class="r"><span>Expense</span><b>PKR '+m.expense.toLocaleString()+'</b></div></div>';
+ return '<div class="mo">'+tip+'<div class="up" style="height:'+up+'px"></div><div class="dn" style="height:'+dn+'px"></div><span class="ml">'+m.month+'</span></div>';
 }).join(''));
+const expenseDonut=@json($cats), incomeDonut=@json($incomeCats);
+function showDonut(type){const categories=type==='income'?incomeDonut:expenseDonut;const total=categories.reduce((sum,item)=>sum+Number(item.amount||0),0);let start=0;const stops=[];categories.forEach(item=>{const end=start+Number(item.percent||0);stops.push(item.color+' '+start+'% '+Math.max(start,end-.8)+'%','#fff '+Math.max(start,end-.8)+'% '+end+'%');start=end;});document.getElementById('donut').style.background=stops.length?'conic-gradient('+stops.join(',')+')':'conic-gradient(#eefbf4 0 100%)';document.getElementById('donutTotal').textContent='PKR '+total.toLocaleString();document.getElementById('donutLabel').textContent=type==='income'?'Total Income':'Total Expense';document.getElementById('donutLegend').innerHTML=categories.length?categories.map(item=>'<div class="dl-row"><i style="background:'+item.color+'"></i><span>'+item.name+' <span class="pct">('+Number(item.percent).toFixed(2).replace(/\.00$/,'')+'%)</span></span><b>PKR '+Number(item.amount).toLocaleString()+'</b></div>').join(''):'<div class="dl-row"><span style="color:#aaa">No '+type+' data yet</span></div>';document.getElementById('incomeToggle').classList.toggle('on',type==='income');document.getElementById('expenseToggle').classList.toggle('on',type==='expense');}
 // Transactions
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($expenses);
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
-function render(list){document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>PKR ${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.txt','HOTELPRO EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: PKR '+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${IS_ADMIN?`<button class="eye" title="Delete" onclick="if(confirm('Delete this expense?'))post('/expenses/'+e.id,'DELETE')">🗑</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>PKR ${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.pdf','INDUS RESORT RESTAURANT EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: PKR '+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${deleteExpenseButton(e.id)}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+const expensesById=Object.fromEntries(data.map(expense=>[expense.id,expense]));
+function viewExpense(id){const e=expensesById[id];if(!e)return;const receipt=e.receipt_path?'<div style="margin-top:14px"><b>Receipt Image</b><br><img src="/'+e.receipt_path+'" alt="Expense receipt" style="display:block;max-width:100%;max-height:320px;margin-top:8px;border:1px solid #e5e5e5;border-radius:8px"></div>':'<div style="margin-top:14px;color:#888">No receipt image uploaded.</div>';showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed'+receipt);}
+function downloadExpensePdf(id){const e=expensesById[id];if(!e)return;const content=['INDUS RESORT RESTAURANT EXPENSE','================================','Expense: '+e.name,'Category: '+(e.category||''),'Quantity: '+e.quantity,'Amount: PKR '+e.amount,'Date: '+fmt(e.date)].join(String.fromCharCode(10));downloadFile('expense-'+e.id+'.pdf',content);}
+function deleteExpenseButton(id){return IS_ADMIN?'<button class="eye" title="Delete" onclick="if(confirm(\'Delete this expense?\'))post(\'/expenses/'+id+'\',\'DELETE\')">🗑</button>':'';}
+render=list=>{const html=list.map(e=>'<div class="trow"><span>'+e.name+'</span><span>'+(e.category||'')+'</span><span>'+e.quantity+'</span><span>PKR '+e.amount+'</span><span>'+fmt(e.date)+'</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="viewExpense('+e.id+')">'+eye+'</button><a class="dl" href="/expenses/'+e.id+'/download">'+dl+' Download</a>'+deleteExpenseButton(e.id)+'</span></div>').join('');document.getElementById('rows').innerHTML=html||'<div class="trow"><span>No results</span></div>';};
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;pgReset('exp');paginateRender('exp',sortList('exp',data.filter(e=>(!cat||e.category===cat)&&(!q||[e.name,e.category].join(' ').toLowerCase().includes(q)))),8,render);}
 ['fSearch','fCat','fStatus'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 </script>
-<div class="modal-ov" id="addExp"><div class="modal"><h3>Add Expense</h3><form method="POST" action="{{ url('/expenses') }}">@csrf
+<div class="modal-ov" id="addExp"><div class="modal"><h3>Add Expense</h3><form method="POST" action="{{ url('/expenses') }}" enctype="multipart/form-data">@csrf
 <label>Expense Name</label><input name="name" placeholder="Housekeeping Supplies" required>
-<label>Category</label><select name="category"><option>Supplies</option><option>Utilities</option><option>Marketing and Advertising</option><option>Maintenance and Repairs</option><option>Salaries and Wages</option></select>
+<label>Category</label><select name="category"><option value="Supplies">Supplies</option><option value="Utilities">Utilities</option><option value="Marketing and Advertising">Marketing and Advertising</option><option value="Maintenance and Repairs">Maintenance and Repairs</option><option value="Salaries and Wages">Salaries and Wages</option></select>
+<label>Or type a new category</label><input name="custom_category" placeholder="e.g. Staff Refreshments">
 <div class="mrow"><div><label>Quantity</label><input type="number" name="quantity" value="1"></div><div><label>Amount ($)</label><input type="number" name="amount" value="0"></div></div>
 <label>Date</label><input type="date" name="date" value="{{ now()->format('Y-m-d') }}">
+<label>Receipt / Picture</label><div style="display:flex;align-items:center;gap:10px"><label for="receipt" style="margin:0;background:var(--lime);color:#2f3a0c;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer">Upload Receipt Image</label><span id="receiptName" style="color:#777;font-size:13px">No image selected</span></div><input id="receipt" type="file" name="receipt" accept="image/*" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" onchange="document.getElementById('receiptName').textContent=this.files[0]?.name||'No image selected'">
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addExp')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
 </body>

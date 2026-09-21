@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign in - HotelPro</title>
+<title>Sign in - Indus Resort Restaurant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -35,7 +35,7 @@ input:focus{outline:2px solid var(--lime);border-color:var(--lime)}
 <body>
 <form class="card" method="POST" action="{{ url('/login') }}">
     @csrf
-    <div class="brand"><span class="brand-mark"><i></i><i></i><i></i><i></i></span>HotelPro</div>
+    <div class="brand"><span class="brand-mark"><i></i><i></i><i></i><i></i></span>Indus Resort Restaurant</div>
     <h1>Welcome back</h1>
     <div class="sub">Sign in to your hotel management dashboard</div>
     @if($errors->any())<div class="err">{{ $errors->first() }}</div>@endif

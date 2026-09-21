@@ -1,7 +1,7 @@
 {{-- Shared sidebar: self-contained styling so every page renders it identically. --}}
 <style>
     .app-sidebar{width:230px!important;flex:0 0 230px!important;min-height:100vh;padding:28px 18px!important;background:#fff!important;display:flex!important;flex-direction:column!important;font-family:Lato,Arial,sans-serif}
-    .app-sidebar .app-brand{display:flex!important;align-items:center!important;gap:9px!important;padding:0 10px 30px!important;font-size:22px!important;font-weight:800!important;color:#101010}
+    .app-sidebar .app-brand{display:flex!important;align-items:center!important;gap:9px!important;padding:0 10px 30px!important;font-size:16px!important;font-weight:800!important;line-height:1.25!important;color:#101010}
     .app-sidebar .app-brand-mark{width:22px!important;height:22px!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:repeat(2,1fr)!important;gap:3px!important}
     .app-sidebar .app-brand-mark i{background:#b6d8cb!important}
     .app-sidebar .app-brand-mark i:nth-child(2),.app-sidebar .app-brand-mark i:nth-child(3){background:#e9fa86!important}
@@ -11,14 +11,14 @@
     .app-sidebar .app-menu a.active{background:#e9fa86!important;color:#101010!important;font-weight:600!important}
     .app-sidebar .icon{width:20px!important;height:20px!important;flex:0 0 20px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round;stroke-linejoin:round}
     .app-sidebar .app-badge{margin-left:auto!important;width:20px!important;height:20px!important;display:grid!important;place-items:center!important;border-radius:50%!important;background:#ff4242!important;color:#fff!important;font-size:11px!important;font-weight:700!important}
-    .app-sidebar .app-chevron{margin-left:auto!important;font-size:15px!important;transition:.2s}
+    .app-sidebar .app-chevron{margin-left:auto!important;width:6px!important;height:6px!important;flex:0 0 6px!important;font-size:0!important;border-right:1.5px solid currentColor!important;border-bottom:1.5px solid currentColor!important;transform:translateY(-2px) rotate(45deg)!important;transition:transform .2s ease!important}
     .app-sidebar .financial-group{display:block}
     .app-sidebar .financial-submenu{display:none;padding:2px 0 2px 44px}
     .app-sidebar .financial-group.open .financial-submenu{display:grid!important;gap:2px}
     .app-sidebar .financial-submenu a{height:36px!important;border-radius:8px!important;padding:0 12px!important;display:flex!important;align-items:center!important;color:#a6a6a6!important;text-decoration:none!important;font-size:14px!important;font-weight:500!important}
     .app-sidebar .financial-submenu a:hover{color:#101010!important}
     .app-sidebar .financial-submenu a.active{background:#e9fa86!important;color:#101010!important;font-weight:600!important}
-    .app-sidebar .financial-group.open .financial-toggle .app-chevron{transform:rotate(180deg)}
+    .app-sidebar .financial-group.open .financial-toggle .app-chevron{transform:translateY(2px) rotate(225deg)!important}
     .app-sidebar .app-upgrade{width:194px!important;min-height:210px!important;margin:48px auto 0!important;padding:52px 18px 16px!important;border-radius:0 0 12px 12px!important;background:#cff3e3!important;position:relative}
     .app-sidebar .upgrade-visual{position:absolute!important;z-index:1;top:-40px!important;left:50%!important;width:118px!important;height:auto!important;transform:translateX(-50%)!important}
     .app-sidebar .app-upgrade h2{margin:0 0 10px!important;font-size:16px!important;font-weight:700!important;line-height:1.35!important;color:#101010}
@@ -33,7 +33,7 @@
     }
 </style>
 <aside class="app-sidebar">
-    <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>HotelPro</div>
+    <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>Indus Resort Restaurant</div>
     <nav class="app-menu" aria-label="Main navigation">
         <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
         <a class="{{ request()->is('reservation') ? 'active' : '' }}" href="{{ url('/reservation') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>Reservation</a>

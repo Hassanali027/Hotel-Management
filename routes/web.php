@@ -46,12 +46,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/bookings', [PageController::class, 'bookingStore']);
         Route::post('/rooms', [PageController::class, 'roomStore']);
         Route::post('/expenses', [PageController::class, 'expenseStore']);
+        Route::get('/expenses/{id}/download', [PageController::class, 'expenseDownload']);
         Route::post('/concierge', [PageController::class, 'conciergeStore']);
         Route::post('/housekeeping', [PageController::class, 'hkStore']);
         Route::post('/inventory', [PageController::class, 'invStore']);
         Route::post('/schedules', [PageController::class, 'scheduleStore']);
         Route::post('/tasks', [PageController::class, 'taskStore']);
         Route::post('/invoices/{id}/toggle', [PageController::class, 'invoiceToggle']);
+        Route::get('/invoices/{id}/download', [PageController::class, 'invoiceDownload']);
     });
 
     // ---- Admin only: deletes ----
