@@ -2,6 +2,7 @@
 <style>
     .app-sidebar{width:230px!important;flex:0 0 230px!important;min-height:100vh;padding:28px 18px!important;background:#fff!important;display:flex!important;flex-direction:column!important;font-family:Lato,Arial,sans-serif}
     .app-sidebar .app-brand{display:flex!important;align-items:center!important;gap:9px!important;padding:0 10px 30px!important;font-size:16px!important;font-weight:800!important;line-height:1.25!important;color:#101010}
+    .app-sidebar .app-brand-logo{width:32px!important;height:32px!important;flex:0 0 32px!important;object-fit:contain!important;border-radius:7px!important}
     .app-sidebar .app-brand-mark{width:22px!important;height:22px!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;grid-template-rows:repeat(2,1fr)!important;gap:3px!important}
     .app-sidebar .app-brand-mark i{background:#b6d8cb!important}
     .app-sidebar .app-brand-mark i:nth-child(2),.app-sidebar .app-brand-mark i:nth-child(3){background:#e9fa86!important}
@@ -47,7 +48,7 @@
     }
 </style>
 <aside class="app-sidebar">
-    <div class="app-brand"><span class="app-brand-mark"><i></i><i></i><i></i><i></i></span>Indus Resort Restaurant</div>
+    <div class="app-brand"><img class="app-brand-logo" src="{{ asset('images/logo.png') }}" alt="Indus Resort Restaurant logo">Indus Resort Restaurant</div>
     <button class="app-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleAppMenu(this)">☰</button>
     <nav class="app-menu" id="appMenu" aria-label="Main navigation">
         <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
@@ -64,13 +65,12 @@
             </div>
         </div>@endif
         @if(auth()->user()->can_access('reviews'))<a class="{{ request()->is('reviews') ? 'active' : '' }}" href="{{ url('/reviews') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>Reviews</a>@endif
-        @if(auth()->user()->can_access('concierge'))<a class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Concierge</a>@endif
+        @if(auth()->user()->can_access('concierge'))<a class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Staff</a>@endif
         <form method="POST" action="{{ url('/logout') }}" style="margin-top:8px">@csrf
             <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;height:44px;border:0;border-radius:9px;padding:0 12px;background:transparent;color:#b3352f;font:600 15px Lato,Arial,sans-serif;cursor:pointer">
                 <svg class="icon" viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Logout ({{ ucfirst(auth()->user()->role ?? '') }})
             </button>
         </form>
     </nav>
-    <section class="app-upgrade"><img class="upgrade-visual" src="{{ asset('images/OBJECTS.png') }}" alt="Hotel illustration"><h2>Elevate Hospitality<br>Standards</h2><p>Enhanced Reporting, Faster Check-Ins, &amp; Integrated Marketing Tools</p><button>Update Now</button></section>
 </aside>
 <script>function toggleAppMenu(button){const menu=document.getElementById('appMenu');const open=menu.classList.toggle('open');button.setAttribute('aria-expanded',String(open));button.textContent=open?'×':'☰';}</script>

@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/bookings', [PageController::class, 'bookingStore']);
         Route::post('/rooms', [PageController::class, 'roomStore']);
+        Route::put('/rooms/{id}', [PageController::class, 'roomUpdate']);
         Route::post('/expenses', [PageController::class, 'expenseStore']);
         Route::get('/expenses/{id}/download', [PageController::class, 'expenseDownload']);
         Route::post('/concierge', [PageController::class, 'conciergeStore']);

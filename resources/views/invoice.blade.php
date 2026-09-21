@@ -38,7 +38,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .sliders{width:44px;height:44px;border:0;border-radius:11px;background:var(--lime);display:grid;place-items:center;cursor:pointer}
 .sliders svg{width:20px;height:20px;fill:none;stroke:#222;stroke-width:1.8}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:1.25fr 1.1fr 1.05fr 1.35fr 1.05fr 1fr 1.05fr 1.4fr;align-items:center;min-width:1050px}
+.thead,.trow{display:grid;grid-template-columns:1.2fr 1.05fr 1fr 1.2fr .9fr .9fr 1.15fr .9fr 1.35fr;align-items:center;min-width:1200px}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 24px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -48,6 +48,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .st:before{content:'';width:9px;height:9px;border-radius:2px}
 .st.paid{background:var(--lime);color:#3d4a10}.st.paid:before{background:#aec455}
 .st.unpaid{background:#ffe1e1;color:#b3352f}.st.unpaid:before{background:#ff4e52}
+.st.partial{background:#fff1c8;color:#886300}.st.partial:before{background:#e5b52b}
 .act{display:flex;gap:11px;align-items:center}
 .eye{width:40px;height:40px;border:1px solid #ededed;background:#fff;border-radius:9px;display:grid;place-items:center;cursor:pointer}
 .eye svg{width:19px;height:19px;fill:none;stroke:#555;stroke-width:1.7}
@@ -82,7 +83,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <div class="filters">
             <div class="fl">
                 <button class="pill lime"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>{{ now()->startOfMonth()->addDays(4)->format('j M') }} - {{ now()->startOfMonth()->addDays(15)->format('j M Y') }}<svg viewBox="0 0 24 24" width="14" height="14"><path d="m6 9 6 6 6-6"/></svg></button>
-                <select class="fsel" id="fStatus"><option value="">All Status</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select>
+                <select class="fsel" id="fStatus"><option value="">All Status</option><option value="paid">Paid</option><option value="partial">Partial</option><option value="unpaid">Unpaid</option></select>
             </div>
             <div class="fr">
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search name, room, etc"></div>
@@ -97,6 +98,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span onclick="sortCol('inv','price_per_night',applyFilters)" style="cursor:pointer">Price (per night) @include('partials.sort')</span>
                 <span onclick="sortCol('inv','duration',applyFilters)" style="cursor:pointer">Duration @include('partials.sort')</span>
                 <span onclick="sortCol('inv','amount',applyFilters)" style="cursor:pointer">Amount @include('partials.sort')</span>
+                <span onclick="sortCol('inv','advance_amount',applyFilters)" style="cursor:pointer">Remaining Balance @include('partials.sort')</span>
                 <span onclick="sortCol('inv','invoice_status',applyFilters)" style="cursor:pointer">Status @include('partials.sort')</span>
                 <span>Action @include('partials.sort')</span>
             </div>
@@ -123,9 +125,9 @@ const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($bookings);
 function money(n){return 'PKR '+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
-function invCalc(b){const room=+b.amount||0;const vat=+(room*0.08).toFixed(2);const nights=parseInt(b.duration)||1;const city=+(nights*16.5).toFixed(2);const total=+(room+vat+city).toFixed(2);return{room,vat,city,total,nights};}
+function invCalc(b){const nights=parseInt(b.duration)||1;const total=+b.amount||((+b.price_per_night||0)*nights);return{total,nights};}
 window.INV={};
-function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice_status==='paid';
+function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice_status==='paid';const isPartial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const advance=Math.min(c.total,Number(b.advance_amount||0));const finalPayment=paid?Math.min(Math.max(0,c.total-advance),Number(b.final_payment_amount||Math.max(0,c.total-advance))):0;const afterAdvance=Math.max(0,c.total-advance);const remaining=Math.max(0,c.total-advance-finalPayment);const status=paid?'PAID':isPartial?'PARTIAL':'UNPAID';const statusBg=paid?'#e8fb82':isPartial?'#fff0c6':'#ffe1e1';const statusColor=paid?'#3d4a10':isPartial?'#9a6800':'#b3352f';const date=v=>v?new Date(v).toLocaleDateString():'';
  const html=`<div style="font-size:13px;color:#333">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #e8fb82;padding-bottom:12px;margin-bottom:14px">
    <div><div style="font-size:20px;font-weight:800;color:#151515">Indus Resort Restaurant</div><div style="color:#999;font-size:11px">Hotel Management System</div></div>
@@ -133,7 +135,7 @@ function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice
   </div>
   <div style="display:flex;justify-content:space-between;margin-bottom:14px">
    <div><div style="color:#999;font-size:11px;margin-bottom:2px">BILL TO</div><b style="font-size:14px">${b.guest_name}</b></div>
-   <div style="text-align:right"><div style="color:#999;font-size:11px;margin-bottom:2px">STATUS</div><span style="font-weight:800;padding:3px 10px;border-radius:6px;background:${paid?'#e8fb82':'#ffe1e1'};color:${paid?'#3d4a10':'#b3352f'}">${paid?'PAID':'UNPAID'}</span></div>
+   <div style="text-align:right"><div style="color:#999;font-size:11px;margin-bottom:2px">STATUS</div><span style="font-weight:800;padding:3px 10px;border-radius:6px;background:${statusBg};color:${statusColor}">${status}</span></div>
   </div>
   <div style="background:#f7f9f2;border-radius:10px;padding:12px 14px;margin-bottom:14px">
    <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Room</span><b>${b.room_label||''}</b></div>
@@ -141,10 +143,15 @@ function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice
    <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Rate / night</span><b>PKR ${b.price_per_night}</b></div>
   </div>
   <div>
-   <div style="display:flex;justify-content:space-between;margin:6px 0"><span>Room charge (${c.nights} night${c.nights>1?'s':''})</span><span>${money(c.room)}</span></div>
-   <div style="display:flex;justify-content:space-between;margin:6px 0"><span>VAT (8%)</span><span>${money(c.vat)}</span></div>
-   <div style="display:flex;justify-content:space-between;margin:6px 0"><span>City tax</span><span>${money(c.city)}</span></div>
-   <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:2px solid #eee;font-size:16px;font-weight:800"><span>Total</span><span>${money(c.total)}</span></div>
+   <div style="display:flex;justify-content:space-between;margin:6px 0"><span>Room charge (${c.nights} night${c.nights>1?'s':''})</span><span>${money(c.total)}</span></div>
+   <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:2px solid #eee;font-size:16px;font-weight:800"><span>Total booking amount</span><span>${money(c.total)}</span></div>
+  </div>
+  <div style="margin-top:14px;padding:12px 14px;border:1px solid #f1d990;border-radius:10px;background:#fffaf0">
+   <div style="font-size:14px;font-weight:800;color:#936100;margin-bottom:8px">Payment History</div>
+   <div style="display:flex;justify-content:space-between;margin:5px 0"><span>Advance paid${advance&&b.created_at?' · '+date(b.created_at):''}</span><b>${money(advance)}</b></div>
+   <div style="display:flex;justify-content:space-between;margin:5px 0"><span>Balance after advance</span><b>${money(afterAdvance)}</b></div>
+   ${paid?`<div style="display:flex;justify-content:space-between;margin:5px 0"><span>Final payment${b.final_payment_paid_at?' · '+date(b.final_payment_paid_at):''}</span><b>${money(finalPayment)}</b></div>`:''}
+   <div style="display:flex;justify-content:space-between;margin:8px 0 0;padding-top:8px;border-top:1px solid #eedca2;font-size:15px;font-weight:800"><span>Remaining Balance</span><span style="color:${remaining>0?'#bf501d':'#287552'}">${money(remaining)}</span></div>
   </div>
   <div style="margin-top:16px;display:flex;gap:8px">
    <button class="mbtn save" style="flex:1" onclick="downloadInvoice(${b.id})">⤓ Download</button>
@@ -154,7 +161,7 @@ function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice
  showDetail('', html);
 }
 function downloadInvoice(id){window.location='/invoices/'+id+'/download';}
-function render(list){list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const paid=b.invoice_status==='paid';return `<div class="trow"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>PKR ${b.price_per_night}</span><span>${b.duration||''}</span><span>PKR ${b.amount}</span><span><em class="st ${paid?'paid':'unpaid'}">${paid?'Paid':'Unpaid'}</em></span><span class="act"><button class="eye" title="View invoice" onclick="showInvoice(${b.id})">${eye}</button><button class="dl" onclick="downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<div class="trow" style="cursor:pointer" onclick="showInvoice(${b.id})"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>PKR ${b.price_per_night}</span><span>${b.duration||''}</span><span>PKR ${total.toLocaleString()}</span><span>${partial?'PKR '+remaining.toLocaleString():'—'}</span><span><em class="st ${b.invoice_status}">${status}</em></span><span class="act"><button class="eye" title="View invoice" onclick="event.stopPropagation();showInvoice(${b.id})">${eye}</button><button class="dl" onclick="event.stopPropagation();downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const st=document.getElementById('fStatus').value;pgReset('inv');paginateRender('inv',sortList('inv',data.filter(b=>(!st||b.invoice_status===st)&&(!q||[b.guest_name,b.code,b.room_label].join(' ').toLowerCase().includes(q)))),8,render);}
 document.getElementById('fSearch').addEventListener('input',applyFilters);
 document.getElementById('fStatus').addEventListener('change',applyFilters);

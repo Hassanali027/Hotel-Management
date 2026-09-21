@@ -104,13 +104,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search room type, number, etc"></div>
                 <span class="sortby">Sort by:</span>
                 <select class="fsel" id="fSort"><option value="popular">Popular</option><option value="low">Price: Low</option><option value="high">Price: High</option></select>
-                <select class="fsel" id="fType"><option value="">All Type</option><option>Standard</option><option>Deluxe</option><option>Suite</option><option>Family</option><option>Single</option></select>
-                <button class="addr" onclick="openModal('addRoom')">Add Room</button>
+                <select class="fsel" id="fType"><option value="">All Type</option>@foreach($rooms->pluck('name')->filter()->unique()->sort()->values() as $roomType)<option value="{{ $roomType }}">{{ $roomType }}</option>@endforeach</select>
+                <button class="addr" onclick="openRoomCreator()">Add Room</button>
             </div>
             <div id="roomlist"></div>
         </div>
         <aside class="detail">
-            <div class="dtop"><h2>Room Detail</h2><div style="display:flex;gap:8px"><button class="edit" onclick="openModal('addRoom')">Edit</button>@if(auth()->user()->role === 'admin')<button class="edit" style="background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this room?'))post('/rooms/'+selectedId,'DELETE')">Delete</button>@endif</div></div>
+            <div class="dtop"><h2>Room Detail</h2><div style="display:flex;gap:8px"><button class="edit" onclick="openRoomEditor()">Edit</button>@if(auth()->user()->role === 'admin')<button class="edit" style="background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this room?'))post('/rooms/'+selectedId,'DELETE')">Delete</button>@endif</div></div>
             <div class="dtitle"><h1 id="dName">{{ $featured->name }} Room</h1><span class="st" id="dStatus">{{ ucfirst($featured->status) }}</span></div>
             <div class="docc" id="dOcc">Occupied: {{ $featured->availability_used }}/{{ $featured->availability_total }} Rooms</div>
             <div class="gallery">
@@ -163,21 +163,24 @@ const rooms=@json($rooms);
   document.getElementById('dThumbs').innerHTML=gal.slice(0,3).map(g=>`<img src="${_b}${g}" alt="" style="width:100%;height:88px;object-fit:cover;border-radius:11px;cursor:pointer" onclick="document.getElementById('dHero').src='${_b}${g}'">`).join('');
   document.getElementById('dSpecs').innerHTML='<span>'+m2+(r.size||'')+'</span><span>'+bed+(r.bed||'')+'</span><span>'+gst+(r.guests||'')+'</span>';
   document.getElementById('dDesc').textContent=r.description||'';
-  const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
+  const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${f==='No Kitchen'?'<span style="color:#ff4e52;font-size:20px;font-weight:800">×</span>':ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
   const FA=r.facilities||[];document.getElementById('facilities').innerHTML=FA.length?FA.map(f=>`<div class="fitem"><svg class="fi" viewBox="0 0 24 24">${facIcons[f]||'<circle cx=\"12\" cy=\"12\" r=\"8\"/>'}</svg><span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No facilities listed</div>';
   const AM=r.amenities||[];document.getElementById('amenities').innerHTML=AM.length?AM.map(a=>`<div class="fitem">${ck}<span>${a}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No amenities listed</div>';
  }
  function selectRoom(id){selectedId=id;const r=rooms.find(x=>x.id===id);if(r)renderDetail(r);render(currentList());}
+ function openRoomCreator(){const f=document.getElementById('roomForm');f.reset();f.action='{{ url('/rooms') }}';document.getElementById('roomMethod').value='';document.getElementById('roomModalTitle').textContent='Add Room';openModal('addRoom');}
+ function openRoomEditor(){const r=rooms.find(x=>x.id===selectedId);if(!r)return;const f=document.getElementById('roomForm');f.reset();f.action='{{ url('/rooms') }}/'+r.id;document.getElementById('roomMethod').value='PUT';document.getElementById('roomModalTitle').textContent='Edit Room';['name','status','price','size','bed','guests','availability_total','availability_used','description'].forEach(k=>{if(f.elements[k])f.elements[k].value=r[k]??'';});const F=r.features||[];f.elements.feature_bedrooms.value=F.find(x=>/bedroom/i.test(x))||'';f.elements.kitchen_feature.value=F.find(x=>x==='Kitchen'||x==='No Kitchen')||'';f.querySelectorAll('[name="features[]"]').forEach(el=>{el.checked=F.includes(el.value);});openModal('addRoom');}
  function applyFilters(){render(currentList());}
  ['fSearch','fType','fSort'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
  render(rooms);
  const _init=rooms.find(x=>x.id===selectedId)||rooms[0];if(_init)renderDetail(_init);
 </script>
-<div class="modal-ov" id="addRoom"><div class="modal"><h3>Add Room</h3><form method="POST" action="{{ url('/rooms') }}" enctype="multipart/form-data">@csrf
+<div class="modal-ov" id="addRoom"><div class="modal"><h3 id="roomModalTitle">Add Room</h3><form id="roomForm" method="POST" action="{{ url('/rooms') }}" enctype="multipart/form-data">@csrf<input type="hidden" name="_method" id="roomMethod" value="">
 <label>Room Images (select multiple)</label><input type="file" name="images[]" accept="image/*" multiple style="height:auto;padding:9px 12px">
 <label>Room Name</label><input name="name" placeholder="Deluxe" required>
 <div class="mrow"><div><label>Status</label><select name="status"><option value="available">Available</option><option value="occupied">Occupied</option></select></div><div><label>Price / night</label><input type="number" name="price" value="100"></div></div>
 <div class="mrow"><div><label>Size</label><input name="size" placeholder="35 m²"></div><div><label>Bed</label><input name="bed" placeholder="King Bed"></div></div>
+<div class="amenity-box"><h4>Room Features</h4><div class="mrow"><div><label>Bedrooms</label><input name="feature_bedrooms" placeholder="e.g. 3 Bedrooms"></div><div><label>Kitchen</label><select name="kitchen_feature"><option value="">Select option</option><option value="Kitchen">Kitchen</option><option value="No Kitchen">No Kitchen</option></select></div></div><div class="amenity-grid" style="margin-top:10px"><label><input type="checkbox" name="features[]" value="TV Lounge">TV Lounge</label><label><input type="checkbox" name="features[]" value="Dining Area">Dining Area</label><label><input type="checkbox" name="features[]" value="Private Lawn Access">Private Lawn Access</label><label><input type="checkbox" name="features[]" value="Balcony with Mountain View">Balcony with Mountain View</label><label><input type="checkbox" name="features[]" value="Work Desk">Work Desk</label><label><input type="checkbox" name="features[]" value="City View">City View</label><label><input type="checkbox" name="features[]" value="Modern Layout">Modern Layout</label></div></div>
 <div class="mrow"><div><label>Guests</label><input name="guests" placeholder="2 guests"></div><div><label>Total Rooms</label><input type="number" name="availability_total" value="10"></div></div>
 <label>Occupied (used)</label><input type="number" name="availability_used" value="0">
 <label>Description</label><textarea name="description"></textarea>

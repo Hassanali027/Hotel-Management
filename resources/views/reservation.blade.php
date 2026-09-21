@@ -35,6 +35,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .searchbox>svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:#b0b0b0;stroke-width:1.8}
 .search{height:44px;width:280px;border:0;border-radius:11px;background:#f4f4f4;padding:0 16px 0 42px;font-size:14px;color:#333;font-family:inherit}
 .search::placeholder{color:#b0b0b0}
+.date-filter{padding:0 12px!important}.date-filter input{width:112px;border:0;background:transparent;outline:0;color:#333;font:inherit;cursor:pointer}.date-filter .date-separator{color:#9a9a9a;font-size:13px}
 .tbl{width:100%;overflow-x:auto}
 .thead,.trow{display:grid;grid-template-columns:1.15fr .8fr .95fr .7fr 2.15fr .85fr 1.55fr;align-items:center;min-width:1250px}
 .trow>span:nth-child(5){white-space:nowrap}
@@ -87,7 +88,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="pt-r">
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search guest, status, etc"></div>
                 <select class="fsel" id="fStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
-                <button class="pill"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>{{ now()->startOfMonth()->addDays(18)->format('j') }} - {{ now()->startOfMonth()->addDays(23)->format('j M, Y') }}<svg viewBox="0 0 24 24" width="14" height="14"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="pill date-filter"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fDateStart" type="date" aria-label="Start date"><span class="date-separator">to</span><input id="fDateEnd" type="date" aria-label="End date"></div>
                 @if(auth()->user()->role !== 'staff')<button class="pill lime" onclick="openModal('addBooking')">Add Booking</button>@endif
             </div>
         </div>
@@ -123,35 +124,53 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const edit='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
 const data=@json($bookings);
+const roomRates=@json($rooms->pluck('price','name'));
+function fillRoomPrice(roomType){const rate=roomRates[roomType];if(rate!==undefined)document.getElementById('bookingPrice').value=rate;}
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 const STL={pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'};
 const NEXT={pending:['confirmed','Confirm'],confirmed:['checked_in','Check-In'],checked_in:['checked_out','Check-Out']};
 function render(list){
  document.getElementById('rows').innerHTML=list.map(b=>{
   let action;
-  if(NEXT[b.status])action=`<button class="abtn confirm" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`;
+  if(NEXT[b.status])action=`<button class="abtn confirm" onclick="event.stopPropagation();post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`;
   else action=`<span class="abtn done">Done</span>`;
-  const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="abtn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  return `<div class="trow"><span class="g"><b>${b.guest_name}</b><small>${b.code}</small></span><span>${b.room_label||''}</span><span>${b.request||''}</span><span>${b.duration||''}</span><span>${fmt(b.check_in)} &nbsp;-&nbsp; ${fmt(b.check_out)}</span><span><em class="st ${b.status}">${STL[b.status]||b.status}</em></span><span class="act"><button class="ib" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${action}${cancel}</span></div>`;
+  const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="abtn cancel" onclick="event.stopPropagation();if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
+  return `<div class="trow" style="cursor:pointer" onclick="location.href='/guest-profile?id=${b.id}'"><span class="g"><b>${b.guest_name}</b><small>${b.code}</small></span><span>${b.room_label||''}</span><span>${b.request||''}</span><span>${b.duration||''}</span><span>${fmt(b.check_in)} &nbsp;-&nbsp; ${fmt(b.check_out)}</span><span><em class="st ${b.status}">${STL[b.status]||b.status}</em></span><span class="act"><button class="ib" title="View guest profile" onclick="event.stopPropagation();location.href='/guest-profile?id=${b.id}'">${eye}</button>${action}${cancel}</span></div>`;
  }).join('')||'<div class="trow"><span>No results</span></div>';
 }
 function applyFilters(){
  const q=(document.getElementById('fSearch').value||'').toLowerCase();
  const st=document.getElementById('fStatus').value;
- pgReset('res');paginateRender('res',sortList('res',data.filter(b=>(!st||b.status===st)&&(!q||[b.guest_name,b.code,b.room_label,b.request].join(' ').toLowerCase().includes(q)))),8,render);
+ const from=document.getElementById('fDateStart').value;
+ const to=document.getElementById('fDateEnd').value;
+ pgReset('res');paginateRender('res',sortList('res',data.filter(b=>{const matchesText=!q||[b.guest_name,b.code,b.room_label,b.request].join(' ').toLowerCase().includes(q);const matchesStatus=!st||b.status===st;const matchesDate=(!from||String(b.check_out||'')>=from)&&(!to||String(b.check_in||'')<=to);return matchesText&&matchesStatus&&matchesDate;})),8,render);
 }
 document.getElementById('fSearch').addEventListener('input',applyFilters);
 document.getElementById('fStatus').addEventListener('change',applyFilters);
+document.getElementById('fDateStart').addEventListener('change',applyFilters);
+document.getElementById('fDateEnd').addEventListener('change',applyFilters);
 applyFilters();
 </script>
-<div class="modal-ov" id="addBooking"><div class="modal"><h3>Add Booking</h3><form method="POST" action="{{ url('/bookings') }}">@csrf
+<div class="modal-ov" id="addBooking"><div class="modal"><h3>Add Booking</h3><form method="POST" action="{{ url('/bookings') }}" enctype="multipart/form-data">@csrf
+@if($errors->any())<div style="margin:0 0 12px;padding:10px 12px;border-radius:9px;background:#fff0f0;color:#b3352f;font-size:13px">Please check the highlighted details below. @foreach($errors->all() as $error)<div style="margin-top:3px">• {{ $error }}</div>@endforeach</div>@endif
 <label>Guest Name</label><input name="guest_name" required>
-<div class="mrow"><div><label>Room Type</label><input name="room_type" placeholder="Deluxe"></div><div><label>Room Number</label><input name="room_number" placeholder="101"></div></div>
+<label>CNIC</label><input name="cnic" inputmode="numeric" maxlength="20" placeholder="12345-1234567-1">
+<div class="mrow"><div><label>Phone Number</label><input name="phone" type="tel" placeholder="+92 300 0000000"></div><div><label>Email Address</label><input name="email" type="email" placeholder="guest@example.com"></div></div>
+<div class="mrow"><div><label>Date of Birth</label><input name="dob" type="date"></div><div><label>Gender</label><select name="gender"><option value="">Select gender</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
+<div class="mrow"><div><label>Nationality</label><input name="nationality" placeholder="Pakistani"></div><div><label>Passport No.</label><input name="passport_no" placeholder="Optional"></div></div>
+<div class="mrow"><div><label>Room Type</label><select name="room_type" onchange="fillRoomPrice(this.value)" required><option value="">Select room type</option>@foreach($rooms->pluck('name')->filter()->unique()->values() as $roomType)<option value="{{ $roomType }}">{{ $roomType }}</option>@endforeach</select></div><div><label>Room Number</label><input name="room_number" placeholder="101"></div></div>
+<div class="amenity-box"><h4>Room Features, Facilities &amp; Amenities</h4><div class="amenity-grid"><label><input type="checkbox" name="amenities[]" value="Free Wi-Fi">Free Wi-Fi</label><label><input type="checkbox" name="amenities[]" value="Air Conditioning">Air Conditioning</label><label><input type="checkbox" name="amenities[]" value="Smart TV">Smart TV</label><label><input type="checkbox" name="amenities[]" value="Mini Fridge">Mini Fridge</label><label><input type="checkbox" name="amenities[]" value="Coffee / Tea Maker">Coffee / Tea Maker</label><label><input type="checkbox" name="amenities[]" value="In-room Safe">In-room Safe</label><label><input type="checkbox" name="amenities[]" value="24-hour Room Service">24-hour Room Service</label><label><input type="checkbox" name="amenities[]" value="Balcony / City View">Balcony / City View</label></div><label style="margin-top:10px">Other facility or amenity</label><input name="amenity_notes" placeholder="e.g. Extra bed, hairdryer, work desk"></div>
 <label>Request</label><input name="request" placeholder="None">
 <div class="mrow"><div><label>Duration</label><input name="duration" placeholder="3 nights"></div><div><label>Status</label><select name="status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select></div></div>
 <div class="mrow"><div><label>Check In</label><input type="date" name="check_in"></div><div><label>Check Out</label><input type="date" name="check_out"></div></div>
-<div class="mrow"><div><label>Price / night</label><input type="number" name="price_per_night" value="100"></div><div><label>Amount</label><input type="number" name="amount" value="0"></div></div>
+<div class="mrow"><div><label>Price / night</label><input id="bookingPrice" type="number" name="price_per_night" min="1" required placeholder="Select a room type"></div><div><label>Amount</label><input type="number" name="amount" value="0"></div></div>
+<label class="partial-payment-toggle"><input type="checkbox" name="partial_payment" value="1" onchange="document.getElementById('partialPaymentFields').style.display=this.checked?'block':'none'"><span><b>Partial Payment</b><small>Record the advance payment received from the guest</small></span></label>
+<div id="partialPaymentFields" class="partial-payment-fields">
+<label>Advance Amount (PKR)</label><input type="number" name="advance_amount" min="0" placeholder="Enter advance amount">
+<label style="margin-top:12px!important">Advance Payment Receipt / Picture</label><label class="receipt-upload"><span>Upload receipt</span><small id="advanceReceiptName">No file selected</small><input type="file" name="advance_receipt" accept="image/*" onchange="document.getElementById('advanceReceiptName').textContent=this.files[0]?this.files[0].name:'No file selected'"></label>
+</div>
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addBooking')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
+@if($errors->any())<script>document.addEventListener('DOMContentLoaded',function(){openModal('addBooking');});</script>@endif
 </body>
 </html>

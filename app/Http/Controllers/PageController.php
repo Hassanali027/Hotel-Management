@@ -40,7 +40,7 @@ class PageController extends Controller
             // rating
             'ratingAvg'    => round((float) Review::avg('rating'), 1),
             'reviewCount'  => Review::count(),
-            // charts (labels generated relative to today so they stay real)
+            // Dashboard charts are calculated from actual booking records.
             'revenues'         => $this->revenueSeries(),
             'reservationStats' => $this->reservationSeries(),
             'platforms'        => \App\Models\Platform::all(),
@@ -50,26 +50,40 @@ class PageController extends Controller
 
     private function revenueSeries()
     {
-        $amounts = \App\Models\Revenue::orderBy('id')->pluck('amount')->all();
-        $n = count($amounts);
-        $start = now()->startOfMonth()->subMonths($n - 1);
-        $out = [];
-        foreach ($amounts as $i => $amt) {
-            $out[] = ['label' => $start->copy()->addMonths($i)->format('M Y'), 'amount' => (int) $amt];
-        }
-        return $out;
+        $start = now()->startOfMonth()->subMonths(11);
+        $bookings = Booking::whereIn('invoice_status', ['paid', 'partial'])->get();
+
+        return collect(range(0, 11))->map(function ($offset) use ($start, $bookings) {
+            $month = $start->copy()->addMonths($offset);
+            $amount = $bookings->filter(function ($booking) use ($month) {
+                $date = $booking->check_in ? \Carbon\Carbon::parse($booking->check_in) : $booking->created_at;
+                return $date && $date->isSameMonth($month);
+            })->sum(function ($booking) {
+                $nights = max(1, (int) preg_replace('/\D+/', '', (string) $booking->duration));
+                $total = (float) ($booking->amount ?: ((int) $booking->price_per_night * $nights));
+                return $booking->invoice_status === 'paid'
+                    ? $total
+                    : min($total, (float) $booking->advance_amount);
+            });
+
+            return ['label' => $month->format('M Y'), 'amount' => (int) $amount];
+        })->values()->all();
     }
 
     private function reservationSeries()
     {
-        $rows = \App\Models\ReservationStat::orderBy('id')->get();
-        $n = $rows->count();
-        $start = now()->subDays($n - 1);
-        $out = [];
-        foreach ($rows as $i => $r) {
-            $out[] = ['label' => $start->copy()->addDays($i)->format('j M'), 'booked' => (int) $r->booked, 'canceled' => (int) $r->canceled];
-        }
-        return $out;
+        $start = now()->startOfDay()->subDays(6);
+        $bookings = Booking::whereNotNull('check_in')->get();
+
+        return collect(range(0, 6))->map(function ($offset) use ($start, $bookings) {
+            $day = $start->copy()->addDays($offset);
+            $forDay = $bookings->filter(fn ($booking) => \Carbon\Carbon::parse($booking->check_in)->isSameDay($day));
+            return [
+                'label' => $day->format('j M'),
+                'booked' => $forDay->where('status', '!=', 'cancelled')->count(),
+                'canceled' => $forDay->where('status', 'cancelled')->count(),
+            ];
+        })->values()->all();
     }
 
     public function taskStore(Request $r)
@@ -88,27 +102,62 @@ class PageController extends Controller
     /* ===================== RESERVATION ===================== */
     public function reservation()
     {
-        return view('reservation', ['bookings' => Booking::orderBy('id')->get()]);
+        return view('reservation', [
+            'bookings' => Booking::orderBy('id')->get(),
+            'rooms' => Room::orderBy('name')->get(),
+        ]);
     }
 
     public function bookingStore(Request $r)
     {
         $data = $r->validate([
-            'guest_name'=>'required','room_type'=>'nullable','room_number'=>'nullable',
+            'guest_name'=>'required','cnic'=>'nullable|string|max:20','phone'=>'nullable|string|max:30','email'=>'nullable|email|max:255',
+            'dob'=>'nullable|date','gender'=>'nullable|string|max:30','nationality'=>'nullable|string|max:100','passport_no'=>'nullable|string|max:100',
+            'room_type'=>'nullable','room_number'=>'nullable',
             'request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable',
-            'price_per_night'=>'nullable|integer','amount'=>'nullable|integer','status'=>'nullable',
+            'price_per_night'=>'required|integer|min:1','amount'=>'nullable|integer','status'=>'nullable',
+            'partial_payment'=>'nullable|boolean','advance_amount'=>'nullable|integer|min:0',
+            'advance_receipt'=>'nullable|image|max:5120',
+            'amenities'=>'nullable|array','amenity_notes'=>'nullable|string|max:500',
         ]);
+        $data['partial_payment'] = $r->boolean('partial_payment');
+        $data['advance_amount'] = (int) ($data['advance_amount'] ?? 0);
+        $data['price_per_night'] = (int) $data['price_per_night'];
+        $data['amount'] = (int) ($data['amount'] ?? 0);
+        $data['amenities'] = json_encode($data['amenities'] ?? []);
+        if ($r->hasFile('advance_receipt')) {
+            $directory = public_path('uploads/booking-payments');
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            $file = $r->file('advance_receipt');
+            $name = 'advance_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move($directory, $name);
+            $data['advance_receipt_path'] = 'uploads/booking-payments/'.$name;
+        }
+        unset($data['advance_receipt']);
+        $guest = Guest::updateOrCreate(
+            ['name' => $data['guest_name']],
+            [
+                'phone' => $data['phone'] ?? null, 'email' => $data['email'] ?? null,
+                'dob' => $data['dob'] ?? null, 'gender' => $data['gender'] ?? null,
+                'nationality' => $data['nationality'] ?? null, 'passport_no' => $data['passport_no'] ?? null,
+            ]
+        );
+        $data['guest_id'] = $guest->id;
+        unset($data['phone'], $data['email'], $data['dob'], $data['gender'], $data['nationality'], $data['passport_no']);
         $data['code'] = 'LG-B'.str_pad((Booking::max('id') + 108), 5, '0', STR_PAD_LEFT);
         $data['room_label'] = trim(($r->room_type ?? '').' '.($r->room_number ?? ''));
         $data['status'] = $r->status ?: 'pending';
-        $data['invoice_status'] = $data['status'] === 'confirmed' ? 'paid' : 'unpaid';
+        $data['invoice_status'] = $data['partial_payment'] ? 'partial' : ($data['status'] === 'confirmed' ? 'paid' : 'unpaid');
         Booking::create($data);
         return back()->with('ok', 'Booking added');
     }
 
     public function bookingConfirm($id)
     {
-        Booking::findOrFail($id)->update(['status' => 'confirmed', 'invoice_status' => 'paid']);
+        $booking = Booking::findOrFail($id);
+        $booking->update(['status' => 'confirmed', 'invoice_status' => $booking->partial_payment ? 'partial' : 'paid']);
         return back();
     }
 
@@ -118,7 +167,8 @@ class PageController extends Controller
         if (in_array($status, $allowed)) {
             $data = ['status' => $status];
             if ($status === 'confirmed') {
-                $data['invoice_status'] = 'paid';
+                $booking = Booking::findOrFail($id);
+                $data['invoice_status'] = $booking->partial_payment ? 'partial' : 'paid';
             }
             Booking::findOrFail($id)->update($data);
         }
@@ -145,7 +195,17 @@ class PageController extends Controller
             'name'=>'required','status'=>'nullable','size'=>'nullable','bed'=>'nullable',
             'guests'=>'nullable','description'=>'nullable','price'=>'nullable|integer',
             'availability_used'=>'nullable|integer','availability_total'=>'nullable|integer',
+            'features'=>'nullable|array','feature_bedrooms'=>'nullable|string|max:100','kitchen_feature'=>'nullable|string|max:100',
         ]);
+        $features = $data['features'] ?? [];
+        if (!empty($data['feature_bedrooms'])) {
+            array_unshift($features, $data['feature_bedrooms']);
+        }
+        if (!empty($data['kitchen_feature'])) {
+            $features[] = $data['kitchen_feature'];
+        }
+        $data['features'] = $features;
+        unset($data['feature_bedrooms'], $data['kitchen_feature']);
         $paths = [];
         if ($r->hasFile('images')) {
             foreach ($r->file('images') as $file) {
@@ -176,37 +236,195 @@ class PageController extends Controller
     public function invoiceToggle($id)
     {
         $b = Booking::findOrFail($id);
-        $b->update(['invoice_status' => $b->invoice_status === 'paid' ? 'unpaid' : 'paid']);
+        $nights = max(1, (int) preg_replace('/\D+/', '', (string) $b->duration));
+        $total = (float) ($b->amount ?: ((int) $b->price_per_night * $nights));
+        $advance = min($total, (float) $b->advance_amount);
+
+        if ($b->invoice_status === 'paid') {
+            $b->update([
+                'invoice_status' => $advance > 0 ? 'partial' : 'unpaid',
+                'final_payment_amount' => 0,
+                'final_payment_paid_at' => null,
+            ]);
+        } else {
+            $b->update([
+                'invoice_status' => 'paid',
+                'final_payment_amount' => max(0, $total - $advance),
+                'final_payment_paid_at' => now(),
+            ]);
+        }
         return back();
+    }
+
+    public function roomUpdate(Request $r, $id)
+    {
+        $room = Room::findOrFail($id);
+        $data = $r->validate([
+            'name'=>'required','status'=>'nullable','size'=>'nullable','bed'=>'nullable',
+            'guests'=>'nullable','description'=>'nullable','price'=>'nullable|integer',
+            'availability_used'=>'nullable|integer','availability_total'=>'nullable|integer',
+            'features'=>'nullable|array','feature_bedrooms'=>'nullable|string|max:100','kitchen_feature'=>'nullable|string|max:100',
+        ]);
+        $features = $data['features'] ?? [];
+        if (!empty($data['feature_bedrooms'])) {
+            array_unshift($features, $data['feature_bedrooms']);
+        }
+        if (!empty($data['kitchen_feature'])) {
+            $features[] = $data['kitchen_feature'];
+        }
+        $data['features'] = $features;
+        unset($data['feature_bedrooms'], $data['kitchen_feature']);
+        if ($r->hasFile('images')) {
+            $paths = [];
+            foreach ($r->file('images') as $file) {
+                $name = 'room_'.time().'_'.mt_rand(1000, 9999).'.'.$file->getClientOriginalExtension();
+                $file->move(public_path('uploads'), $name);
+                $paths[] = 'uploads/'.$name;
+            }
+            $data['image'] = $paths[0];
+            $data['gallery'] = $paths;
+        }
+        $room->update($data);
+        return back()->with('ok', 'Room updated');
     }
 
     public function invoiceDownload($id)
     {
         $booking = Booking::findOrFail($id);
         $nights = max(1, (int) preg_replace('/\D+/', '', (string) $booking->duration));
-        $roomCharge = (float) $booking->amount;
-        $vat = round($roomCharge * 0.08, 2);
-        $cityTax = round($nights * 16.5, 2);
-        $total = $roomCharge + $vat + $cityTax;
-        $lines = [
-            'INDUS RESORT RESTAURANT - INVOICE',
-            '=================================',
-            'Invoice No: '.$booking->code,
-            'Date: '.now()->format('F j, Y'),
-            'Bill To: '.$booking->guest_name,
-            'Room: '.$booking->room_label,
-            'Duration: '.$booking->duration,
-            'Rate / night: PKR '.$booking->price_per_night,
-            'Room charge: PKR '.number_format($roomCharge, 2),
-            'VAT (8%): PKR '.number_format($vat, 2),
-            'City tax: PKR '.number_format($cityTax, 2),
-            'TOTAL: PKR '.number_format($total, 2),
-            'Status: '.strtoupper($booking->invoice_status),
-        ];
-        return response($this->makeExpensePdf($lines, null), 200, [
+        $total = (float) ($booking->amount ?: ((int) $booking->price_per_night * $nights));
+        $advance = min($total, (float) $booking->advance_amount);
+        $finalPayment = $booking->invoice_status === 'paid'
+            ? min(max(0, $total - $advance), (float) ($booking->final_payment_amount ?: ($total - $advance)))
+            : 0;
+        $remaining = max(0, $total - $advance - $finalPayment);
+        return response($this->makeInvoicePdf($booking, $nights, $total, $advance, $finalPayment, $remaining), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="invoice-'.$booking->code.'.pdf"',
         ]);
+    }
+
+    private function makeInvoicePdf(Booking $booking, int $nights, float $total, float $advance, float $finalPayment, float $remaining): string
+    {
+        $escape = function ($value) {
+            $value = preg_replace('/[^\x20-\x7E]/', '?', (string) $value);
+            return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $value);
+        };
+        $text = function ($value, $x, $y, $size = 10, $font = 'F1') use ($escape) {
+            return "BT /{$font} {$size} Tf 1 0 0 1 {$x} {$y} Tm (".$escape($value).') Tj ET';
+        };
+        $money = function ($value) {
+            return 'PKR '.number_format($value, 0);
+        };
+
+        $stream = [];
+        // Header and brand stripe.
+        $stream[] = '0.92 0.98 0.51 rg 0 760 595 82 re f';
+        $stream[] = '0.08 0.11 0.10 rg 42 748 511 1 re f';
+        $stream[] = $text('INDUS RESORT RESTAURANT', 112, 810, 19);
+        $stream[] = '0.25 0.31 0.18 rg';
+        $stream[] = $text('Professional stay invoice', 112, 792, 9);
+        $stream[] = $text('INVOICE', 447, 810, 17);
+        $stream[] = $text('No. '.$booking->code, 447, 792, 9);
+
+        // Guest and booking information.
+        $stream[] = '0.96 0.98 0.97 rg 42 662 511 70 re f';
+        $stream[] = '0.12 0.14 0.12 rg';
+        $stream[] = $text('BILL TO', 56, 714, 8);
+        $stream[] = $text($booking->guest_name, 56, 694, 13);
+        $stream[] = $text('CNIC: '.($booking->cnic ?: '-'), 56, 677, 9);
+        $stream[] = $text('BOOKING DETAILS', 320, 714, 8);
+        $stream[] = $text('Room: '.($booking->room_label ?: '-'), 320, 694, 10);
+        $stream[] = $text('Stay: '.$nights.' '.($nights === 1 ? 'night' : 'nights'), 320, 677, 9);
+        $stream[] = $text('Invoice date: '.now()->format('d M Y'), 320, 662, 9);
+
+        // Charge table.
+        $stream[] = '0.20 0.32 0.24 rg 42 616 511 26 re f';
+        $stream[] = '1 1 1 rg';
+        $stream[] = $text('DESCRIPTION', 56, 625, 9);
+        $stream[] = $text('RATE', 323, 625, 9);
+        $stream[] = $text('NIGHTS', 405, 625, 9);
+        $stream[] = $text('AMOUNT', 476, 625, 9);
+        $stream[] = '0.98 0.99 0.98 rg 42 572 511 44 re f';
+        $stream[] = '0.12 0.14 0.12 rg';
+        $stream[] = $text('Accommodation - '.($booking->room_label ?: 'Room'), 56, 590, 10);
+        $stream[] = $text($money($booking->price_per_night), 323, 590, 10);
+        $stream[] = $text((string) $nights, 420, 590, 10);
+        $stream[] = $text($money($total), 476, 590, 10);
+        $stream[] = '0.87 0.91 0.88 RG 42 572 m 553 572 l S';
+
+        // Payment history: preserves both the original advance and the later settlement.
+        $balanceAfterAdvance = max(0, $total - $advance);
+        $stream[] = '0.98 0.97 0.89 rg 306 398 247 148 re f';
+        $stream[] = '0.78 0.71 0.39 RG 306 398 247 148 re S';
+        $stream[] = '0.12 0.14 0.12 rg';
+        $stream[] = $text('PAYMENT HISTORY', 322, 526, 10);
+        $stream[] = $text('Total booking amount', 322, 506, 9);
+        $stream[] = $text($money($total), 468, 506, 9);
+        $stream[] = $text('Advance paid'.($advance > 0 ? ' - '.$booking->created_at->format('d M Y') : ''), 322, 485, 9);
+        $stream[] = $text($money($advance), 468, 485, 9);
+        $stream[] = $text('Balance after advance', 322, 464, 9);
+        $stream[] = $text($money($balanceAfterAdvance), 468, 464, 9);
+        $stream[] = $text('Final payment'.($finalPayment > 0 && $booking->final_payment_paid_at ? ' - '.\Carbon\Carbon::parse($booking->final_payment_paid_at)->format('d M Y') : ''), 322, 443, 9);
+        $stream[] = $text($money($finalPayment), 468, 443, 9);
+        $stream[] = '0.78 0.71 0.39 RG 322 430 m 537 430 l S';
+        $stream[] = $text('REMAINING BALANCE', 322, 413, 10);
+        $stream[] = $text($money($remaining), 455, 413, 12);
+
+        $status = strtoupper($booking->invoice_status ?: 'unpaid');
+        $stream[] = $status === 'PAID' ? '0.88 0.97 0.65 rg' : ($status === 'PARTIAL' ? '1 0.94 0.75 rg' : '1 0.88 0.88 rg');
+        $stream[] = '42 490 210 36 re f';
+        $stream[] = '0.12 0.14 0.12 rg';
+        $stream[] = $text('PAYMENT STATUS: '.$status, 56, 503, 11);
+        $stream[] = $text('Thank you for choosing Indus Resort Restaurant.', 42, 90, 10);
+        $stream[] = '0.55 0.58 0.55 rg';
+        $stream[] = $text('This is a computer-generated invoice.', 42, 72, 8);
+
+        $jpeg = null;
+        $imageWidth = $imageHeight = 0;
+        $logoPath = public_path('images/logo.png');
+        if (function_exists('imagecreatefromstring') && is_file($logoPath) && ($image = @imagecreatefromstring((string) file_get_contents($logoPath)))) {
+            $imageWidth = imagesx($image);
+            $imageHeight = imagesy($image);
+            $scale = min(52 / $imageWidth, 52 / $imageHeight);
+            $imageWidth = max(1, (int) round($imageWidth * $scale));
+            $imageHeight = max(1, (int) round($imageHeight * $scale));
+            $canvas = imagecreatetruecolor($imageWidth, $imageHeight);
+            $white = imagecolorallocate($canvas, 255, 255, 255);
+            imagefill($canvas, 0, 0, $white);
+            imagecopyresampled($canvas, $image, 0, 0, 0, 0, $imageWidth, $imageHeight, imagesx($image), imagesy($image));
+            ob_start();
+            imagejpeg($canvas, null, 90);
+            $jpeg = ob_get_clean();
+            imagedestroy($canvas);
+            imagedestroy($image);
+            $stream[] = 'q '.$imageWidth.' 0 0 '.$imageHeight.' 50 778 cm /Im1 Do Q';
+        }
+
+        $stream = implode("\n", $stream);
+        $resources = '<< /Font << /F1 5 0 R >>'.($jpeg ? ' /XObject << /Im1 6 0 R >>' : '').' >>';
+        $objects = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources '.$resources.' /Contents 4 0 R >>',
+            '<< /Length '.strlen($stream)." >>\nstream\n".$stream."\nendstream",
+            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        ];
+        if ($jpeg) {
+            $objects[] = '<< /Type /XObject /Subtype /Image /Width '.$imageWidth.' /Height '.$imageHeight.' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '.strlen($jpeg)." >>\nstream\n".$jpeg."\nendstream";
+        }
+        $pdf = "%PDF-1.4\n";
+        $offsets = [0];
+        foreach ($objects as $index => $object) {
+            $offsets[] = strlen($pdf);
+            $pdf .= ($index + 1)." 0 obj\n".$object."\nendobj\n";
+        }
+        $xref = strlen($pdf);
+        $pdf .= 'xref'."\n0 ".(count($objects) + 1)."\n0000000000 65535 f \n";
+        foreach (array_slice($offsets, 1) as $offset) {
+            $pdf .= sprintf('%010d 00000 n ', $offset)."\n";
+        }
+        return $pdf.'trailer'."\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n".$xref."\n%%EOF";
     }
 
     /* ===================== EXPENSES ===================== */
@@ -500,13 +718,15 @@ class PageController extends Controller
     /* ===================== GUEST PROFILE ===================== */
     public function guestProfile(Request $request)
     {
-        $guest = Guest::first();
         $booking = $request->filled('id')
             ? (Booking::find($request->id) ?: Booking::first())
-            : (Booking::where('guest_name', $guest->name ?? '')->first() ?: Booking::first());
-        if ($booking) {
-            $guest = (clone $guest);
-            $guest->name = $booking->guest_name;
+            : Booking::first();
+        $guest = $booking && $booking->guest_id ? Guest::find($booking->guest_id) : null;
+        if (!$guest && $booking) {
+            $guest = Guest::where('name', $booking->guest_name)->first();
+        }
+        if (!$guest) {
+            $guest = new Guest(['name' => $booking ? $booking->guest_name : 'Guest']);
         }
         $history = Booking::orderBy('id')->take(2)->get();
         return view('guest-profile', compact('guest', 'booking', 'history'));

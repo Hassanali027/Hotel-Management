@@ -76,8 +76,10 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .psum .paid,.psum .unpaid{border-radius:7px;padding:3px 10px;font-size:12px;font-weight:700}
 .psum .paid{background:var(--lime);color:#2f3a0c}
 .psum .unpaid{background:#ffe1e1;color:#b3352f}
+.psum .partial{background:#fff1c8;color:#886300;border-radius:7px;padding:3px 10px;font-size:12px;font-weight:700}
 .pline{display:flex;justify-content:space-between;font-size:14px;color:#555;margin-bottom:12px}
 .ptotal{display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding-top:12px;border-top:1px solid var(--line);margin-bottom:16px}
+.partial-summary{margin:0 0 16px;padding:12px;border-radius:10px;background:#fffaf0;border:1px solid #f2e2ad}.partial-summary h4{margin:0 0 9px;font-size:13px;color:#886300}.partial-summary .pline{margin-bottom:7px}.partial-summary .pline:last-child{margin-bottom:0;font-weight:800;color:#2f3a0c}
 .pnote-l{color:var(--label);font-size:13px;margin-bottom:5px}
 .pnote{font-size:13px;color:#555;line-height:1.5}
 /* history */
@@ -135,7 +137,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div><span class="ci"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg></span>{{ $guest->email }}</div>
             </div>
             <div class="sec"><h3>Personal Information</h3><div class="pairs"><div class="pair"><div class="l">Date of Birth</div><div class="v">{{ $guest->dob }}</div></div><div class="pair"><div class="l">Gender</div><div class="v">{{ $guest->gender }}</div></div><div class="pair"><div class="l">Nationality</div><div class="v">{{ $guest->nationality }}</div></div><div class="pair"><div class="l">Passport No.</div><div class="v">{{ $guest->passport_no }}</div></div></div></div>
-            <div class="sec"><h3>Loyalty Program</h3><div class="pair" style="margin-bottom:16px"><div class="l">Membership Status</div><span class="chip">{{ $guest->membership_status }}</span></div><div class="pairs"><div class="pair"><div class="l">Points Balance</div><div class="v">{{ $guest->points_balance }}</div></div><div class="pair"><div class="l">Tier Level</div><div class="v">🏅 {{ $guest->tier_level }}</div></div></div></div>
         </section>
         <section class="card">
             <div class="chd"><h2>Booking Info</h2><span class="dots">···</span></div>
@@ -157,30 +158,37 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="pair"><div class="l">Check Out</div><div class="v">{{ \Carbon\Carbon::parse($booking->check_out)->format('F j, Y') }}</div><div class="sub">11.45 AM</div></div>
                 <div class="pair"><div class="l">Duration</div><div class="v">{{ $booking->duration }}</div></div>
             </div>
-            <div class="pair" style="margin-bottom:20px"><div class="notes-l">Notes</div><div class="v" style="font-size:14px">Guest requested extra pillows and towels. Ensure room service is available upon arrival.</div></div>
+            <div class="pair" style="margin-bottom:20px"><div class="notes-l">Notes</div><div class="v" style="font-size:14px">{{ $booking->request ?: 'None' }}</div></div>
             <div class="divider"></div>
-            <div class="brow">
-                <div>
-                    <div class="pair" style="margin-bottom:18px"><div class="l">Loyalty Program</div><div class="v">Platinum Member</div></div>
-                    <div class="pair"><div class="l">Transportation</div><div class="v">Airport pickup arranged</div></div>
-                </div>
-                <div class="pair"><div class="l">Special Amenities</div><div class="amen"><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Complimentary breakfast</div><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Free Wi-Fi</div><div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>Access to gym and pool</div></div></div>
-                <div class="pair"><div class="l">Extras</div><div class="v">-</div></div>
-            </div>
+            @php $selectedAmenities = json_decode($booking->amenities ?? '[]', true) ?: []; @endphp
+            <div class="pair" style="margin-bottom:20px"><div class="l">Room Features &amp; Amenities</div><div class="amen">
+                @forelse($selectedAmenities as $amenity)
+                    <div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>{{ $amenity }}</div>
+                @empty
+                    <div class="v">No amenities selected</div>
+                @endforelse
+                @if($booking->amenity_notes)
+                    <div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>{{ $booking->amenity_notes }}</div>
+                @endif
+            </div></div>
             <div class="binfo-btns"><button class="bbtn edit" onclick="location.href='{{ url('/reservation') }}'">Edit</button>@if(auth()->user()->role === 'admin')<button class="bbtn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/{{ $booking->id }}','DELETE')">Cancel Booking</button>@endif</div>
         </section>
         <section class="card roominfo">
+            @php
+                $nights = max(1, (int) preg_replace('/\D+/', '', (string) $booking->duration));
+                $bookingTotal = (int) $booking->amount ?: ((int) $booking->price_per_night * $nights);
+                $advancePaid = min($bookingTotal, (int) $booking->advance_amount);
+                $remainingBalance = max(0, $bookingTotal - $advancePaid);
+            @endphp
             <div class="chd"><h2>Room Info</h2><a href="{{ url('/rooms') }}" class="vd">View Detail</a></div>
             <img class="rimg" src="{{ asset('images/room-info-hero.jpg') }}" alt="Room">
             <div class="rspecs"><span><svg viewBox="0 0 24 24"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>35 m²</span><span><svg viewBox="0 0 24 24"><path d="M2 10V6h20v12M2 14h20"/></svg>King Bed</span><span><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0"/></svg>2 guests</span></div>
-            <div class="psum"><h3>Price Summary</h3><span class="{{ $booking->invoice_status === 'paid' ? 'paid' : 'unpaid' }}">{{ $booking->invoice_status === 'paid' ? 'Paid' : 'Unpaid' }}</span></div>
-            <div class="pline"><span>Room and offer</span><span>PKR 450.00</span></div>
-            <div class="pline"><span>Extras</span><span>PKR 0.00</span></div>
-            <div class="pline"><span>8% VAT</span><span>PKR 36.00</span></div>
-            <div class="pline"><span>City Tax</span><span>PKR 49.50</span></div>
-            <div class="ptotal"><span>Total Price</span><span>PKR 535.50</span></div>
-            <div class="pnote-l">Notes</div>
-            <div class="pnote">Invoice sent to corporate account; payment confirmed by BIG Corporation</div>
+            <div class="psum"><h3>Price Summary</h3><span class="{{ $booking->invoice_status === 'paid' ? 'paid' : ($booking->invoice_status === 'partial' ? 'partial' : 'unpaid') }}">{{ $booking->invoice_status === 'paid' ? 'Paid' : ($booking->invoice_status === 'partial' ? 'Partial' : 'Unpaid') }}</span></div>
+            <div class="pline"><span>Room Total ({{ $nights }} {{ $nights === 1 ? 'night' : 'nights' }})</span><span>PKR {{ number_format($bookingTotal) }}</span></div>
+            <div class="ptotal"><span>Total Price</span><span>PKR {{ number_format($bookingTotal) }}</span></div>
+            @if($booking->partial_payment || $booking->advance_amount > 0)
+            <div class="partial-summary"><h4>Partial Payment</h4><div class="pline"><span>Advance Paid</span><span>PKR {{ number_format($advancePaid) }}</span></div><div class="pline"><span>Remaining Balance</span><span>PKR {{ number_format($remainingBalance) }}</span></div>@if($booking->advance_receipt_path)<div style="margin-top:8px"><a href="{{ asset($booking->advance_receipt_path) }}" target="_blank" style="font-size:12px;color:#52613b;font-weight:700">View advance receipt</a></div>@endif</div>
+            @endif
         </section>
     </div>
     <section class="card">

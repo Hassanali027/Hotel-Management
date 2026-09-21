@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Concierge - Indus Resort Restaurant</title>
+<title>Staff - Indus Resort Restaurant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.sidebar')
 <main class="main">
     <header class="top">
-        <h1>Concierge</h1>
+        <h1>Staff</h1>
         <div class="profile">
             <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>

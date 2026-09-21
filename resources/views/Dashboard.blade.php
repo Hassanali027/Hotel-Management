@@ -228,6 +228,8 @@
             .activities{padding:16px 14px 12px!important}.activities h2{font-size:13px!important}.activities .activity{padding-left:23px!important;font-size:9px!important}.activities .activity small{font-size:8px!important}.activities .activity b{font-size:10px!important}.activities .activity p{font-size:9px!important}.activities .act-icon{width:27px!important;height:27px!important;left:-14px!important}
             .footer{display:none!important}
         }
+/* The second stack is the real cancelled count, set by the chart script. */
+.bar:before{height:var(--c,0%)}
 </style>
 </head>
 <body>
@@ -241,18 +243,20 @@
  function renderRevenue(nm){
   if(!svg||!rev.length)return;
   const dt=rev.slice(Math.max(0,rev.length-nm));
-  const n=dt.length,W=500,max=Math.max.apply(0,dt.map(r=>r.amount))*1.1;
+  const n=dt.length,W=500,max=Math.max(1,Math.max.apply(0,dt.map(r=>r.amount))*1.1);
   const pts=dt.map((r,i)=>[i*(W/(n-1)),110-(r.amount/max)*100]);
   function sm(p){let d='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6,c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;d+=' C'+c1x.toFixed(1)+' '+c1y.toFixed(1)+' '+c2x.toFixed(1)+' '+c2y.toFixed(1)+' '+p2[0].toFixed(1)+' '+p2[1].toFixed(1);}return d;}
   const line=sm(pts);let pi=0;dt.forEach((r,i)=>{if(r.amount>dt[pi].amount)pi=i;});const px=pts[pi][0],py=pts[pi][1];
   svg.innerHTML='<defs><linearGradient id="a" y2="1"><stop stop-color="#cff3e3" stop-opacity=".75"/><stop offset="1" stop-color="#cff3e3" stop-opacity=".08"/></linearGradient></defs><path d="'+line+' L500 120 L0 120 Z" fill="url(#a)"/><path d="'+line+'" fill="none" stroke="#cddb77" stroke-width="2"/><line x1="'+px.toFixed(1)+'" y1="'+py.toFixed(1)+'" x2="'+px.toFixed(1)+'" y2="120" stroke="#cddb77" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="6" fill="#fff" stroke="#cddb77" stroke-width="2.5"/>';
   const tip=document.getElementById('revTip');if(tip){tip.innerHTML='Total Revenue<b>PKR '+Number(dt[pi].amount).toLocaleString()+'</b>';tip.style.left=(px/500*100)+'%';}
   const mo=document.getElementById('revMonths');if(mo)mo.innerHTML=dt.map(r=>'<span>'+r.label+'</span>').join('');
+  const fmt=v=>v>=1000?'PKR '+(v/1000).toFixed(v%1000?1:0)+'K':'PKR '+Math.round(v);
+  const ya=document.querySelector('.yaxis');if(ya)ya.innerHTML=[max,max*.75,max*.5,max*.25,0].map(v=>'<span>'+fmt(v)+'</span>').join('');
  }
  const rr=document.getElementById('revRange');if(rr)rr.addEventListener('change',e=>renderRevenue(+e.target.value));
  renderRevenue(6);
  const rb=document.getElementById('resBars');
- if(rb&&res.length)rb.innerHTML=res.map(r=>'<div class="bar" style="--h:'+r.booked+'%"><span>'+r.label+'</span></div>').join('');
+ if(rb&&res.length){const maxRes=Math.max(1,...res.map(r=>Number(r.booked)+Number(r.canceled)));rb.innerHTML=res.map(r=>'<div class="bar" style="--h:'+(Number(r.booked)/maxRes*100)+'%;--c:'+(Number(r.canceled)/maxRes*100)+'%"><span>'+r.label+'</span></div>').join('');const rya=document.querySelector('.res-yaxis');if(rya)rya.innerHTML=[maxRes,maxRes*.75,maxRes*.5,maxRes*.25,0].map(v=>'<span>'+Math.round(v)+'</span>').join('');}
  const dn=document.getElementById('pfDonut'),lg=document.getElementById('pfLegend');
  if(dn&&pf.length){let acc=0,st=[];pf.forEach(p=>{const e=acc+p.percent;st.push(p.color+' '+acc+'% '+(e-1.2)+'%');st.push('#fff '+(e-1.2)+'% '+e+'%');acc=e;});dn.style.background='conic-gradient('+st.join(',')+')';}
  if(lg&&pf.length)lg.innerHTML=pf.map(p=>'<p><i class="dot" style="background:'+p.color+'"></i><b>'+p.percent+'%</b> '+p.name+'</p>').join('');
