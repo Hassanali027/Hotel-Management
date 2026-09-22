@@ -21,6 +21,17 @@
 @media(prefers-reduced-motion:reduce){
     ::view-transition-old(root),::view-transition-new(root){animation:none}
 }
+/* Phones: the sidebar partial shows a floating hamburger, and partials.mobile-nav hides it
+   again much later in the body. That gap is why the hamburger flashed while the page
+   loaded. Settling it here means it is never painted. The dropdown still opens, because
+   .app-menu.open is more specific than the rule below. */
+@media(max-width:768px){
+    .app-menu-toggle{display:none!important}
+    .app-sidebar>.app-brand{display:none!important}
+    .app-sidebar .app-menu{display:none!important}
+    .app-sidebar{width:100%!important;min-height:0!important;padding:0!important;position:static!important;flex:0 0 auto!important;background:transparent!important;border:0!important;height:auto!important}
+    .app-sidebar::before,.app-sidebar::after{display:none!important}
+}
 @media(min-width:769px){
     body{background:#f3f6f4}
     .app-sidebar{background:#123527!important;color:#dfe9e2!important;border-right:0!important}
