@@ -33,16 +33,16 @@
     .app-sidebar .app-logout button{color:#fff!important}
     .app-sidebar .app-logout button .icon{stroke:#fff!important}
     /* Pine forest artwork at the foot of the sidebar (Figma). */
-    .app-sidebar::before{content:'';position:fixed;left:0;bottom:0;width:230px;height:min(430px,50vh);
+    .app-sidebar::before{content:'';position:absolute;left:0;bottom:0;width:230px;height:min(430px,50vh);
         background:linear-gradient(180deg,rgba(18,53,39,.72) 0%,rgba(18,53,39,.52) 38%,rgba(18,53,39,.60) 72%,rgba(18,53,39,.86) 100%),url('{{ asset('images/rooms/resort-hero.jpg') }}') center bottom/cover no-repeat;
         filter:saturate(.7);opacity:.95;
         -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
         pointer-events:none;z-index:0}
-    .app-sidebar::after{content:'Relax · Unwind · Belong\A Indus Resort Murree';white-space:pre-line;position:fixed;left:0;bottom:104px;width:230px;text-align:center;font-size:11.5px;line-height:1.75;color:rgba(255,255,255,.88);letter-spacing:.3px;text-shadow:0 1px 10px rgba(0,0,0,.75);z-index:1;pointer-events:none}
+    .app-sidebar::after{content:'Relax · Unwind · Belong\A Indus Resort Murree';white-space:pre-line;position:absolute;left:0;bottom:104px;width:230px;text-align:center;font-size:11.5px;line-height:1.75;color:rgba(255,255,255,.88);letter-spacing:.3px;text-shadow:0 1px 10px rgba(0,0,0,.75);z-index:1;pointer-events:none}
     /* Pin the whole sidebar instead of only the menu: the brand was scrolling out of view.
        It is a flex column so Logout can sit at the very bottom without being fixed. */
     .app-sidebar{position:sticky!important;top:0!important;height:100vh!important;min-height:100vh!important;align-self:flex-start!important;
-        display:flex!important;flex-direction:column!important;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:0!important}
+        display:flex!important;flex-direction:column!important;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:0!important;isolation:isolate}
     .app-sidebar::-webkit-scrollbar{width:0;display:none}
     .app-sidebar>.app-brand{position:relative!important;top:auto!important;z-index:2;flex:0 0 auto}
     /* Logout lives inside .app-menu, so the menu itself has to fill the column for the
@@ -143,7 +143,9 @@
     /* ---------- Filter bars stay on one line ----------
        These rows used to wrap, dropping the primary button onto a second line on
        narrower laptops. The controls shrink instead. */
-    .pt,.pt-r,.filters,.fl,.fr,.hhead,.hh-r,.rfilter{flex-wrap:nowrap!important;min-width:0}
+        /* .rfilter is excluded: the rooms list shares its row with a 560px detail panel,
+       so its controls genuinely need to wrap rather than be squeezed. */
+    .pt,.pt-r,.filters,.fl,.fr,.hhead,.hh-r{flex-wrap:nowrap!important;min-width:0}
     .pt>*,.pt-r>*,.filters>*,.fl>*,.fr>*,.hh-r>*{min-width:0}
     .pt-r .searchbox,.filters .searchbox,.fr .searchbox,.hh-r .searchbox{flex:1 1 130px;min-width:0}
     .pt-r .searchbox .search,.filters .searchbox .search,.fr .searchbox .search,.hh-r .searchbox .search{width:100%!important;min-width:0}

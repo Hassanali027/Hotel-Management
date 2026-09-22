@@ -32,6 +32,9 @@
     .app-sidebar{width:100%!important;min-height:0!important;padding:0!important;position:static!important;flex:0 0 auto!important;background:transparent!important;border:0!important;height:auto!important}
     .app-sidebar::before,.app-sidebar::after{display:none!important}
 }
+/* Some pages scroll and some do not. Without a reserved gutter the content width
+   changes between them, and that shift is what snapped on every tab switch. */
+html{scrollbar-gutter:stable}
 @media(min-width:769px){
     body{background:#f3f6f4}
     .app-sidebar{background:#123527!important;color:#dfe9e2!important;border-right:0!important}

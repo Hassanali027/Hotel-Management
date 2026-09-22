@@ -68,6 +68,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 /* room info */
 .roominfo{background:#fbfbfb}
 .rimg{width:100%;height:190px;object-fit:cover;border-radius:12px;margin-bottom:16px}
+.pair .sub.real{color:#2f6b4f;font-weight:600}
 .gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
 .gstats div{background:#f4f8f5;border-radius:11px;padding:11px 10px;text-align:center}
 .gstats b{display:block;font-size:19px;line-height:1.2;color:#123527}
@@ -371,8 +372,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="pair"><div class="l">Status</div><div class="v">{{ ucfirst($booking->status) }}</div></div>
             </div>
             <div class="brow">
-                <div class="pair"><div class="l">Check In</div><div class="v">{{ $booking->check_in ? \Carbon\Carbon::parse($booking->check_in)->format('F j, Y') : 'Not set' }}</div><div class="sub">{{ $booking->check_in ? '12:00 PM' : 'Add a date from Edit' }}</div></div>
-                <div class="pair"><div class="l">Check Out</div><div class="v">{{ $booking->check_out ? \Carbon\Carbon::parse($booking->check_out)->format('F j, Y') : 'Not set' }}</div><div class="sub">{{ $booking->check_out ? '12:00 PM' : 'Add a date from Edit' }}</div></div>
+                <div class="pair"><div class="l">Check In</div><div class="v">{{ $booking->arrival_date ? \Carbon\Carbon::parse($booking->arrival_date)->format('F j, Y') : 'Not set' }}</div><div class="sub {{ $booking->hasArrivalTime() ? 'real' : '' }}">{{ $booking->arrivalLabel() ?: 'Add a date from Edit' }}{{ $booking->hasArrivalTime() ? ' · arrived' : '' }}</div></div>
+                <div class="pair"><div class="l">Check Out</div><div class="v">{{ $booking->departure_date ? \Carbon\Carbon::parse($booking->departure_date)->format('F j, Y') : 'Not set' }}</div><div class="sub {{ $booking->hasDepartureTime() ? 'real' : '' }}">{{ $booking->departureLabel() ?: 'Add a date from Edit' }}{{ $booking->hasDepartureTime() ? ' · left' : '' }}</div></div>
                 <div class="pair"><div class="l">Duration</div><div class="v">{{ $booking->duration }} {{ (int) $booking->duration === 1 ? 'Night' : 'Nights' }}</div></div>
             </div>
             <div class="pair" style="margin-bottom:20px"><div class="notes-l">Notes</div><div class="v" style="font-size:14px">{{ $booking->request ?: 'None' }}</div></div>
@@ -404,7 +405,12 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="rname">{{ $room->name ?? $booking->room_type }}<small>Room {{ $booking->room_number }}</small></div>
             <div class="rspecs"><span><svg viewBox="0 0 24 24"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>{{ $room->size ?? '35 m²' }}</span><span><svg viewBox="0 0 24 24"><path d="M2 10V6h20v12M2 14h20"/></svg>{{ $room->bed ?? 'King Bed' }}</span><span><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0"/></svg>{{ $room->guests ?? '2 guests' }}</span></div>
             <div class="psum"><h3>Price Summary</h3><span class="{{ $booking->invoice_status === 'paid' ? 'paid' : ($booking->invoice_status === 'partial' ? 'partial' : 'unpaid') }}">{{ $booking->invoice_status === 'paid' ? 'Paid' : ($booking->invoice_status === 'partial' ? 'Partial' : 'Unpaid') }}</span></div>
-            <div class="pline"><span>Room Total ({{ $nights }} {{ $nights === 1 ? 'night' : 'nights' }})</span><span>PKR {{ number_format($roomTotal) }}</span></div>@if($extraCharges > 0)<div class="pline"><span>Extra Charges</span><span>PKR {{ number_format($extraCharges) }}</span></div>@endif
+            @php $bookedNights = $booking->check_in && $booking->check_out ? max(1, \Carbon\Carbon::parse($booking->check_in)->diffInDays(\Carbon\Carbon::parse($booking->check_out))) : $nights; @endphp
+            <div class="pline"><span>Room Total ({{ $nights }} {{ $nights === 1 ? 'night' : 'nights' }})</span><span>PKR {{ number_format($roomTotal) }}</span></div>
+            @if($booking->billed_nights && $booking->billed_nights > $bookedNights)
+                <div class="pline" style="color:#7a5400"><span>Late checkout · {{ $booking->billed_nights - $bookedNights }} extra {{ $booking->billed_nights - $bookedNights === 1 ? 'night' : 'nights' }}</span><span>included above</span></div>
+            @endif
+            @if($extraCharges > 0)<div class="pline"><span>Extra Charges</span><span>PKR {{ number_format($extraCharges) }}</span></div>@endif
             <div class="ptotal"><span>Total Price</span><span>PKR {{ number_format($bookingTotal) }}</span></div>
             @if(auth()->user()->can_access('invoice'))<div class="binfo-btns" style="justify-content:flex-start;margin:0 0 16px">@if($booking->status !== 'pending')<button class="bbtn edit" onclick="showInvoice({{ $booking->id }})">View Invoice</button><button class="bbtn soft" onclick="downloadInvoice({{ $booking->id }})">Download PDF</button>@else<span class="pnote">Invoice becomes available once the booking is confirmed.</span>@endif</div>@endif
             @if($booking->partial_payment || $booking->advance_amount > 0)

@@ -101,6 +101,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
  .rs-av.c1{background:#dfebfb;color:#1e4f8f}.rs-av.c2{background:#fdf3d2;color:#7a5400}.rs-av.c3{background:#e6f4ea;color:#2f6b4f}.rs-av.c4{background:#ece7fb;color:#4b3a8f}
  .rs-guest b,.rs-room b,.rs-date b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .rs-guest small,.rs-room small,.rs-date small{display:block;color:#9ca3af;font-size:12px;margin-top:2px}
+ /* A stamped arrival or departure is real data; the 12:00 PM fallback is not. */
+ .rs-date small.rs-real{color:#2f6b4f;font-weight:700}
  .rs-status{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;font-style:normal;white-space:nowrap}
  .rs-status i{width:7px;height:7px;border-radius:50%;background:currentColor}
  .rs-status.confirmed{background:#e6f4ea;color:#2f6b4f}.rs-status.checked_in{background:#dfebfb;color:#1e4f8f}.rs-status.pending{background:#fdf0da;color:#a86b00}.rs-status.checked_out{background:#eceff0;color:#6b7280}
@@ -303,8 +305,8 @@ function render(list){
    <span class="rs-room"><b>${b.room_type||''}</b><small>${b.room_number?('Room '+String(b.room_number).replace(/^Room /i,'')):''}</small></span>
    <span>${b.guests||2} ${(b.guests||2)==1?'Adult':'Adults'}</span>
    <span>${b.duration?(/night/i.test(b.duration)?b.duration:b.duration+' Nights'):'—'}</span>
-   <span class="rs-date"><b>${fmtShort(b.check_in)}</b>${b.check_in?'<small>12:00 PM</small>':''}</span>
-   <span class="rs-date"><b>${fmtShort(b.check_out)}</b>${b.check_out?'<small>12:00 PM</small>':''}</span>
+   <span class="rs-date"><b>${fmtShort(b.arrival_date)}</b>${b.arrival_date?`<small${b.arrival_is_actual?' class="rs-real" title="Actual check-in"':''}>${b.arrival_time}</small>`:''}</span>
+   <span class="rs-date"><b>${fmtShort(b.departure_date)}</b>${b.departure_date?`<small${b.departure_is_actual?' class="rs-real" title="Actual check-out"':''}>${b.departure_time}</small>`:''}</span>
    <span><em class="rs-status ${b.status}"><i></i>${label}</em></span>
    <span class="act" onclick="event.stopPropagation()">
      <button class="rs-ib" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>

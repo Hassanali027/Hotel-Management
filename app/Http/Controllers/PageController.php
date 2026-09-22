@@ -270,19 +270,107 @@ class PageController extends Controller
     public function bookingStatus($id, $status)
     {
         $allowed = ['pending', 'confirmed', 'checked_in', 'checked_out'];
-        if (in_array($status, $allowed)) {
-            $data = ['status' => $status];
-            if ($status === 'confirmed') {
-                $booking = Booking::findOrFail($id);
-                $data['invoice_status'] = $booking->partial_payment ? 'partial' : 'paid';
-            }
-            $booking = Booking::findOrFail($id);
-            $booking->update($data);
-            $this->syncRoomForBooking($booking);
-            $labels = ['confirmed' => 'Booking confirmed', 'checked_in' => 'Guest checked in', 'checked_out' => 'Guest checked out', 'pending' => 'Booking set to pending'];
-            $this->logActivity($labels[$status], $booking->guest_name.' · '.($booking->room_label ?: '').' ('.$booking->code.')');
+        if (! in_array($status, $allowed)) {
+            return back();
         }
-        return back();
+
+        $booking = Booking::findOrFail($id);
+        $data = ['status' => $status];
+        $note = null;
+
+        if ($status === 'confirmed') {
+            $data['invoice_status'] = $booking->partial_payment ? 'partial' : 'paid';
+        }
+
+        // The desk stamps the real times, so the guest profile and the invoice can show
+        // when the stay actually started and ended rather than a fixed 12:00 PM label.
+        if ($status === 'checked_in' && ! $booking->checked_in_at) {
+            $data['checked_in_at'] = now();
+        }
+
+        if ($status === 'checked_out') {
+            $data['checked_out_at'] = $booking->checked_out_at ?: now();
+            $data = array_merge($data, $this->settleStay($booking, $data['checked_out_at']));
+            $note = $this->stayNote($booking, $data);
+        }
+
+        // Re-opening a closed stay clears the settlement so it is recalculated on the next checkout.
+        if (in_array($status, ['pending', 'confirmed', 'checked_in']) && $booking->checked_out_at) {
+            $data['checked_out_at'] = null;
+            $data['billed_nights'] = null;
+        }
+
+        $booking->update($data);
+        $this->syncRoomForBooking($booking);
+
+        $labels = ['confirmed' => 'Booking confirmed', 'checked_in' => 'Guest checked in', 'checked_out' => 'Guest checked out', 'pending' => 'Booking set to pending'];
+        $this->logActivity($labels[$status], $booking->guest_name.' · '.($booking->room_label ?: '').' ('.$booking->code.')');
+
+        return back()->with('ok', $note);
+    }
+
+    /**
+     * Close a stay and work out what it is billed for.
+     *
+     * The guest is never refunded for leaving early: the booked nights are the floor.
+     * Staying past the booked check-out is charged at the nightly rate for every extra
+     * night, so a 2-night booking that checks out on the third day is billed 3 nights.
+     */
+    private function settleStay(Booking $booking, $checkedOutAt): array
+    {
+        $bookedNights = $this->bookedNights($booking);
+        $stayedNights = $this->stayedNights($booking, $checkedOutAt);
+        $billed = max($bookedNights, $stayedNights);
+
+        return [
+            'billed_nights' => $billed,
+            'duration' => (string) $billed,
+            'amount' => (int) $booking->price_per_night * $billed + (int) $booking->extra_charges,
+        ];
+    }
+
+    /** Nights the booking was made for, from its own dates or its stored duration. */
+    private function bookedNights(Booking $booking): int
+    {
+        if ($booking->check_in && $booking->check_out) {
+            return max(1, \Carbon\Carbon::parse($booking->check_in)->diffInDays(\Carbon\Carbon::parse($booking->check_out)));
+        }
+
+        return max(1, (int) preg_replace('/\D+/', '', (string) $booking->duration));
+    }
+
+    /** Nights actually slept, counted from the arrival date to the departure date. */
+    private function stayedNights(Booking $booking, $checkedOutAt): int
+    {
+        $from = $booking->checked_in_at ?: $booking->check_in;
+        if (! $from) {
+            return 0;
+        }
+
+        return max(1, \Carbon\Carbon::parse($from)->startOfDay()->diffInDays(\Carbon\Carbon::parse($checkedOutAt)->startOfDay()));
+    }
+
+    /** A line for the front desk explaining any difference between booked and billed nights. */
+    private function stayNote(Booking $booking, array $settled): ?string
+    {
+        $booked = $this->bookedNights($booking);
+        $billed = (int) $settled['billed_nights'];
+        $money = 'PKR '.number_format((int) $settled['amount']);
+
+        if ($billed > $booked) {
+            $extra = $billed - $booked;
+
+            return 'Checked out late. Billed '.$billed.' nights instead of '.$booked.', '
+                .$extra.' extra '.($extra === 1 ? 'night' : 'nights').' added. Total '.$money.'.';
+        }
+
+        $stayed = $this->stayedNights($booking, $settled['checked_out_at'] ?? now());
+        if ($stayed < $booked) {
+            return 'Checked out early after '.$stayed.' '.($stayed === 1 ? 'night' : 'nights').'. '
+                .'The booked '.$booked.' nights are still charged, total '.$money.'. The room is free again.';
+        }
+
+        return 'Checked out. Billed '.$billed.' '.($billed === 1 ? 'night' : 'nights').', total '.$money.'.';
     }
 
     public function bookingDestroy($id)

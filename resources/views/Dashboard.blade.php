@@ -286,7 +286,7 @@
  .dh-sub svg{width:14px;height:14px;fill:none;stroke:#4b5563;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
  .dh-sep{color:#c4ccc7}
  .dh-tag{font-family:'Great Vibes',cursive;font-style:italic;font-size:22px;color:#2f5a45;text-align:right;line-height:1.1;transform:rotate(-6deg);margin:6px 40px 0 0}
- .dh-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) 190px;gap:14px;margin-bottom:16px}
+ .dh-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:16px}
  .dh-stat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:flex-start;min-width:0;height:auto;overflow:visible}
  .dh-stat.has-ring .dh-body{padding-right:62px}
  .dh-ic{width:40px;height:40px;border-radius:11px;background:var(--g100);color:var(--g700);display:grid;place-items:center;flex:0 0 40px}
@@ -364,9 +364,9 @@
  .dh-activity .dh-timeline{flex:1}
  /* Laptops keep the single row of five stats plus the action buttons; the tiles just get
     tighter. Stacking them only kicks in once a row of six genuinely cannot fit. */
- @media(max-width:1660px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr)) 158px;gap:9px}.dh-stat{padding:11px;gap:9px}.dh-ic{width:30px;height:30px;flex-basis:30px}.dh-body small{font-size:11.5px;line-height:1.3}.dh-body b{font-size:21px}.dh-body b.dh-money{font-size:15.5px}.dh-delta{font-size:10.5px}.dh-delta i{display:none}.dh-ring{width:36px;height:36px;right:10px;top:10px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:42px}.dh-tag{display:none}.dh-btn{height:37px;font-size:12px;padding:0 10px}.dh-btn svg{width:14px;height:14px}}
- @media(max-width:1340px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr)) 142px;gap:8px}.dh-stat{padding:10px;gap:8px}.dh-ic{width:27px;height:27px;flex-basis:27px}.dh-ic svg{width:15px;height:15px}.dh-body small{font-size:11px;line-height:1.3}.dh-body b{font-size:19px}.dh-body b.dh-money{font-size:14px}.dh-delta i{display:none}.dh-delta{font-size:10px}.dh-ring{width:32px;height:32px;right:9px;top:9px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:38px}.dh-btn{height:34px;font-size:11.5px;padding:0 8px;gap:5px}.dh-btn svg{width:13px;height:13px}}
- @media(max-width:1180px){.dh-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.dh-actions{grid-column:1 / -1;flex-direction:row}.dh-actions .dh-btn{flex:1}.dh-body small{white-space:nowrap}}
+ @media(max-width:1660px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.dh-stat{padding:11px;gap:9px}.dh-ic{width:30px;height:30px;flex-basis:30px}.dh-body small{font-size:11.5px;line-height:1.3}.dh-body b{font-size:21px}.dh-body b.dh-money{font-size:15.5px}.dh-delta{font-size:10.5px}.dh-delta i{display:none}.dh-ring{width:36px;height:36px;right:10px;top:10px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:42px}.dh-tag{display:none}.dh-btn{height:37px;font-size:12px;padding:0 10px}.dh-btn svg{width:14px;height:14px}}
+ @media(max-width:1340px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.dh-stat{padding:10px;gap:8px}.dh-ic{width:27px;height:27px;flex-basis:27px}.dh-ic svg{width:15px;height:15px}.dh-body small{font-size:11px;line-height:1.3}.dh-body b{font-size:19px}.dh-body b.dh-money{font-size:14px}.dh-delta i{display:none}.dh-delta{font-size:10px}.dh-ring{width:32px;height:32px;right:9px;top:9px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:38px}.dh-btn{height:34px;font-size:11.5px;padding:0 8px;gap:5px}.dh-btn svg{width:13px;height:13px}}
+ @media(max-width:1180px){.dh-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.dh-body small{white-space:nowrap}}
  @media(max-width:1200px){.dh-grid{grid-template-columns:1fr 1fr;grid-template-areas:'chart chart' 'rooms resort' 'arr dep' 'hk hk' 'act act' 'promo tasks'}}
  @media(max-width:1000px){.dh-grid{grid-template-columns:1fr;grid-template-areas:'chart' 'rooms' 'resort' 'arr' 'dep' 'hk' 'act' 'promo' 'tasks'}.dh-stats{grid-template-columns:1fr 1fr}.dh-hkgrid{grid-template-columns:1fr 1fr}}
 }
@@ -519,7 +519,7 @@
  <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="m16 8 4 4-4 4M10 12h10"/></svg></div><div class="dh-body"><small>Today's Check-outs</small><b>{{ $departures->count() }}</b><span class="dh-delta {{ $deltas['checkOut'] < 0 ? 'dn' : '' }}">{{ $deltas['checkOut'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['checkOut']), 0) }}% <i>vs. last week</i></span></div></article>
  <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></div><div class="dh-body"><small>Available Rooms</small><b>{{ $available }}</b><span class="dh-delta"><i>of {{ $totalUnits ?: ($occupied + $available + $reserved + $notReady) }} rooms</i></span></div></article>
  <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><div class="dh-body"><small>Today's Revenue</small><b class="dh-money">PKR {{ number_format($todayRevenue) }}</b><span class="dh-delta {{ $deltas['revenue'] < 0 ? 'dn' : '' }}">{{ $deltas['revenue'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['revenue']), 0) }}% <i>vs. last week</i></span></div></article>
- <div class="dh-actions">@if(auth()->user()->role !== 'staff')<a class="dh-btn primary" href="{{ url('/reservation') }}?new=1"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Reservation</a>@endif</div>
+ 
 </div>
 <div class="dh-grid">
  <section class="dh-card dh-chart">
