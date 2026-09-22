@@ -60,6 +60,7 @@
         </div>@endif
         @if(auth()->user()->can_access('reviews'))<a data-label="Reviews" class="{{ request()->is('reviews') ? 'active' : '' }}" href="{{ url('/reviews') }}"><svg class="icon" viewBox="0 0 24 24"><path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z"/></svg>Reviews</a>@endif
         @if(auth()->user()->can_access('concierge'))<a data-label="Staff" class="{{ request()->is('concierge') ? 'active' : '' }}" href="{{ url('/concierge') }}"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="2.5"/><path d="M8 17a4 4 0 0 1 8 0"/></svg>Staff</a>@endif
+        @if(auth()->user()->role === 'admin')<a data-label="Team" class="{{ request()->is('users') ? 'active' : '' }}" href="{{ url('/users') }}"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a5 5 0 0 1 5.5 4.5"/></svg>Team</a>@endif
         <form method="POST" action="{{ url('/logout') }}" class="app-logout" style="margin-top:8px">@csrf
             <button type="submit" style="width:100%;display:flex;align-items:center;gap:12px;height:44px;border:0;border-radius:9px;padding:0 12px;background:transparent;color:#b3352f;font:600 15px Lato,Arial,sans-serif;cursor:pointer">
                 <svg class="icon" viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Logout ({{ ucfirst(auth()->user()->role ?? '') }})

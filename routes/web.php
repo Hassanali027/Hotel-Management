@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,5 +88,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/reviews/{id}', [PageController::class, 'reviewDestroy']);
         Route::delete('/inventory/{id}', [PageController::class, 'invDestroy']);
         Route::delete('/room-units/{id}', [PageController::class, 'unitDestroy']);
+
+        // ---- Team accounts ----
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::post('/users/{id}/password', [UserController::class, 'password']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
     });
 });
