@@ -43,15 +43,8 @@ input:focus{outline:2px solid var(--lime);border-color:var(--lime)}
     <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="you@lodgify.com" required autofocus>
     <label>Password</label>
     <input type="password" name="password" id="password" placeholder="••••••••" required>
-    <div class="row"><label><input type="checkbox" name="remember"> Remember me</label></div>
+    <div class="row"><label><input type="checkbox" name="remember" checked> Keep me signed in</label></div>
     <button class="btn" type="submit">Sign In</button>
-    <div class="demo">
-        <b>Demo accounts</b> (click to fill · password: <b>password</b>)
-        <div class="r" onclick="fill('admin@lodgify.com')"><span>👑 Admin — full access</span><span>admin@lodgify.com</span></div>
-        <div class="r" onclick="fill('manager@lodgify.com')"><span>🧑‍💼 Manager — no delete</span><span>manager@lodgify.com</span></div>
-        <div class="r" onclick="fill('staff@lodgify.com')"><span>🧹 Staff — daily ops</span><span>staff@lodgify.com</span></div>
-    </div>
 </form>
-<script>function fill(e){document.getElementById('email').value=e;document.getElementById('password').value='password';}</script>
 </body>
 </html>

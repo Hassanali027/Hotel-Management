@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 380">
+<g opacity="0.55"><polygon points="0,380 60,250 120,300 200,150 260,230 330,120 400,210 460,160 520,240 520,380" fill="#c3d3c6"/></g>
+<g opacity="0.8"><polygon points="90,380 170,230 230,290 320,170 390,260 450,210 520,300 520,380" fill="#b4c8b8"/></g>
+<polygon points="200,380 270,270 320,320 380,240 440,310 520,260 520,380" fill="#a2bba8"/>
+<polygon points="330,120 344,146 336,140 330,150 322,142 316,146" fill="#ffffff" opacity=".95"/>
+<polygon points="200,150 212,172 205,167 200,176 194,169 189,172" fill="#ffffff" opacity=".85"/>
+<polygon points="450,210 460,228 454,224 450,231 445,225 441,228" fill="#ffffff" opacity=".85"/>
+<g fill="#2f5a45" opacity=".85">
+<polygon points="392,380 402,318 412,380"/><polygon points="416,380 428,296 440,380"/><polygon points="446,380 456,326 466,380"/>
+<polygon points="474,380 486,290 498,380"/><polygon points="500,380 510,330 520,380"/><polygon points="362,380 370,336 378,380"/>
+</g>
+<g fill="#4d7a63" opacity=".9">
+<polygon points="404,380 410,340 416,380"/><polygon points="430,380 438,320 446,380"/><polygon points="482,380 490,318 498,380"/>
+</g>
+<circle cx="250" cy="80" r="22" fill="#ffffff" opacity=".7"/>
+</svg>

@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -70,9 +70,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
-@php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openModal(\'addItem\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Item</button>' : ''; @endphp
+@php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openItemCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Item</button>' : ''; @endphp
 @include('partials.mobile-shell', ['msTitle'=>'Inventory','msSubtitle'=>'Stock levels and reorders','msAction'=>$msAct])
 <div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search item, category, etc..."></label></div>
 <div class="ms-selrow"><select class="ms-sel" id="mSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">Name</option><option value="stock">Stock</option></select><select class="ms-sel" id="mCat"><option value="">All Category</option><option>Linen</option><option>Toiletries</option><option>Refreshments</option><option>Electronics</option><option>Housekeeping</option><option>Guest Comfort</option><option>Kitchen</option></select></div>
@@ -82,11 +83,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Inventory</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -97,7 +98,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span class="sortby">Sort by:</span>
                 <select class="fsel" id="fSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">Name</option><option value="stock">Stock</option></select>
                 <select class="fsel" id="fCat"><option value="">All Category</option><option>Linen</option><option>Toiletries</option><option>Refreshments</option><option>Electronics</option><option>Housekeeping</option><option>Guest Comfort</option><option>Kitchen</option></select>
-                @if(auth()->user()->role !== 'staff')<button class="pill" onclick="openModal('addItem')">Add Item</button>@endif
+                @if(auth()->user()->role !== 'staff')<button class="pill" onclick="openItemCreator()">Add Item</button>@endif
             </div>
         </div>
         <div class="tbl">
@@ -133,11 +134,13 @@ const chk='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>';
 const avl={available:'Available',low:'Low',out:'Out of Stock'};
 const data=@json($items);
 function itemVisual(item){return item.image_path?'<img src="/'+item.image_path+'" alt="">':(item.emoji||'');}
-function mInvDetail(id){const r=data.find(x=>x.id===id);if(r)showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder);}
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-av sq">${itemVisual(r)}</span><div class="ms-name"><b>${r.name}</b><small>${r.category||''}</small></div><span class="ms-pill ${r.availability}">${avl[r.availability]||''}</span></div><div class="ms-kv two"><div><small>Quantity in Stock</small><b>${r.quantity_stock}</b></div><div><small>Quantity in Reorder</small><b>${r.quantity_reorder}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="mInvDetail(${r.id})">Details</button><button type="button" class="ms-btn lime" onclick="openAddStock(${r.id},${JSON.stringify(r.name).replace(/"/g,'&quot;')})">Add Stock</button>${IS_ADMIN?`<button type="button" class="ms-btn cancel" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">Delete</button>`:''}</div></article>`).join('')||'<div class="ms-empty">No items found</div>';}
+function invDetailHtml(r){const moves=(r.recent||[]);const hist=moves.length?'<div style="margin-top:12px"><b>Recent stock changes</b>'+moves.map(m=>'<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:6px"><span>'+m.reason+(m.reference?' · '+m.reference:'')+'<br><small style="color:#999">'+m.at+'</small></span><b style="color:'+(m.change<0?'#b3352f':'#287552')+'">'+(m.change>0?'+':'')+m.change+'</b></div>').join('')+'</div>':'<div style="margin-top:12px;color:#999;font-size:13px">No stock changes recorded yet.</div>';const auto=Number(r.per_checkin||0);const setBtn=window.CAN_MANAGE?' <button class="vd" style="color:#1d6ae5;font-size:13px" onclick="const v=prompt(\'Quantity handed out automatically at every check-in (0 = off)\','+auto+');if(v!==null&&v!==\'\')post(\'/inventory/'+r.id+'/settings\',\'POST\',{per_checkin:parseInt(v,10)||0})">Change</button>':'';return 'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder+'<br>Used per check-in: <b>'+auto+'</b>'+setBtn+hist;}
+function mInvDetail(id){const r=data.find(x=>x.id===id);if(r)showDetail(r.name,invDetailHtml(r));}
+function openUseStock(id){const r=data.find(x=>x.id===id);if(!r)return;document.getElementById('useStockForm').action='/inventory/'+id+'/use-stock';document.getElementById('useStockTitle').textContent='Use Stock — '+r.name+' ('+r.quantity_stock+' in stock)';document.getElementById('useStockQuantity').value='';document.getElementById('useStockQuantity').max=r.quantity_stock;openModal('useStock');}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-av sq">${itemVisual(r)}</span><div class="ms-name"><b>${r.name}</b><small>${r.category||''}</small></div><span class="ms-pill ${r.availability}">${avl[r.availability]||''}</span></div><div class="ms-kv two"><div><small>Quantity in Stock</small><b>${r.quantity_stock}</b></div><div><small>Quantity in Reorder</small><b>${r.quantity_reorder}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="mInvDetail(${r.id})">Details</button>${CAN_MANAGE?`<button type="button" class="ms-btn gray" onclick="openItemEditor(${r.id})">Edit</button>`:''}<button type="button" class="ms-btn lime" onclick="openAddStock(${r.id},${JSON.stringify(r.name).replace(/"/g,'&quot;')})">Add Stock</button><button type="button" class="ms-btn mint" onclick="openUseStock(${r.id})">Use Stock</button>${IS_ADMIN?`<button type="button" class="ms-btn cancel" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">Delete</button>`:''}</div></article>`).join('')||'<div class="ms-empty">No items found</div>';}
 function render(list){
  renderMobile(list);
- document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button type="button" class="vd" onclick="showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button type="button" class="add-stock" data-item-id="${r.id}" data-item-name="${r.name}">Add Stock</button>${IS_ADMIN?`<button type="button" class="delete-item" data-item-id="${r.id}">Delete</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
+ document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button type="button" class="vd" onclick="mInvDetail(${r.id})">View Detail</button>${CAN_MANAGE?`<button type="button" class="vd" style="color:#1d6ae5" onclick="openItemEditor(${r.id})">Edit</button>`:''}<button type="button" class="add-stock" data-item-id="${r.id}" data-item-name="${r.name}">Add Stock</button><button type="button" class="add-stock" style="background:#d9f5e5;color:#1f5f3f" onclick="openUseStock(${r.id})">Use Stock</button>${IS_ADMIN?`<button type="button" class="delete-item" data-item-id="${r.id}">Delete</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
  document.querySelectorAll('.cb').forEach(c=>c.onclick=()=>{c.classList.toggle('ck');c.closest('.trow').classList.toggle('on')});
  document.querySelectorAll('.add-stock').forEach(button=>button.onclick=()=>openAddStock(button.dataset.itemId,button.dataset.itemName));
  document.querySelectorAll('.delete-item').forEach(button=>button.onclick=()=>{if(confirm('Delete this item?'))post('/inventory/'+button.dataset.itemId,'DELETE')});
@@ -151,6 +154,8 @@ function applyFilters(){
 msMirror([['mSearch','fSearch','input'],['mCat','fCat'],['mSort','fSort']]);
 ['fSearch','fCat','fSort'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
+function openItemCreator(){const f=document.getElementById('itemForm');f.reset();f.action='{{ url('/inventory') }}';document.getElementById('itemMethod').value='';document.getElementById('itemModalTitle').textContent='Add Item';f.querySelectorAll('[data-edit-hide]').forEach(el=>el.style.display='');openModal('addItem');}
+function openItemEditor(id){const r=data.find(x=>x.id===id);if(!r)return;const f=document.getElementById('itemForm');f.reset();f.action='{{ url('/inventory') }}/'+r.id;document.getElementById('itemMethod').value='PUT';document.getElementById('itemModalTitle').textContent='Edit Item';['name','category','quantity_reorder','per_checkin'].forEach(k=>{if(f.elements[k])f.elements[k].value=r[k]??'';});f.querySelectorAll('[data-edit-hide]').forEach(el=>el.style.display='none');openModal('addItem');}
 function openAddStock(id,name){
  document.getElementById('addStockForm').action='/inventory/'+id+'/add-stock';
  document.getElementById('addStockTitle').textContent='Add Stock — '+name;
@@ -158,12 +163,18 @@ function openAddStock(id,name){
  openModal('addStock');
 }
 </script>
-<div class="modal-ov" id="addItem"><div class="modal"><h3>Add Item</h3><form method="POST" action="{{ url('/inventory') }}" enctype="multipart/form-data">@csrf
+<div class="modal-ov" id="addItem"><div class="modal"><h3 id="itemModalTitle">Add Item</h3><form id="itemForm" method="POST" action="{{ url('/inventory') }}" enctype="multipart/form-data">@csrf<input type="hidden" name="_method" id="itemMethod" value="">
 <label>Item Name</label><input name="name" required>
 <div class="mrow"><div><label>Item Image</label><label for="inventoryImage" style="margin:0;background:var(--lime);color:#2f3a0c;border-radius:8px;padding:10px 12px;font-weight:700;cursor:pointer">Upload Image</label><span id="inventoryImageName" style="display:block;margin-top:6px;color:#777;font-size:12px">No image selected</span><input id="inventoryImage" type="file" name="image" accept="image/*" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" onchange="document.getElementById('inventoryImageName').textContent=this.files[0]?.name||'No image selected'"></div><div><label>Category</label><input name="category" placeholder="Supplies"></div></div>
-<label>Availability</label><select name="availability"><option value="available">Available</option><option value="low">Low</option><option value="out">Out of Stock</option></select>
-<div class="mrow"><div><label>Quantity in Stock</label><input type="number" name="quantity_stock" value="0"></div><div><label>Quantity in Reorder</label><input type="number" name="quantity_reorder" value="0"></div></div>
+<div data-edit-hide><label>Availability</label><select name="availability"><option value="available">Available</option><option value="low">Low</option><option value="out">Out of Stock</option></select>
+</div><div class="mrow"><div data-edit-hide><label>Quantity in Stock</label><input type="number" name="quantity_stock" value="0"></div><div><label>Quantity in Reorder</label><input type="number" name="quantity_reorder" value="0"></div></div>
+<label>Used automatically per check-in</label><input type="number" name="per_checkin" value="0" min="0" placeholder="0 = not automatic">
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addItem')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
+<div class="modal-ov" id="useStock"><div class="modal"><h3 id="useStockTitle">Use Stock</h3><form id="useStockForm" method="POST">@csrf
+<label>Quantity used</label><input id="useStockQuantity" type="number" name="quantity" min="1" required placeholder="e.g. 5">
+<label>Reason</label><input name="reason" maxlength="120" placeholder="e.g. Room 204 restock, kitchen, damaged">
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('useStock')">Cancel</button><button class="mbtn save">Use Stock</button></div>
 </form></div></div>
 <div class="modal-ov" id="addStock"><div class="modal"><h3 id="addStockTitle">Add Stock</h3><form id="addStockForm" method="POST">@csrf
 <label>Quantity to add</label><input id="addStockQuantity" type="number" name="quantity" min="1" required autofocus placeholder="e.g. 25">

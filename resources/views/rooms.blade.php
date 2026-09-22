@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#eee;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -39,8 +39,8 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .rcard.sel{background:#fbfbf9;border-color:#ececec}
 .rimg{width:230px;height:150px;border-radius:12px;flex:0 0 230px;object-fit:cover;background:#e9e9e9}
 .rbody{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
-.rbody h3{font-size:22px;margin:0 0 12px}
-.rstatus{position:absolute;right:0;top:2px;padding:5px 13px;border-radius:8px;font-size:13px;font-weight:600}
+.rbody h3{font-size:22px;margin:0 0 12px;padding-right:104px}
+.rstatus{position:absolute;right:0;top:2px;padding:5px 13px;border-radius:8px;font-size:13px;font-weight:600;white-space:nowrap}
 .rstatus.occupied{background:var(--lime);color:#3d4a10}
 .rstatus.available{background:var(--mint);color:#2f6b4f}
 .specs{display:flex;gap:22px;color:#555;font-size:14px;margin-bottom:12px}
@@ -79,6 +79,12 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 footer{display:flex;justify-content:space-between;align-items:center;padding:20px 6px 8px;color:#9a9a9a;font-size:14px;flex-wrap:wrap;gap:14px}
 .flinks{display:flex;gap:26px}.flinks a{color:#9a9a9a;text-decoration:none}.flinks span:first-child{color:#666}
 .fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
+/* Room-number list in the detail panel */
+.ulegend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#666;margin-bottom:10px}.ulegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:middle}
+.ugrid{display:flex;flex-wrap:wrap;gap:8px}.unit{min-width:64px;padding:7px 10px;border-radius:9px;font-size:13px;font-weight:700;text-align:center;cursor:pointer;line-height:1.2}
+.unit.available,.ulegend .available{background:#d9f5e5;color:#1f5f3f}.unit.reserved,.ulegend .reserved{background:#fdf3d2;color:#8a6200}.unit.occupied,.ulegend .occupied{background:#ffe1e1;color:#b3352f}.unit.not_ready,.ulegend .not_ready{background:#ececec;color:#666}
+.unit small{display:block;font-size:10px;font-weight:400;margin-top:2px}
+.uadd{display:flex;gap:8px;margin-top:12px}.uadd input{flex:1;min-width:0;height:38px;border:1px solid #e3e3e3;border-radius:9px;padding:0 12px;font:inherit}
 @media(max-width:1200px){.wrap{grid-template-columns:1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.rcard{flex-direction:column}.rimg{width:100%;flex-basis:auto}.flist,.flist.three{grid-template-columns:1fr}footer{flex-direction:column;align-items:flex-start}}
 </style>
@@ -86,6 +92,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <style>
 /* ===== Phone rooms (Figma clone). Only on screens up to 768px; desktop layout untouched. ===== */
 .m-rooms{display:none}
@@ -143,9 +150,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .mr-specs span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
     .mr-specs svg{width:15px;height:15px;flex:0 0 15px;fill:none;stroke:#333;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .mr-desc{margin:8px 0 0;font-size:13px;line-height:1.4;color:#666;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .mr-price{margin-top:auto;padding-top:10px;font-size:20px;font-weight:800;padding-right:56px;white-space:nowrap}
-    .mr-price small{font-size:14px;font-weight:400;color:#666}
-    .mr-go{position:absolute;right:0;bottom:0;width:46px;height:46px;border-radius:50%;background:#d9f5e5;display:grid;place-items:center;color:#1f5f3f}
+    .mr-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:10px}
+    .mr-price{font-size:19px;font-weight:800;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+    .mr-price small{font-size:13px;font-weight:400;color:#666}
+    .mr-go{position:static;flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:#d9f5e5;display:grid;place-items:center;color:#1f5f3f}
     .mr-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
     .mr-empty{background:#fff;border-radius:18px;padding:28px;text-align:center;color:#888;font-size:14px}
 }
@@ -153,7 +161,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .m-rooms .mr-brand b{font-size:15px}.m-rooms .mr-brand small{font-size:12px}.m-rooms .mr-brand img{width:40px;height:40px}.m-rooms .mr-ib{width:40px;height:40px}.m-rooms .mr-avatar{width:42px;height:42px;font-size:14px}
     .m-rooms .mr-title h1{font-size:25px}.m-rooms .mr-title p{font-size:12px}.m-rooms .mr-add{height:40px;padding:0 12px;font-size:14px}
     .m-rooms .mr-card{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}.m-rooms .mr-img{width:96px}
-    .m-rooms .mr-nm b{font-size:16px}.m-rooms .mr-specs{font-size:12px;gap:3px 9px}.m-rooms .mr-desc{font-size:12px}.m-rooms .mr-price{font-size:17px;padding-right:46px}.m-rooms .mr-go{width:38px;height:38px}
+    .m-rooms .mr-nm b{font-size:16px}.m-rooms .mr-specs{font-size:12px;gap:3px 9px}.m-rooms .mr-desc{font-size:12px}.m-rooms .mr-price{font-size:16px}.m-rooms .mr-go{width:36px;height:36px;flex-basis:36px}
 }
 </style>
 <main class="main">
@@ -162,8 +170,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
             <div class="mr-tools">
                 <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.')"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
-                <span class="mr-avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
+                <span class="mr-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             </div>
         </header>
         <div class="mr-title"><div><h1>Rooms</h1><p>Find the perfect room for your stay</p></div><button class="mr-add" type="button" onclick="openRoomCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button></div>
@@ -179,11 +187,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Rooms</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -218,6 +226,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="sec"><h4>Features</h4><div class="flist" id="features"></div></div>
             <div class="sec"><h4>Facilities</h4><div class="flist three" id="facilities"></div></div>
             <div class="sec"><h4>Amenities</h4><div class="flist" id="amenities"></div></div>
+            <div class="sec"><h4 style="display:flex;justify-content:space-between;align-items:center;gap:10px">Room Numbers <small id="unitSummary" style="font-weight:400;color:#777;font-size:13px"></small></h4>
+                <div class="ulegend"><span><i class="available"></i>Available</span><span><i class="reserved"></i>Reserved</span><span><i class="occupied"></i>Occupied</span><span><i class="not_ready"></i>Not Ready</span></div>
+                <div class="ugrid" id="unitGrid"></div>
+                @if(auth()->user()->role !== 'staff')<form class="uadd" method="POST" action="" id="unitForm">@csrf<input name="numbers" placeholder="Add room numbers, e.g. 111, 112, 113" required><button class="edit" type="submit">Add</button></form>@endif
+            </div>
         </aside>
     </div>
     <footer>
@@ -240,10 +253,12 @@ const rooms=@json($rooms);
  const ck='<span class="ck"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg></span>';
  const facIcons={'High-speed Wi-Fi':'<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/>','In-room safe':'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="13" cy="12" r="3"/>','Mini-fridge':'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M6 10h12M10 5v2M10 13v3"/>','Flat-screen TV':'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/>','Air conditioning':'<rect x="2" y="4" width="20" height="9" rx="2"/><path d="M6 17v1M10 17v2M14 17v1M18 17v2"/>','Coffee/tea maker':'<path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2M6 3v2M10 3v2M14 3v2"/>'};
  let selectedId={{ $featured->id }};
+ const ULABEL={available:'Available',reserved:'Reserved',occupied:'Occupied',not_ready:'Not Ready'};
+ function unitActions(id){let u=null,room=null;rooms.forEach(r=>(r.units||[]).forEach(x=>{if(x.id===id){u=x;room=r;}}));if(!u)return;const booked=u.status==='reserved'||u.status==='occupied';let html='<b>'+room.name+'</b><br>Status: <b>'+(ULABEL[u.status]||u.status)+'</b>';if(booked)html+='<p style="color:#777;font-size:13px;margin:10px 0 0">This room has an active booking. Change the booking from the Reservations page.</p>';else if(window.CAN_MANAGE){html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">'+(u.status==='available'?'<button class="mbtn cancel" style="flex:1" onclick="post(\'/room-units/'+u.id+'/status\',\'POST\',{status:\'not_ready\'})">Mark Not Ready</button>':'<button class="mbtn save" style="flex:1" onclick="post(\'/room-units/'+u.id+'/status\',\'POST\',{status:\'available\'})">Mark Available</button>')+(window.IS_ADMIN?'<button class="mbtn cancel" onclick="if(confirm(\'Remove Room '+u.number+'?\'))post(\'/room-units/'+u.id+'\',\'DELETE\')">Remove</button>':'')+'</div>';}showDetail('Room '+u.number,html);}
  function currentList(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const ty=document.getElementById('fType').value;const sort=document.getElementById('fSort').value;let l=rooms.filter(r=>(!ty||r.name===ty)&&(!q||[r.name,r.description,r.bed].join(' ').toLowerCase().includes(q)));if(sort==='low')l=[...l].sort((a,b)=>a.price-b.price);else if(sort==='high')l=[...l].sort((a,b)=>b.price-a.price);return l;}
  function mGuests(g){g=String(g||'').trim();return /^\d+$/.test(g)?g+(g==='1'?' guest':' guests'):g;}
  function mOpenRoom(id){selectRoom(id);document.querySelector('.detail').classList.add('open');window.scrollTo(0,0);}
- function renderMobile(list){const el=document.getElementById('mRooms');if(!el)return;el.innerHTML=list.map(r=>`<article class="mr-card" onclick="mOpenRoom(${r.id})"><img class="mr-img" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="mr-body"><div class="mr-nm"><b>${r.name}</b><span class="mr-st ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span></div><div class="mr-specs">${r.size?'<span>'+m2+r.size+'</span>':''}${r.bed?'<span>'+bed+r.bed+'</span>':''}${r.guests?'<span>'+gst+mGuests(r.guests)+'</span>':''}</div><p class="mr-desc">${r.description||''}</p><div class="mr-price">PKR ${Number(r.price||0).toLocaleString()}<small>/night</small></div><span class="mr-go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div></article>`).join('')||'<div class="mr-empty">No rooms found</div>';}
+ function renderMobile(list){const el=document.getElementById('mRooms');if(!el)return;el.innerHTML=list.map(r=>`<article class="mr-card" onclick="mOpenRoom(${r.id})"><img class="mr-img" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="mr-body"><div class="mr-nm"><b>${r.name}</b><span class="mr-st ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span></div><div class="mr-specs">${r.size?'<span>'+m2+r.size+'</span>':''}${r.bed?'<span>'+bed+r.bed+'</span>':''}${r.guests?'<span>'+gst+mGuests(r.guests)+'</span>':''}${(r.units&&r.units.length)?'<span><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M15 12h.01M4 21h16"/></svg>'+r.units.filter(u=>u.status==='available').length+' of '+r.units.length+' free</span>':''}</div><p class="mr-desc">${r.description||''}</p><div class="mr-foot"><div class="mr-price">PKR ${Number(r.price||0).toLocaleString()}<small>/night</small></div><span class="mr-go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div></div></article>`).join('')||'<div class="mr-empty">No rooms found</div>';}
  function render(list){renderMobile(list);document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
  function renderDetail(r){
   document.getElementById('dName').textContent=r.name+' Room';
@@ -257,6 +272,7 @@ const rooms=@json($rooms);
   document.getElementById('dDesc').textContent=r.description||'';
   const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${f==='No Kitchen'?'<span style="color:#ff4e52;font-size:20px;font-weight:800">×</span>':ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
   const FA=r.facilities||[];document.getElementById('facilities').innerHTML=FA.length?FA.map(f=>`<div class="fitem"><svg class="fi" viewBox="0 0 24 24">${facIcons[f]||'<circle cx=\"12\" cy=\"12\" r=\"8\"/>'}</svg><span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No facilities listed</div>';
+  const units=r.units||[];const grid=document.getElementById('unitGrid');if(grid){grid.innerHTML=units.length?units.map(u=>`<span class="unit ${u.status}" onclick="unitActions(${u.id})">${u.number}<small>${ULABEL[u.status]||u.status}</small></span>`).join(''):'<div style="color:#aaa;font-size:13px">No room numbers yet</div>';const free=units.filter(u=>u.status==='available').length;document.getElementById('unitSummary').textContent=units.length?free+' of '+units.length+' available':'';const uf=document.getElementById('unitForm');if(uf)uf.action='{{ url('/rooms') }}/'+r.id+'/units';}
   const AM=r.amenities||[];document.getElementById('amenities').innerHTML=AM.length?AM.map(a=>`<div class="fitem">${ck}<span>${a}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No amenities listed</div>';
  }
  function selectRoom(id){selectedId=id;const r=rooms.find(x=>x.id===id);if(r)renderDetail(r);render(currentList());}

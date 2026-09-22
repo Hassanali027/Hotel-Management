@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -67,6 +67,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
 @include('partials.mobile-shell', ['msTitle'=>'Invoices','msSubtitle'=>'Payments and receipts'])
@@ -77,18 +78,18 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Invoice</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
     <section class="panel">
         <div class="filters">
             <div class="fl">
-                <button class="pill lime"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>{{ now()->startOfMonth()->addDays(4)->format('j M') }} - {{ now()->startOfMonth()->addDays(15)->format('j M Y') }}<svg viewBox="0 0 24 24" width="14" height="14"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="pill" style="padding:0 12px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fFrom" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="From"><span style="color:#9a9a9a">to</span><input id="fTo" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="To"></div>
                 <select class="fsel" id="fStatus"><option value="">All Status</option><option value="paid">Paid</option><option value="partial">Partial</option><option value="unpaid">Unpaid</option></select>
             </div>
             <div class="fr">
@@ -126,53 +127,19 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         </div>
     </footer>
 </main>
+@include('partials.invoice-modal')
 <script>
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($bookings);
-function money(n){return 'PKR '+Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
-function invCalc(b){const nights=parseInt(b.duration)||1;const total=+b.amount||((+b.price_per_night||0)*nights);return{total,nights};}
-window.INV={};
-function showInvoice(id){const b=INV[id];const c=invCalc(b);const paid=b.invoice_status==='paid';const isPartial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const advance=Math.min(c.total,Number(b.advance_amount||0));const finalPayment=paid?Math.min(Math.max(0,c.total-advance),Number(b.final_payment_amount||Math.max(0,c.total-advance))):0;const afterAdvance=Math.max(0,c.total-advance);const remaining=Math.max(0,c.total-advance-finalPayment);const status=paid?'PAID':isPartial?'PARTIAL':'UNPAID';const statusBg=paid?'#e8fb82':isPartial?'#fff0c6':'#ffe1e1';const statusColor=paid?'#3d4a10':isPartial?'#9a6800':'#b3352f';const date=v=>v?new Date(v).toLocaleDateString():'';
- const html=`<div style="font-size:13px;color:#333">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #e8fb82;padding-bottom:12px;margin-bottom:14px">
-   <div><div style="font-size:20px;font-weight:800;color:#151515">Indus Resort Restaurant</div><div style="color:#999;font-size:11px">Hotel Management System</div></div>
-   <div style="text-align:right"><div style="font-weight:800;letter-spacing:1px">INVOICE</div><div style="color:#666">${b.code}</div><div style="color:#999;font-size:11px">${new Date().toLocaleDateString()}</div></div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:14px">
-   <div><div style="color:#999;font-size:11px;margin-bottom:2px">BILL TO</div><b style="font-size:14px">${b.guest_name}</b></div>
-   <div style="text-align:right"><div style="color:#999;font-size:11px;margin-bottom:2px">STATUS</div><span style="font-weight:800;padding:3px 10px;border-radius:6px;background:${statusBg};color:${statusColor}">${status}</span></div>
-  </div>
-  <div style="background:#f7f9f2;border-radius:10px;padding:12px 14px;margin-bottom:14px">
-   <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Room</span><b>${b.room_label||''}</b></div>
-   <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Duration</span><b>${b.duration||''}</b></div>
-   <div style="display:flex;justify-content:space-between;margin:3px 0"><span style="color:#777">Rate / night</span><b>PKR ${b.price_per_night}</b></div>
-  </div>
-  <div>
-   <div style="display:flex;justify-content:space-between;margin:6px 0"><span>Room charge (${c.nights} night${c.nights>1?'s':''})</span><span>${money(c.total)}</span></div>
-   <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:2px solid #eee;font-size:16px;font-weight:800"><span>Total booking amount</span><span>${money(c.total)}</span></div>
-  </div>
-  <div style="margin-top:14px;padding:12px 14px;border:1px solid #f1d990;border-radius:10px;background:#fffaf0">
-   <div style="font-size:14px;font-weight:800;color:#936100;margin-bottom:8px">Payment History</div>
-   <div style="display:flex;justify-content:space-between;margin:5px 0"><span>Advance paid${advance&&b.created_at?' · '+date(b.created_at):''}</span><b>${money(advance)}</b></div>
-   <div style="display:flex;justify-content:space-between;margin:5px 0"><span>Balance after advance</span><b>${money(afterAdvance)}</b></div>
-   ${paid?`<div style="display:flex;justify-content:space-between;margin:5px 0"><span>Final payment${b.final_payment_paid_at?' · '+date(b.final_payment_paid_at):''}</span><b>${money(finalPayment)}</b></div>`:''}
-   <div style="display:flex;justify-content:space-between;margin:8px 0 0;padding-top:8px;border-top:1px solid #eedca2;font-size:15px;font-weight:800"><span>Remaining Balance</span><span style="color:${remaining>0?'#bf501d':'#287552'}">${money(remaining)}</span></div>
-  </div>
-  <div style="margin-top:16px;display:flex;gap:8px">
-   <button class="mbtn save" style="flex:1" onclick="downloadInvoice(${b.id})">⤓ Download</button>
-   @if(auth()->user()->role!=='staff')<button class="mbtn cancel" style="flex:1" onclick="post('/invoices/${b.id}/toggle','POST')">${paid?'Mark Unpaid':'Mark Paid'}</button>@endif
-  </div>
- </div>`;
- showDetail('', html);
-}
-function downloadInvoice(id){window.location='/invoices/'+id+'/download';}
+
 function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((b,i)=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<article class="ms-card"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${msInitials(b.guest_name)}</span><div class="ms-name"><b>${b.guest_name}</b><small>${b.code}</small></div><span class="ms-pill ${b.invoice_status}">${status}</span></div><div class="ms-kv"><div><small>Room</small><b>${b.room_label||'—'}</b></div><div><small>Duration</small><b>${b.duration||'—'}</b></div><div><small>Rate / night</small><b>${msMoney(b.price_per_night)}</b></div></div><div class="ms-kv two" style="margin-top:12px;padding-top:12px;border-top:1px solid #eee"><div><small>Total Amount</small><b style="font-size:17px">${msMoney(total)}</b></div><div><small>Remaining Balance</small><b style="font-size:17px;color:${remaining>0?'#bf501d':'#287552'}">${partial?msMoney(remaining):'—'}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="showInvoice(${b.id})">View</button><button type="button" class="ms-btn lime" onclick="downloadInvoice(${b.id})">${dl} Download</button></div></article>`}).join('')||'<div class="ms-empty">No invoices found</div>';}
 function render(list){renderMobile(list);list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<div class="trow" style="cursor:pointer" onclick="showInvoice(${b.id})"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>PKR ${b.price_per_night}</span><span>${b.duration||''}</span><span>PKR ${total.toLocaleString()}</span><span>${partial?'PKR '+remaining.toLocaleString():'—'}</span><span><em class="st ${b.invoice_status}">${status}</em></span><span class="act"><button class="eye" title="View invoice" onclick="event.stopPropagation();showInvoice(${b.id})">${eye}</button><button class="dl" onclick="event.stopPropagation();downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
-function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const st=document.getElementById('fStatus').value;pgReset('inv');paginateRender('inv',sortList('inv',data.filter(b=>(!st||b.invoice_status===st)&&(!q||[b.guest_name,b.code,b.room_label].join(' ').toLowerCase().includes(q)))),8,render);}
+function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const st=document.getElementById('fStatus').value;pgReset('inv');paginateRender('inv',sortList('inv',data.filter(b=>(!(document.getElementById('fFrom')||{}).value||String(b.check_out||'').slice(0,10)>=document.getElementById('fFrom').value)&&(!(document.getElementById('fTo')||{}).value||String(b.check_in||'').slice(0,10)<=document.getElementById('fTo').value)&&(!st||b.invoice_status===st)&&(!q||[b.guest_name,b.code,b.room_label].join(' ').toLowerCase().includes(q)))),8,render);}
 msMirror([['mSearch','fSearch','input'],['mStatus','fStatus']]);
 document.getElementById('fSearch').addEventListener('input',applyFilters);
 document.getElementById('fStatus').addEventListener('change',applyFilters);
+['fFrom','fTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',applyFilters);});
 applyFilters();
 </script>
 </body>

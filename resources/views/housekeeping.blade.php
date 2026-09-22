@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -69,23 +69,24 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
 @php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openModal(\'addHk\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button>' : ''; @endphp
 @include('partials.mobile-shell', ['msTitle'=>'Housekeeping','msSubtitle'=>'Room cleaning status and priorities','msAction'=>$msAct])
 <div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search room, floor, etc..."></label></div>
-<div class="ms-selrow"><select class="ms-sel" id="mRoom"><option value="">All Room</option><option>Deluxe</option><option>Standard</option><option>Suite</option></select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option value="progress">Cleaning in Progress</option><option value="ready">Ready</option><option value="needs">Needs Cleaning</option><option value="inspect">Needs Inspection</option></select><select class="ms-sel" id="mPriority"><option value="">All Priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+<div class="ms-selrow"><select class="ms-sel" id="mRoom"><option value="">All Room</option>@foreach($roomTypes as $t)<option>{{ $t }}</option>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option value="progress">Cleaning in Progress</option><option value="ready">Ready</option><option value="needs">Needs Cleaning</option><option value="inspect">Needs Inspection</option></select><select class="ms-sel" id="mPriority"><option value="">All Priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 @include('partials.mobile-nav')
 </section>
     <header class="top">
         <h1>Housekeeping</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -93,7 +94,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <div class="filters">
             <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search room, floor, etc"></div>
             <div class="fr">
-                <select class="fsel lime" id="fRoom"><option value="">All Room</option><option>Deluxe</option><option>Standard</option><option>Suite</option></select>
+                <select class="fsel lime" id="fRoom"><option value="">All Room</option>@foreach($roomTypes as $t)<option>{{ $t }}</option>@endforeach</select>
                 <select class="fsel lime" id="fStatus"><option value="">All Status</option><option value="progress">Cleaning in Progress</option><option value="ready">Ready</option><option value="needs">Needs Cleaning</option><option value="inspect">Needs Inspection</option></select>
                 <select class="fsel lime" id="fPriority"><option value="">All Priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
                 @if(auth()->user()->role !== 'staff')<button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openModal('addHk')">+ Add Room</button>@endif
@@ -134,20 +135,29 @@ const cv='<svg class="cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
 const sl={progress:'Cleaning in Progress',ready:'Ready',needs:'Needs Cleaning',inspect:'Needs Inspection'};
 const pl={high:'High',medium:'Medium',low:'Low'};
 const data=@json($rows);
+const hkUnits=@json($units);
+function hkFillRooms(type){const sel=document.getElementById('hkRoom');if(!sel)return;const list=hkUnits.filter(u=>u.type===type);sel.innerHTML=list.length?list.map(u=>'<option value="Room '+u.number+'">Room '+u.number+'</option>').join(''):'<option value="">No room numbers for this type</option>';}
+document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('hkType');if(t)hkFillRooms(t.value);});
+function openHkEditor(id){const r=data.find(x=>x.id===id);if(!r)return;const f=document.getElementById('hkEditForm');f.reset();f.action='/housekeeping/'+r.id;document.getElementById('hkEditTitle').textContent='Edit '+r.room_number;f.elements.floor.value=r.floor||'';f.elements.reservation_status.value=r.reservation_status||'Available';f.elements.notes.value=r.notes||'';const d=document.getElementById('hkDelete');if(d)d.dataset.id=r.id;openModal('editHk');}
 function opt(map,cur){return Object.keys(map).map(k=>`<option value="${k}"${k===cur?' selected':''}>${map[k]}</option>`).join('');}
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-check ${r.is_checked?'on':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span><div class="ms-name"><b>${r.room_number}</b><small>${r.room_type||''}${r.floor?' · Floor '+r.floor:''}</small></div><select class="ms-tagsel ${r.status}" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></div><div class="ms-kv"><div><small>Priority</small><select class="ms-tagsel ${r.priority}" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></div><div><small>Reservation</small><b>${r.reservation_status||'—'}</b></div><div><small>Floor</small><b>${r.floor||'—'}</b></div></div>${r.notes?`<div class="ms-note">${r.notes}</div>`:''}</article>`).join('')||'<div class="ms-empty">No rooms found</div>';}
-function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span>${r.room_number}</span><span>${r.room_type||''}</span><span><select class="tag hs ${r.status} tsel" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="tag pr ${r.priority} tsel" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span>${r.floor||''}</span><span>${r.reservation_status||''}</span><span>${r.notes||''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-check ${r.is_checked?'on':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span><div class="ms-name"><b>${r.room_number}</b><small>${r.room_type||''}${r.floor?' · Floor '+r.floor:''}</small></div><select class="ms-tagsel ${r.status}" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></div><div class="ms-kv"><div><small>Priority</small><select class="ms-tagsel ${r.priority}" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></div><div><small>Reservation</small><b>${r.reservation_status||'—'}</b></div><div><small>Floor</small><b>${r.floor||'—'}</b></div></div>${r.notes?`<div class="ms-note">${r.notes}</div>`:''}${CAN_MANAGE?`<div class="ms-act"><button type="button" class="ms-btn gray" onclick="openHkEditor(${r.id})">Edit</button></div>`:''}</article>`).join('')||'<div class="ms-empty">No rooms found</div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span>${r.room_number}</span><span>${r.room_type||''}</span><span><select class="tag hs ${r.status} tsel" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="tag pr ${r.priority} tsel" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span>${r.floor||''}</span><span>${r.reservation_status||''}</span><span>${r.notes||''}${CAN_MANAGE?` <button style="border:0;background:none;color:#1d6ae5;cursor:pointer;font-weight:700;margin-left:6px" onclick="openHkEditor(${r.id})">Edit</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const rm=document.getElementById('fRoom').value;const st=document.getElementById('fStatus').value;const pr=document.getElementById('fPriority').value;pgReset('hk');paginateRender('hk',sortList('hk',data.filter(r=>(!rm||r.room_type===rm)&&(!st||r.status===st)&&(!pr||r.priority===pr)&&(!q||[r.room_number,r.floor,r.notes,r.reservation_status].join(' ').toLowerCase().includes(q)))),8,render);}
 msMirror([['mSearch','fSearch','input'],['mRoom','fRoom'],['mStatus','fStatus'],['mPriority','fPriority']]);
 ['fSearch','fRoom','fStatus','fPriority'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 </script>
 <div class="modal-ov" id="addHk"><div class="modal"><h3>Add Room</h3><form method="POST" action="{{ url('/housekeeping') }}">@csrf
-<div class="mrow"><div><label>Room Number</label><input name="room_number" placeholder="Room 101" required></div><div><label>Room Type</label><select name="room_type"><option>Deluxe</option><option>Standard</option><option>Suite</option></select></div></div>
+<div class="mrow"><div><label>Room Type</label><select name="room_type" id="hkType" onchange="hkFillRooms(this.value)">@foreach($roomTypes as $t)<option>{{ $t }}</option>@endforeach</select></div><div><label>Room Number</label><select name="room_number" id="hkRoom" required></select></div></div>
 <div class="mrow"><div><label>Housekeeping Status</label><select name="status"><option value="needs">Needs Cleaning</option><option value="progress">Cleaning in Progress</option><option value="ready">Ready</option><option value="inspect">Needs Inspection</option></select></div><div><label>Priority</label><select name="priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div></div>
 <div class="mrow"><div><label>Floor</label><input name="floor" placeholder="1st"></div><div><label>Reservation Status</label><select name="reservation_status"><option>Checked-In</option><option>Checked-Out</option><option>Reserved</option></select></div></div>
 <label>Notes</label><textarea name="notes" placeholder="Cleaning notes..."></textarea>
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addHk')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
+<div class="modal-ov" id="editHk"><div class="modal"><h3 id="hkEditTitle">Edit Room</h3><form id="hkEditForm" method="POST">@csrf<input type="hidden" name="_method" value="PUT">
+<div class="mrow"><div><label>Floor</label><input name="floor" placeholder="Ground / First"></div><div><label>Reservation Status</label><select name="reservation_status"><option>Available</option><option>Reserved</option><option>Checked-In</option><option>Checked-Out</option></select></div></div>
+<label>Notes</label><textarea name="notes" placeholder="Cleaning notes..."></textarea>
+<div class="mact">@if(auth()->user()->role === 'admin')<button type="button" class="mbtn cancel" id="hkDelete" style="margin-right:auto;background:#ffe1e1;color:#b3352f" onclick="if(confirm('Remove this room from housekeeping?'))post('/housekeeping/'+this.dataset.id,'DELETE')">Delete</button>@endif<button type="button" class="mbtn cancel" onclick="closeModal('editHk')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
 </body>
 </html>

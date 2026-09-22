@@ -115,8 +115,8 @@
     <div class="ms-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
     <div class="ms-tools">
         <button class="ms-ib" type="button" aria-label="Search" onclick="var s=document.getElementById('mSearch');if(s){s.focus();s.scrollIntoView({block:'center',behavior:'smooth'});}"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-        <button class="ms-ib bell" type="button" aria-label="Notifications" onclick="showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.')"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
-        <span class="ms-avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+        <button class="ms-ib bell" type="button" aria-label="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
+        <span class="ms-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
     </div>
 </header>
 <div class="ms-title"><div><h1>{{ $msTitle }}</h1>@if(!empty($msSubtitle))<p>{{ $msSubtitle }}</p>@endif</div>{!! $msAction ?? '' !!}</div>

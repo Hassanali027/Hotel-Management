@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Room;
+use App\Models\RoomUnit;
+use App\Models\InventoryMovement;
 use App\Models\Guest;
 use App\Models\Booking;
 use App\Models\HousekeepingTask;
@@ -20,13 +22,52 @@ class PageController extends Controller
     /* ===================== DASHBOARD ===================== */
     public function dashboard()
     {
-        $occupied  = (int) Room::sum('availability_used');
-        $available = (int) Room::sum('availability_total') - $occupied;
+        // Room figures come from the room-number list when it exists (older data falls back to the manual counts).
+        $hasUnits  = RoomUnit::count() > 0;
+        $occupied  = $hasUnits ? RoomUnit::where('status', 'occupied')->count() : (int) Room::sum('availability_used');
+        $available = $hasUnits ? RoomUnit::where('status', 'available')->count() : (int) Room::sum('availability_total') - $occupied;
+        $reservedRooms = $hasUnits ? RoomUnit::where('status', 'reserved')->count() : Booking::count();
+        $notReadyRooms = $hasUnits ? RoomUnit::where('status', 'not_ready')->count() : HousekeepingTask::whereIn('status', ['needs', 'inspect'])->count();
+
+        // Week-over-week change for the stat cards (this week vs. the 7 days before).
+        $weekStart = now()->startOfDay()->subDays(6);
+        $prevStart = $weekStart->copy()->subDays(7);
+        $pct = function ($now, $before) {
+            if ($before <= 0) {
+                return $now > 0 ? 100.0 : 0.0;
+            }
+            return round(($now - $before) / $before * 100, 2);
+        };
+        $count = fn ($q) => (int) $q->count();
+        $bookingsNow  = $count(Booking::where('created_at', '>=', $weekStart));
+        $bookingsPrev = $count(Booking::whereBetween('created_at', [$prevStart, $weekStart]));
+        $checkInNow   = $count(Booking::where('status', 'checked_in')->where('updated_at', '>=', $weekStart));
+        $checkInPrev  = $count(Booking::where('status', 'checked_in')->whereBetween('updated_at', [$prevStart, $weekStart]));
+        $checkOutNow  = $count(Booking::where('status', 'checked_out')->where('updated_at', '>=', $weekStart));
+        $checkOutPrev = $count(Booking::where('status', 'checked_out')->whereBetween('updated_at', [$prevStart, $weekStart]));
+        $revNow  = (int) Booking::where('invoice_status', 'paid')->where('updated_at', '>=', $weekStart)->sum('amount');
+        $revPrev = (int) Booking::where('invoice_status', 'paid')->whereBetween('updated_at', [$prevStart, $weekStart])->sum('amount');
+
+        // Booking by platform from the bookings' own source field.
+        $palette = ['#d2f3e4', '#b6d8cb', '#cbd877', '#e8fb82', '#f4fac3', '#eefbf4', '#dddddd'];
+        $totalB = max(1, Booking::count());
+        $platforms = Booking::selectRaw('source, count(*) as n')->groupBy('source')->orderByDesc('n')->get()
+            ->values()->map(function ($row, $i) use ($totalB, $palette) {
+                return ['name' => $row->source ?: 'Direct Booking', 'percent' => round($row->n / $totalB * 100, 1), 'color' => $palette[$i % count($palette)]];
+            })->all();
+
+        // Rating bars from the reviews' category scores.
+        $ratingCats = collect(['facilities' => 'Facilities', 'cleanliness' => 'Cleanliness', 'services' => 'Services', 'comfort' => 'Comfort', 'location' => 'Location'])
+            ->map(fn ($label, $col) => ['name' => $label, 'score' => round((float) Review::whereNotNull($col)->avg($col), 1)])->values();
 
         return view('Dashboard', [
             'bookings'     => Booking::orderBy('id')->take(5)->get(),
             'tasks'        => Task::all(),
-            'activities'   => Activity::all(),
+            'activities'   => Activity::latest('id')->take(6)->get(),
+            'deltas'       => [
+                'bookings' => $pct($bookingsNow, $bookingsPrev), 'checkIn' => $pct($checkInNow, $checkInPrev),
+                'checkOut' => $pct($checkOutNow, $checkOutPrev), 'revenue' => $pct($revNow, $revPrev),
+            ],
             // stat cards
             'newBookings'  => Booking::count(),
             'checkIn'      => Booking::where('status', 'checked_in')->count(),
@@ -35,16 +76,16 @@ class PageController extends Controller
             // room availability
             'occupied'     => $occupied,
             'available'    => $available,
-            'reserved'     => Booking::count(),
-            'notReady'     => HousekeepingTask::whereIn('status', ['needs', 'inspect'])->count(),
+            'reserved'     => $reservedRooms,
+            'notReady'     => $notReadyRooms,
             // rating
             'ratingAvg'    => round((float) Review::avg('rating'), 1),
             'reviewCount'  => Review::count(),
             // Dashboard charts are calculated from actual booking records.
             'revenues'         => $this->revenueSeries(),
             'reservationStats' => $this->reservationSeries(),
-            'platforms'        => \App\Models\Platform::all(),
-            'ratingCats'       => \App\Models\RatingCategory::all(),
+            'platforms'        => $platforms,
+            'ratingCats'       => $ratingCats,
         ]);
     }
 
@@ -105,6 +146,10 @@ class PageController extends Controller
         return view('reservation', [
             'bookings' => Booking::orderBy('id')->get(),
             'rooms' => Room::orderBy('name')->get(),
+            'guests' => Guest::all()->keyBy('id'),
+            'units' => RoomUnit::with('room:id,name')->orderBy('number')->get()->map(function ($u) {
+                return ['id' => $u->id, 'number' => $u->number, 'status' => $u->status, 'type' => optional($u->room)->name];
+            })->values(),
         ]);
     }
 
@@ -114,8 +159,8 @@ class PageController extends Controller
             'guest_name'=>'required','cnic'=>'nullable|string|max:20','phone'=>'nullable|string|max:30','email'=>'nullable|email|max:255',
             'dob'=>'nullable|date','gender'=>'nullable|string|max:30','nationality'=>'nullable|string|max:100','passport_no'=>'nullable|string|max:100',
             'room_type'=>'nullable','room_number'=>'nullable',
-            'request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable',
-            'price_per_night'=>'required|integer|min:1','amount'=>'nullable|integer','status'=>'nullable',
+            'request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable','guests'=>'nullable|integer|min:1|max:20','source'=>'nullable|string|max:60',
+            'price_per_night'=>'required|integer|min:1','amount'=>'nullable|integer','extra_charges'=>'nullable|integer|min:0','status'=>'nullable',
             'partial_payment'=>'nullable|boolean','advance_amount'=>'nullable|integer|min:0',
             'advance_receipt'=>'nullable|image|max:5120',
             'amenities'=>'nullable|array','amenity_notes'=>'nullable|string|max:500',
@@ -123,7 +168,10 @@ class PageController extends Controller
         $data['partial_payment'] = $r->boolean('partial_payment');
         $data['advance_amount'] = (int) ($data['advance_amount'] ?? 0);
         $data['price_per_night'] = (int) $data['price_per_night'];
-        $data['amount'] = (int) ($data['amount'] ?? 0);
+        // Total = price per night x nights + extra charges.
+        $data['extra_charges'] = (int) ($data['extra_charges'] ?? 0);
+        $nights = max(1, (int) preg_replace('/\D+/', '', (string) ($data['duration'] ?? '')));
+        $data['amount'] = $data['price_per_night'] * $nights + $data['extra_charges'];
         $data['amenities'] = json_encode($data['amenities'] ?? []);
         if ($r->hasFile('advance_receipt')) {
             $directory = public_path('uploads/booking-payments');
@@ -150,14 +198,58 @@ class PageController extends Controller
         $data['room_label'] = trim(($r->room_type ?? '').' '.($r->room_number ?? ''));
         $data['status'] = $r->status ?: 'pending';
         $data['invoice_status'] = $data['partial_payment'] ? 'partial' : ($data['status'] === 'confirmed' ? 'paid' : 'unpaid');
-        Booking::create($data);
+        // Room numbers come from the room-number list; a room can only be booked while it is available.
+        $unit = RoomUnit::findByNumber($data['room_number'] ?? '');
+        $typeHasUnits = !empty($data['room_type']) && RoomUnit::whereHas('room', function ($q) use ($data) { $q->where('name', $data['room_type']); })->exists();
+        if ($typeHasUnits && !$unit) {
+            return back()->withErrors(['room_number' => 'Please choose a room number from the list.'])->withInput();
+        }
+        if ($unit && $unit->status !== 'available') {
+            return back()->withErrors(['room_number' => 'Room '.$unit->number.' is '.str_replace('_', ' ', $unit->status).' and cannot be booked.'])->withInput();
+        }
+        $booking = Booking::create($data);
+        $this->syncRoomForBooking($booking);
+        $this->logActivity('New reservation', $booking->guest_name.' booked '.($booking->room_label ?: 'a room').' ('.$booking->code.').', 'lime');
         return back()->with('ok', 'Booking added');
+    }
+
+    public function bookingUpdate(Request $r, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        $data = $r->validate([
+            'guest_name'=>'required','cnic'=>'nullable|string|max:20','phone'=>'nullable|string|max:30','email'=>'nullable|email|max:255',
+            'room_type'=>'nullable','room_number'=>'nullable','request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable',
+            'guests'=>'nullable|integer|min:1|max:20','source'=>'nullable|string|max:60','price_per_night'=>'required|integer|min:1','extra_charges'=>'nullable|integer|min:0',
+        ]);
+        $newNumber = trim((string) ($data['room_number'] ?? ''));
+        $oldNumber = trim((string) $booking->room_number);
+        if ($newNumber !== $oldNumber) {
+            $unit = RoomUnit::findByNumber($newNumber);
+            if ($unit && $unit->status !== 'available') {
+                return back()->with('ok', 'Room '.$unit->number.' is '.str_replace('_', ' ', $unit->status).' and cannot be assigned.');
+            }
+            $this->releaseRoomForBooking($booking);
+        }
+        if ($booking->guest_id) {
+            Guest::where('id', $booking->guest_id)->update(array_filter([
+                'name' => $data['guest_name'], 'phone' => $data['phone'] ?? null, 'email' => $data['email'] ?? null,
+            ], fn ($v) => $v !== null));
+        }
+        unset($data['phone'], $data['email']);
+        $data['extra_charges'] = (int) ($data['extra_charges'] ?? 0);
+        $nights = max(1, (int) preg_replace('/\D+/', '', (string) ($data['duration'] ?? '')));
+        $data['amount'] = $data['price_per_night'] * $nights + $data['extra_charges'];
+        $data['room_label'] = trim(($data['room_type'] ?? '').' '.$newNumber);
+        $booking->update($data);
+        $this->syncRoomForBooking($booking->fresh());
+        return back()->with('ok', 'Reservation updated');
     }
 
     public function bookingConfirm($id)
     {
         $booking = Booking::findOrFail($id);
         $booking->update(['status' => 'confirmed', 'invoice_status' => $booking->partial_payment ? 'partial' : 'paid']);
+        $this->syncRoomForBooking($booking);
         return back();
     }
 
@@ -170,21 +262,82 @@ class PageController extends Controller
                 $booking = Booking::findOrFail($id);
                 $data['invoice_status'] = $booking->partial_payment ? 'partial' : 'paid';
             }
-            Booking::findOrFail($id)->update($data);
+            $booking = Booking::findOrFail($id);
+            $booking->update($data);
+            $this->syncRoomForBooking($booking);
+            $labels = ['confirmed' => 'Booking confirmed', 'checked_in' => 'Guest checked in', 'checked_out' => 'Guest checked out', 'pending' => 'Booking set to pending'];
+            $this->logActivity($labels[$status], $booking->guest_name.' · '.($booking->room_label ?: '').' ('.$booking->code.')');
         }
         return back();
     }
 
     public function bookingDestroy($id)
     {
-        Booking::findOrFail($id)->delete();
+        $booking = Booking::findOrFail($id);
+        $this->releaseRoomForBooking($booking);
+        $this->logActivity('Booking cancelled', $booking->guest_name.' · '.($booking->room_label ?: '').' ('.$booking->code.')', 'mint');
+        $booking->delete();
         return back();
+    }
+
+    /** Record a dashboard activity entry. */
+    private function logActivity(string $title, string $description, string $icon = 'mint')
+    {
+        Activity::create(['time' => now()->format('M j, g:i A'), 'title' => $title, 'description' => $description, 'icon' => $icon]);
+    }
+
+    /** Keep the booked room number, housekeeping and inventory in step with the booking status. */
+    private function syncRoomForBooking(Booking $booking)
+    {
+        $unit = RoomUnit::findByNumber($booking->room_number);
+        if ($booking->status === 'checked_in') {
+            $this->useCheckinSupplies($booking);
+        }
+        if (!$unit) {
+            return;
+        }
+        if (in_array($booking->status, ['pending', 'confirmed'])) {
+            $unit->update(['status' => 'reserved']);
+        } elseif ($booking->status === 'checked_in') {
+            $unit->update(['status' => 'occupied']);
+        } elseif ($booking->status === 'checked_out') {
+            // The room needs cleaning before it can be booked again; housekeeping marks it Ready.
+            $unit->update(['status' => 'not_ready']);
+            HousekeepingTask::updateOrCreate(
+                ['room_number' => 'Room '.$unit->number],
+                ['room_type' => $booking->room_type, 'status' => 'needs', 'priority' => 'high', 'reservation_status' => 'Checked-Out',
+                 'notes' => 'Guest checked out ('.$booking->code.'). Room needs cleaning.', 'is_checked' => false]
+            );
+        }
+        Room::syncCounts();
+    }
+
+    /** A cancelled booking frees its room number again. */
+    private function releaseRoomForBooking(Booking $booking)
+    {
+        $unit = RoomUnit::findByNumber($booking->room_number);
+        if ($unit && in_array($unit->status, ['reserved', 'occupied'])) {
+            $unit->update(['status' => 'available']);
+            Room::syncCounts();
+        }
+    }
+
+    /** Hand out each item's "used per check-in" quantity, once per booking. */
+    private function useCheckinSupplies(Booking $booking)
+    {
+        $ref = 'Check-in '.$booking->code;
+        if (InventoryMovement::where('reference', $ref)->exists()) {
+            return;
+        }
+        foreach (InventoryItem::where('per_checkin', '>', 0)->get() as $item) {
+            $item->adjust(-(int) $item->per_checkin, 'Used at check-in', $ref);
+        }
     }
 
     /* ===================== ROOMS ===================== */
     public function rooms()
     {
-        $rooms = Room::orderBy('id')->get();
+        $rooms = Room::with('units')->orderBy('id')->get();
         $featured = $rooms->firstWhere('is_featured', true) ?: $rooms->first();
         return view('rooms', compact('rooms', 'featured'));
     }
@@ -222,8 +375,69 @@ class PageController extends Controller
 
     public function roomDestroy($id)
     {
-        Room::findOrFail($id)->delete();
-        return back();
+        $room = Room::findOrFail($id);
+        // A room type with booked room numbers cannot be removed; free numbers go with the type.
+        $busy = $room->units()->whereIn('status', ['reserved', 'occupied'])->count();
+        if ($busy > 0) {
+            return back()->with('ok', $room->name.' has '.$busy.' booked room'.($busy === 1 ? '' : 's').' and cannot be deleted.');
+        }
+        $room->units()->delete();
+        $room->delete();
+        return back()->with('ok', $room->name.' removed');
+    }
+
+    /* ===================== ROOM NUMBERS ===================== */
+    public function unitStore(Request $r, $id)
+    {
+        $room = Room::findOrFail($id);
+        $data = $r->validate(['numbers' => 'required|string|max:500']);
+        $added = 0;
+        $taken = [];
+        foreach (preg_split('/[\s,]+/', $data['numbers'], -1, PREG_SPLIT_NO_EMPTY) as $n) {
+            $n = trim(preg_replace('/^room\s*/i', '', $n));
+            if ($n === '') {
+                continue;
+            }
+            if (RoomUnit::where('number', $n)->exists()) {
+                $taken[] = $n;
+                continue;
+            }
+            RoomUnit::create(['room_id' => $room->id, 'number' => $n]);
+            $added++;
+        }
+        Room::syncCounts();
+        $msg = $added.' room number'.($added === 1 ? '' : 's').' added';
+        if ($taken) {
+            $msg .= ' (already exists: '.implode(', ', $taken).')';
+        }
+        return back()->with('ok', $msg);
+    }
+
+    public function unitStatus(Request $r, $id)
+    {
+        $unit = RoomUnit::findOrFail($id);
+        $data = $r->validate(['status' => 'required|in:available,not_ready']);
+        if (in_array($unit->status, ['reserved', 'occupied'])) {
+            return back()->with('ok', 'Room '.$unit->number.' has an active booking. Change the booking instead.');
+        }
+        $unit->update(['status' => $data['status']]);
+        $task = HousekeepingTask::where('room_number', 'Room '.$unit->number)->first();
+        if ($task) {
+            $task->update(['status' => $data['status'] === 'available' ? 'ready' : 'needs']);
+        }
+        Room::syncCounts();
+        return back()->with('ok', 'Room '.$unit->number.' is now '.str_replace('_', ' ', $data['status']));
+    }
+
+    public function unitDestroy($id)
+    {
+        $unit = RoomUnit::findOrFail($id);
+        if (in_array($unit->status, ['reserved', 'occupied'])) {
+            return back()->with('ok', 'Room '.$unit->number.' has an active booking and cannot be removed.');
+        }
+        $unit->delete();
+        Room::syncCounts();
+        return back()->with('ok', 'Room '.$unit->number.' removed');
     }
 
     /* ===================== INVOICE ===================== */
@@ -304,130 +518,53 @@ class PageController extends Controller
         ]);
     }
 
+    /** Render the invoice from the Blade template (resources/views/pdf/invoice.blade.php) with mpdf. */
     private function makeInvoicePdf(Booking $booking, int $nights, float $total, float $advance, float $finalPayment, float $remaining): string
     {
-        $escape = function ($value) {
-            $value = preg_replace('/[^\x20-\x7E]/', '?', (string) $value);
-            return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $value);
-        };
-        $text = function ($value, $x, $y, $size = 10, $font = 'F1') use ($escape) {
-            return "BT /{$font} {$size} Tf 1 0 0 1 {$x} {$y} Tm (".$escape($value).') Tj ET';
-        };
-        $money = function ($value) {
-            return 'PKR '.number_format($value, 0);
-        };
+        $html = view('pdf.invoice', compact('booking', 'nights', 'total', 'advance', 'finalPayment', 'remaining'))->render();
 
-        $stream = [];
-        // Header and brand stripe.
-        $stream[] = '0.92 0.98 0.51 rg 0 760 595 82 re f';
-        $stream[] = '0.08 0.11 0.10 rg 42 748 511 1 re f';
-        $stream[] = $text('INDUS RESORT RESTAURANT', 112, 810, 19);
-        $stream[] = '0.25 0.31 0.18 rg';
-        $stream[] = $text('Professional stay invoice', 112, 792, 9);
-        $stream[] = $text('INVOICE', 447, 810, 17);
-        $stream[] = $text('No. '.$booking->code, 447, 792, 9);
-
-        // Guest and booking information.
-        $stream[] = '0.96 0.98 0.97 rg 42 662 511 70 re f';
-        $stream[] = '0.12 0.14 0.12 rg';
-        $stream[] = $text('BILL TO', 56, 714, 8);
-        $stream[] = $text($booking->guest_name, 56, 694, 13);
-        $stream[] = $text('CNIC: '.($booking->cnic ?: '-'), 56, 677, 9);
-        $stream[] = $text('BOOKING DETAILS', 320, 714, 8);
-        $stream[] = $text('Room: '.($booking->room_label ?: '-'), 320, 694, 10);
-        $stream[] = $text('Stay: '.$nights.' '.($nights === 1 ? 'night' : 'nights'), 320, 677, 9);
-        $stream[] = $text('Invoice date: '.now()->format('d M Y'), 320, 662, 9);
-
-        // Charge table.
-        $stream[] = '0.20 0.32 0.24 rg 42 616 511 26 re f';
-        $stream[] = '1 1 1 rg';
-        $stream[] = $text('DESCRIPTION', 56, 625, 9);
-        $stream[] = $text('RATE', 323, 625, 9);
-        $stream[] = $text('NIGHTS', 405, 625, 9);
-        $stream[] = $text('AMOUNT', 476, 625, 9);
-        $stream[] = '0.98 0.99 0.98 rg 42 572 511 44 re f';
-        $stream[] = '0.12 0.14 0.12 rg';
-        $stream[] = $text('Accommodation - '.($booking->room_label ?: 'Room'), 56, 590, 10);
-        $stream[] = $text($money($booking->price_per_night), 323, 590, 10);
-        $stream[] = $text((string) $nights, 420, 590, 10);
-        $stream[] = $text($money($total), 476, 590, 10);
-        $stream[] = '0.87 0.91 0.88 RG 42 572 m 553 572 l S';
-
-        // Payment history: preserves both the original advance and the later settlement.
-        $balanceAfterAdvance = max(0, $total - $advance);
-        $stream[] = '0.98 0.97 0.89 rg 306 398 247 148 re f';
-        $stream[] = '0.78 0.71 0.39 RG 306 398 247 148 re S';
-        $stream[] = '0.12 0.14 0.12 rg';
-        $stream[] = $text('PAYMENT HISTORY', 322, 526, 10);
-        $stream[] = $text('Total booking amount', 322, 506, 9);
-        $stream[] = $text($money($total), 468, 506, 9);
-        $stream[] = $text('Advance paid'.($advance > 0 ? ' - '.$booking->created_at->format('d M Y') : ''), 322, 485, 9);
-        $stream[] = $text($money($advance), 468, 485, 9);
-        $stream[] = $text('Balance after advance', 322, 464, 9);
-        $stream[] = $text($money($balanceAfterAdvance), 468, 464, 9);
-        $stream[] = $text('Final payment'.($finalPayment > 0 && $booking->final_payment_paid_at ? ' - '.\Carbon\Carbon::parse($booking->final_payment_paid_at)->format('d M Y') : ''), 322, 443, 9);
-        $stream[] = $text($money($finalPayment), 468, 443, 9);
-        $stream[] = '0.78 0.71 0.39 RG 322 430 m 537 430 l S';
-        $stream[] = $text('REMAINING BALANCE', 322, 413, 10);
-        $stream[] = $text($money($remaining), 455, 413, 12);
-
-        $status = strtoupper($booking->invoice_status ?: 'unpaid');
-        $stream[] = $status === 'PAID' ? '0.88 0.97 0.65 rg' : ($status === 'PARTIAL' ? '1 0.94 0.75 rg' : '1 0.88 0.88 rg');
-        $stream[] = '42 490 210 36 re f';
-        $stream[] = '0.12 0.14 0.12 rg';
-        $stream[] = $text('PAYMENT STATUS: '.$status, 56, 503, 11);
-        $stream[] = $text('Thank you for choosing Indus Resort Restaurant.', 42, 90, 10);
-        $stream[] = '0.55 0.58 0.55 rg';
-        $stream[] = $text('This is a computer-generated invoice.', 42, 72, 8);
-
-        $jpeg = null;
-        $imageWidth = $imageHeight = 0;
-        $logoPath = public_path('images/logo.png');
-        if (function_exists('imagecreatefromstring') && is_file($logoPath) && ($image = @imagecreatefromstring((string) file_get_contents($logoPath)))) {
-            $imageWidth = imagesx($image);
-            $imageHeight = imagesy($image);
-            $scale = min(52 / $imageWidth, 52 / $imageHeight);
-            $imageWidth = max(1, (int) round($imageWidth * $scale));
-            $imageHeight = max(1, (int) round($imageHeight * $scale));
-            $canvas = imagecreatetruecolor($imageWidth, $imageHeight);
-            $white = imagecolorallocate($canvas, 255, 255, 255);
-            imagefill($canvas, 0, 0, $white);
-            imagecopyresampled($canvas, $image, 0, 0, 0, 0, $imageWidth, $imageHeight, imagesx($image), imagesy($image));
-            ob_start();
-            imagejpeg($canvas, null, 90);
-            $jpeg = ob_get_clean();
-            imagedestroy($canvas);
-            imagedestroy($image);
-            $stream[] = 'q '.$imageWidth.' 0 0 '.$imageHeight.' 50 778 cm /Im1 Do Q';
+        $fontDirs = (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'];
+        $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
+        $tempDir = storage_path('app/mpdf');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0775, true);
         }
 
-        $stream = implode("\n", $stream);
-        $resources = '<< /Font << /F1 5 0 R >>'.($jpeg ? ' /XObject << /Im1 6 0 R >>' : '').' >>';
-        $objects = [
-            '<< /Type /Catalog /Pages 2 0 R >>',
-            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources '.$resources.' /Contents 4 0 R >>',
-            '<< /Length '.strlen($stream)." >>\nstream\n".$stream."\nendstream",
-            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-        ];
-        if ($jpeg) {
-            $objects[] = '<< /Type /XObject /Subtype /Image /Width '.$imageWidth.' /Height '.$imageHeight.' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '.strlen($jpeg)." >>\nstream\n".$jpeg."\nendstream";
-        }
-        $pdf = "%PDF-1.4\n";
-        $offsets = [0];
-        foreach ($objects as $index => $object) {
-            $offsets[] = strlen($pdf);
-            $pdf .= ($index + 1)." 0 obj\n".$object."\nendobj\n";
-        }
-        $xref = strlen($pdf);
-        $pdf .= 'xref'."\n0 ".(count($objects) + 1)."\n0000000000 65535 f \n";
-        foreach (array_slice($offsets, 1) as $offset) {
-            $pdf .= sprintf('%010d 00000 n ', $offset)."\n";
-        }
-        return $pdf.'trailer'."\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n".$xref."\n%%EOF";
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_top' => 0, 'margin_bottom' => 0, 'margin_left' => 0, 'margin_right' => 0,
+            'tempDir' => $tempDir,
+            'fontDir' => array_merge($fontDirs, [resource_path('fonts')]),
+            'fontdata' => $fontData + [
+                'lato' => ['R' => 'Lato-Regular.ttf', 'B' => 'Lato-Bold.ttf', 'I' => 'Lato-Italic.ttf'],
+                'latoblack' => ['R' => 'Lato-Black.ttf'],
+                'greatvibes' => ['R' => 'GreatVibes-Regular.ttf'],
+            ],
+            'default_font' => 'lato',
+        ]);
+        $pdf->SetTitle('Invoice '.$booking->code);
+        $pdf->WriteHTML($html);
+
+        return $pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
     }
 
     /* ===================== EXPENSES ===================== */
+    /** Hotel expense categories, grouped. Custom categories typed by staff are added to the list automatically. */
+    public const EXPENSE_CATEGORIES = [
+        'Utilities' => ['Electricity Bill', 'Gas Bill', 'Water Bill', 'Internet & Wi-Fi', 'Phone Bill', 'Generator Fuel / Diesel', 'Cable / TV Subscription'],
+        'Salaries & Wages' => ['Staff Salaries', 'Overtime', 'Bonuses', 'Staff Meals', 'Staff Accommodation', 'Uniforms'],
+        'Housekeeping & Supplies' => ['Cleaning Supplies', 'Toiletries & Amenities', 'Linen & Towels', 'Laundry', 'Room Supplies', 'Pest Control'],
+        'Kitchen & Restaurant' => ['Groceries & Raw Food', 'Beverages', 'Kitchen Gas / LPG', 'Kitchen Equipment', 'Crockery & Cutlery', 'Packaging'],
+        'Maintenance & Repairs' => ['Plumbing', 'Electrical Work', 'Painting & Renovation', 'Furniture Repair', 'AC / Heater Service', 'Appliance Repair', 'Garden & Lawn'],
+        'Marketing & Advertising' => ['Social Media Ads', 'Website & Hosting', 'Booking Platform Commission', 'Printing & Signage', 'Promotions & Discounts'],
+        'Administrative' => ['Office Supplies', 'Software & Subscriptions', 'Bank Charges', 'Licenses & Permits', 'Insurance', 'Legal & Accounting', 'Taxes & Fees'],
+        'Transport' => ['Fuel', 'Vehicle Maintenance', 'Guest Pickup / Drop', 'Delivery Charges'],
+        'Guest Services' => ['Welcome Refreshments', 'Bonfire & Events', 'Entertainment', 'Guest Gifts', 'Complaint Compensation'],
+        'Security' => ['Security Staff', 'CCTV & Alarm', 'Fire Safety'],
+        'Other' => ['Miscellaneous', 'Donations', 'Petty Cash'],
+    ];
+
     public function expenses()
     {
         $expenses = Expense::orderBy('id')->get();
@@ -448,7 +585,8 @@ class PageController extends Controller
         $weekExpense = $expenseFor($weekStart, $weekEnd);
         $previousIncome = $incomeFor($previousWeekStart, $previousWeekEnd);
         $previousExpense = $expenseFor($previousWeekStart, $previousWeekEnd);
-        $year = now()->year;
+        $year = (int) (request('year') ?: now()->year);
+        $years = collect([now()->year])->merge(Expense::selectRaw('YEAR(date) as y')->pluck('y'))->merge(Booking::selectRaw('YEAR(check_in) as y')->pluck('y'))->filter()->unique()->sortDesc()->values();
         $earnings = collect(range(1, 12))->map(function ($month) use ($year) {
             return [
                 'month' => now()->setDate($year, $month, 1)->format('M'),
@@ -491,13 +629,23 @@ class PageController extends Controller
             'earnings' => $earnings,
             'chartMax' => $chartMax,
             'chartYear' => $year,
+            'years' => $years,
+            'categoryGroups' => (function () use ($expenses) {
+                $groups = self::EXPENSE_CATEGORIES;
+                $known = collect($groups)->flatten();
+                $custom = $expenses->pluck('category')->filter()->unique()->reject(fn ($c) => $known->contains($c))->values()->all();
+                if ($custom) {
+                    $groups['Custom'] = $custom;
+                }
+                return $groups;
+            })(),
         ]);
     }
 
     public function expenseStore(Request $r)
     {
         $data = $r->validate([
-            'name'=>'required','category'=>'nullable','custom_category'=>'nullable|string|max:255','quantity'=>'nullable|integer',
+            'name'=>'required','category'=>'nullable|string|max:120','custom_category'=>'nullable|string|max:255','quantity'=>'nullable|integer',
             'amount'=>'nullable|integer','date'=>'nullable','receipt'=>'nullable|image|max:5120',
         ]);
 
@@ -520,6 +668,32 @@ class PageController extends Controller
         unset($data['receipt']);
         Expense::create($data + ['status' => 'completed']);
         return back()->with('ok', 'Expense added');
+    }
+
+    public function expenseUpdate(Request $r, $id)
+    {
+        $e = Expense::findOrFail($id);
+        $data = $r->validate([
+            'name'=>'required','category'=>'nullable|string|max:120','custom_category'=>'nullable|string|max:255','quantity'=>'nullable|integer',
+            'amount'=>'nullable|integer','date'=>'nullable','receipt'=>'nullable|image|max:5120',
+        ]);
+        if (filled($data['custom_category'] ?? null)) {
+            $data['category'] = $data['custom_category'];
+        }
+        unset($data['custom_category']);
+        if ($r->hasFile('receipt')) {
+            $directory = public_path('uploads/expenses');
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            $file = $r->file('receipt');
+            $name = 'expense_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move($directory, $name);
+            $data['receipt_path'] = 'uploads/expenses/'.$name;
+        }
+        unset($data['receipt']);
+        $e->update($data);
+        return back()->with('ok', 'Expense updated');
     }
 
     public function expenseDestroy($id)
@@ -620,24 +794,56 @@ class PageController extends Controller
         return back()->with('ok', 'Concierge added');
     }
 
+    public function conciergeUpdate(Request $r, $id)
+    {
+        $c = Concierge::findOrFail($id);
+        $c->update($r->validate([
+            'name'=>'required','position'=>'nullable','schedule_days'=>'nullable',
+            'schedule_time'=>'nullable','contact'=>'nullable','email'=>'nullable',
+        ]));
+        return back()->with('ok', 'Staff member updated');
+    }
+
     public function conciergeDestroy($id)
     {
         Concierge::findOrFail($id)->delete();
         return back();
     }
 
+    public function scheduleUpdate(Request $r, $id)
+    {
+        Schedule::findOrFail($id)->update($r->validate([
+            'title'=>'required','category'=>'nullable','date'=>'required',
+            'start_time'=>'nullable','end_time'=>'nullable',
+        ]));
+        return back()->with('ok', 'Schedule updated');
+    }
+
+    public function scheduleDestroy($id)
+    {
+        Schedule::findOrFail($id)->delete();
+        return back()->with('ok', 'Schedule removed');
+    }
+
     /* ===================== HOUSEKEEPING ===================== */
     public function housekeeping()
     {
-        return view('housekeeping', ['rows' => HousekeepingTask::orderBy('id')->get()]);
+        return view('housekeeping', [
+            'rows' => HousekeepingTask::orderBy('id')->get(),
+            'roomTypes' => Room::orderBy('name')->pluck('name'),
+            'units' => RoomUnit::with('room:id,name')->orderBy('number')->get()->map(function ($u) {
+                return ['number' => $u->number, 'type' => optional($u->room)->name];
+            })->values(),
+        ]);
     }
 
     public function hkStore(Request $r)
     {
-        HousekeepingTask::create($r->validate([
+        $task = HousekeepingTask::create($r->validate([
             'room_number'=>'required','room_type'=>'nullable','status'=>'nullable',
             'priority'=>'nullable','floor'=>'nullable','reservation_status'=>'nullable','notes'=>'nullable',
         ]));
+        $this->syncUnitFromHousekeeping($task);
         return back()->with('ok', 'Room added');
     }
 
@@ -645,7 +851,29 @@ class PageController extends Controller
     {
         $t = HousekeepingTask::findOrFail($id);
         $t->update($r->only(['status', 'priority', 'is_checked']));
+        if ($r->has('status')) {
+            $this->syncUnitFromHousekeeping($t);
+        }
         return back();
+    }
+
+    /** Housekeeping "Ready" frees the room number; any other cleaning state marks it not ready (bookings always win). */
+    private function syncUnitFromHousekeeping(HousekeepingTask $task)
+    {
+        $unit = RoomUnit::findByNumber($task->room_number);
+        if (!$unit || in_array($unit->status, ['reserved', 'occupied'])) {
+            return;
+        }
+        $unit->update(['status' => $task->status === 'ready' ? 'available' : 'not_ready']);
+        Room::syncCounts();
+    }
+
+    public function hkEdit(Request $r, $id)
+    {
+        $t = HousekeepingTask::findOrFail($id);
+        $t->update($r->validate(['floor'=>'nullable','reservation_status'=>'nullable','notes'=>'nullable','priority'=>'nullable','status'=>'nullable']));
+        $this->syncUnitFromHousekeeping($t);
+        return back()->with('ok', 'Housekeeping updated');
     }
 
     public function hkDestroy($id)
@@ -657,14 +885,21 @@ class PageController extends Controller
     /* ===================== INVENTORY ===================== */
     public function inventory()
     {
-        return view('inventory', ['items' => InventoryItem::orderBy('id')->get()]);
+        $items = InventoryItem::orderBy('id')->get();
+        $recent = InventoryMovement::latest('id')->take(400)->get()->groupBy('item_id');
+        $items->each(function ($i) use ($recent) {
+            $i->setAttribute('recent', collect($recent->get($i->id, []))->take(6)->map(function ($m) {
+                return ['change' => $m->change, 'reason' => $m->reason, 'reference' => $m->reference, 'at' => $m->created_at->format('M j, g:i A')];
+            })->values());
+        });
+        return view('inventory', ['items' => $items]);
     }
 
     public function invStore(Request $r)
     {
         $data = $r->validate([
             'name'=>'required','category'=>'nullable','availability'=>'nullable','image'=>'nullable|image|max:5120',
-            'quantity_stock'=>'nullable|integer','quantity_reorder'=>'nullable|integer',
+            'quantity_stock'=>'nullable|integer','quantity_reorder'=>'nullable|integer','per_checkin'=>'nullable|integer|min:0',
         ]);
         if ($r->hasFile('image')) {
             $directory = public_path('uploads/inventory');
@@ -681,14 +916,55 @@ class PageController extends Controller
         return back()->with('ok', 'Item added');
     }
 
+    public function invUpdate(Request $r, $id)
+    {
+        $i = InventoryItem::findOrFail($id);
+        $data = $r->validate([
+            'name'=>'required','category'=>'nullable','image'=>'nullable|image|max:5120',
+            'quantity_reorder'=>'nullable|integer|min:0','per_checkin'=>'nullable|integer|min:0',
+        ]);
+        if ($r->hasFile('image')) {
+            $directory = public_path('uploads/inventory');
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            $file = $r->file('image');
+            $name = 'inventory_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move($directory, $name);
+            $data['image_path'] = 'uploads/inventory/'.$name;
+        }
+        unset($data['image']);
+        $i->update($data);
+        // Stock itself changes through Add Stock / Use Stock so the movement log stays complete.
+        $stock = $i->quantity_stock;
+        $i->update(['availability' => $stock <= 0 ? 'out' : ($stock < $i->quantity_reorder ? 'low' : 'available')]);
+        return back()->with('ok', 'Item updated');
+    }
+
     public function invAddStock(Request $r, $id)
     {
         $i = InventoryItem::findOrFail($id);
         $data = $r->validate(['quantity' => 'required|integer|min:1']);
-        $stock = $i->quantity_stock + $data['quantity'];
-        $availability = $stock <= 0 ? 'out' : ($stock < $i->quantity_reorder ? 'low' : 'available');
-        $i->update(['quantity_stock' => $stock, 'availability' => $availability]);
+        $i->adjust((int) $data['quantity'], 'Stock added');
         return back()->with('ok', 'Stock added successfully');
+    }
+
+    public function invUseStock(Request $r, $id)
+    {
+        $i = InventoryItem::findOrFail($id);
+        $data = $r->validate(['quantity' => 'required|integer|min:1', 'reason' => 'nullable|string|max:120']);
+        if ($data['quantity'] > $i->quantity_stock) {
+            return back()->with('ok', 'Only '.$i->quantity_stock.' '.$i->name.' in stock');
+        }
+        $i->adjust(-(int) $data['quantity'], $data['reason'] ?: 'Used by staff');
+        return back()->with('ok', $data['quantity'].' '.$i->name.' used, '.$i->quantity_stock.' left');
+    }
+
+    public function invSettings(Request $r, $id)
+    {
+        $i = InventoryItem::findOrFail($id);
+        $i->update($r->validate(['per_checkin' => 'required|integer|min:0']));
+        return back()->with('ok', 'Per check-in usage saved');
     }
 
     public function invDestroy($id)
@@ -715,7 +991,35 @@ class PageController extends Controller
     /* ===================== REVIEWS ===================== */
     public function reviews()
     {
-        return view('reviews', ['reviews' => Review::orderBy('id')->get()]);
+        $reviews = Review::orderBy('id')->get();
+        $cats = collect(['facilities' => 'Facilities', 'cleanliness' => 'Cleanliness', 'services' => 'Services', 'comfort' => 'Comfort', 'location' => 'Location'])
+            ->map(fn ($label, $col) => ['name' => $label, 'score' => round((float) Review::whereNotNull($col)->avg($col), 1)])->values();
+        // Positive (4-5 stars) vs negative (1-3 stars) reviews for each of the last 7 days.
+        $trend = collect(range(6, 0))->map(function ($d) {
+            $day = now()->subDays($d);
+            $q = Review::whereDate('created_at', $day->toDateString());
+            return ['label' => $day->format('D'), 'positive' => (clone $q)->where('rating', '>=', 4)->count(), 'negative' => (clone $q)->where('rating', '<=', 3)->count()];
+        })->all();
+        return view('reviews', ['reviews' => $reviews, 'cats' => $cats, 'trend' => $trend,
+            'avg' => round((float) $reviews->avg('rating'), 1), 'count' => $reviews->count()]);
+    }
+
+    public function reviewStore(Request $r)
+    {
+        $data = $r->validate([
+            'customer_name'=>'required|string|max:120','rating'=>'required|integer|min:1|max:5','text'=>'nullable|string|max:2000',
+            'facilities'=>'nullable|integer|min:1|max:5','cleanliness'=>'nullable|integer|min:1|max:5','services'=>'nullable|integer|min:1|max:5',
+            'comfort'=>'nullable|integer|min:1|max:5','location'=>'nullable|integer|min:1|max:5',
+        ]);
+        $data['date'] = now()->format('F j, Y');
+        Review::create($data);
+        return back()->with('ok', 'Review added');
+    }
+
+    public function reviewDestroy($id)
+    {
+        Review::findOrFail($id)->delete();
+        return back()->with('ok', 'Review removed');
     }
 
     /* ===================== GUEST PROFILE ===================== */
@@ -724,6 +1028,9 @@ class PageController extends Controller
         $booking = $request->filled('id')
             ? (Booking::find($request->id) ?: Booking::first())
             : Booking::first();
+        if (!$booking) {
+            return redirect('/reservation')->with('ok', 'No reservations yet. Add one to see guest details.');
+        }
         $guest = $booking && $booking->guest_id ? Guest::find($booking->guest_id) : null;
         if (!$guest && $booking) {
             $guest = Guest::where('name', $booking->guest_name)->first();
@@ -733,6 +1040,7 @@ class PageController extends Controller
         }
         $history = Booking::orderBy('id')->take(2)->get();
         $room = $booking ? Room::where('name', $booking->room_type)->first() : null;
-        return view('guest-profile', compact('guest', 'booking', 'history', 'room'));
+        $roomImages = Room::pluck('image', 'name');
+        return view('guest-profile', compact('guest', 'booking', 'history', 'room', 'roomImages'));
     }
 }

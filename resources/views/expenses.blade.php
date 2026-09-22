@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--mint-d:#b6d8cb;--olive:#cbd877;--plime:#f4fac3;--pmint:#eefbf4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -109,14 +109,25 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
 @media(max-width:1000px){.fin-top{grid-template-columns:1fr}.stat-row{grid-template-columns:1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}footer{flex-direction:column;align-items:flex-start}}
+/* Searchable category picker */
+.modal .catpick{position:relative}
+.modal .catlist{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);max-height:260px;overflow:auto;background:#fff;border:1px solid #e2e2e2;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.12);z-index:20;padding:6px}
+.modal .catlist.open{display:block}
+.modal .cathead{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#7f8a3a;padding:8px 10px 4px}
+.modal .catitem{padding:8px 10px;border-radius:7px;font-size:13.5px;color:#222;cursor:pointer}
+.modal .catitem:hover,.modal .catitem.hl{background:#f3f8e6}
+.modal .catitem.hide,.modal .catgroup.hide,.modal .catnew.hide{display:none}
+.modal .catnew{margin-top:4px;padding:9px 10px;border-top:1px solid #f0f0f0;font-size:13px;color:#2f5a45;cursor:pointer}
+.modal .catnew:hover{background:#f3f8e6;border-radius:7px}
 </style>
 </head>
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
-@php $msAct = '<button class="ms-add" type="button" onclick="openModal(\'addExp\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Expense</button>'; @endphp
+@php $msAct = '<button class="ms-add" type="button" onclick="openExpenseCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Expense</button>'; @endphp
 @include('partials.mobile-shell', ['msTitle'=>'Expenses','msSubtitle'=>'Track and manage your expenses','msAction'=>$msAct])
 <style>@media(max-width:768px){
 .mx-stats{display:flex;gap:10px;overflow-x:auto;margin:0 -16px 12px;padding:2px 16px 6px;scrollbar-width:none}.mx-stats::-webkit-scrollbar{display:none}
@@ -158,7 +169,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
 <div class="mx-h"><h2>Transactions</h2><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
-<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search expense..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option><option>Supplies</option><option>Utilities</option><option>Marketing and Advertising</option><option>Maintenance and Repairs</option><option>Salaries and Wages</option></select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option>Completed</option></select><label class="mx-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg><input id="mDate" type="date" aria-label="Filter by date"></label></div>
+<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search expense..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option>Completed</option></select><label class="mx-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg><input id="mDate" type="date" aria-label="Filter by date"></label></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 </section>
 @include('partials.mobile-nav')
@@ -166,11 +177,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Expense</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -191,7 +202,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 </div>
             </div>
             <div class="earn">
-                <div class="earn-top"><h2>Earnings</h2><button class="yearsel"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+                <div class="earn-top"><h2>Earnings</h2><select class="fsel" style="height:38px" onchange="location.href='{{ url('/expenses') }}?year='+this.value">@foreach($years as $y)<option value="{{ $y }}" {{ $y == $chartYear ? 'selected' : '' }}>{{ $y == now()->year ? 'This Year' : $y }}</option>@endforeach</select></div>
                 <div class="legend"><span><i class="li"></i>Income</span><span><i class="le"></i>Expense</span></div>
                 <div class="ec">
                     <div class="ey"><span>{{ number_format($chartMax / 1000, 0) }}K</span><span>{{ number_format($chartMax / 2000, 0) }}K</span><span>0</span><span>-{{ number_format($chartMax / 2000, 0) }}K</span><span>-{{ number_format($chartMax / 1000, 0) }}K</span></div>
@@ -216,10 +227,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <h2>Transactions</h2>
             <div class="pt-r">
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search expense"></div>
-                <select class="fsel" id="fCat"><option value="">All Category</option><option>Supplies</option><option>Utilities</option><option>Marketing and Advertising</option><option>Maintenance and Repairs</option><option>Salaries and Wages</option></select>
+                <select class="fsel" id="fCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select>
                 <select class="fsel" id="fStatus"><option value="">All Status</option><option>Completed</option></select>
-                <button class="pill lime"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>{{ now()->startOfMonth()->format('j') }} - {{ now()->startOfMonth()->addDays(17)->format('j M Y') }}<svg viewBox="0 0 24 24" width="14" height="14"><path d="m6 9 6 6 6-6"/></svg></button>
-                <button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openModal('addExp')">+ Add Expense</button>
+                <div class="pill" style="padding:0 12px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fFrom" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="From"><span style="color:#9a9a9a">to</span><input id="fTo" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="To"></div>
+                <button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openExpenseCreator()">+ Add Expense</button>
             </div>
         </div>
         <div class="tbl">
@@ -269,14 +280,25 @@ const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['
 function mExpDetail(id){const e=data.find(x=>x.id===id);if(e)showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed');}
 function mExpDownload(id){const e=data.find(x=>x.id===id);if(e)downloadFile('expense-'+e.id+'.pdf','INDUS RESORT RESTAURANT EXPENSE\n===============\nExpense: '+e.name+'\nCategory: '+(e.category||'')+'\nQuantity: '+e.quantity+'\nAmount: PKR '+e.amount+'\nDate: '+fmt(e.date));}
 const mxIcons={'Supplies':['mint','<path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'],'Utilities':['blue','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],'Marketing and Advertising':['gold','<path d="M3 11v2a2 2 0 0 0 2 2h2l6 4V5L7 9H5a2 2 0 0 0-2 2z"/><path d="M17 8a5 5 0 0 1 0 8"/>'],'Maintenance and Repairs':['pink','<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.1-2.1z"/>'],'Salaries and Wages':['purple','<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a5 5 0 0 1 5.5 4.5"/>']};
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(e=>{const ic=mxIcons[e.category]||['gray','<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'];return `<div class="mx-row" onclick="viewExpense(${e.id})"><span class="ic ${ic[0]}"><svg viewBox="0 0 24 24">${ic[1]}</svg></span><div class="tx"><b>${e.name}</b><small>${e.category||''}</small><small>Qty: ${e.quantity} &nbsp;•&nbsp; ${msDate(e.date)}</small></div><div class="amt"><b>${msMoney(e.amount)}</b><span class="ms-pill completed">Completed</span></div><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>`;}).join('')||'<div class="ms-empty">No transactions found</div>';}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(e=>{const ic=mxIcons[e.category]||['gray','<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'];return `<div class="mx-row" onclick="viewExpense(${e.id})"><span class="ic ${ic[0]}"><svg viewBox="0 0 24 24">${ic[1]}</svg></span><div class="tx"><b>${e.name}</b><small>${e.category||''}</small><small>Qty: ${e.quantity} &nbsp;•&nbsp; ${msDate(e.date)}</small></div><div class="amt"><b>${msMoney(e.amount)}</b><span class="ms-pill completed">Completed</span>${CAN_MANAGE?`<span class="ms-pill blue" style="margin-left:4px" onclick="event.stopPropagation();openExpenseEditor(${e.id})">Edit</span>`:''}</div><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>`;}).join('')||'<div class="ms-empty">No transactions found</div>';}
 function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>PKR ${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.pdf','INDUS RESORT RESTAURANT EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: PKR '+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${deleteExpenseButton(e.id)}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 const expensesById=Object.fromEntries(data.map(expense=>[expense.id,expense]));
 function viewExpense(id){const e=expensesById[id];if(!e)return;const receipt=e.receipt_path?'<div style="margin-top:14px"><b>Receipt Image</b><br><img src="/'+e.receipt_path+'" alt="Expense receipt" style="display:block;max-width:100%;max-height:320px;margin-top:8px;border:1px solid #e5e5e5;border-radius:8px"></div>':'<div style="margin-top:14px;color:#888">No receipt image uploaded.</div>';showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed'+receipt);}
 function downloadExpensePdf(id){const e=expensesById[id];if(!e)return;const content=['INDUS RESORT RESTAURANT EXPENSE','================================','Expense: '+e.name,'Category: '+(e.category||''),'Quantity: '+e.quantity,'Amount: PKR '+e.amount,'Date: '+fmt(e.date)].join(String.fromCharCode(10));downloadFile('expense-'+e.id+'.pdf',content);}
+
+/* Category picker: filter the grouped list as you type; Enter or the "Add" row keeps a custom category. */
+function catOpen(){document.getElementById('catList').classList.add('open');catFilter(document.getElementById('catInput').value);}
+function catClose(){document.getElementById('catList').classList.remove('open');}
+function catFilter(q){q=(q||'').trim().toLowerCase();let any=false,exact=false;document.querySelectorAll('#catList .catgroup').forEach(g=>{let vis=0;g.querySelectorAll('.catitem').forEach(it=>{const v=it.dataset.v.toLowerCase();const ok=!q||v.includes(q)||g.dataset.group.toLowerCase().includes(q);it.classList.toggle('hide',!ok);it.classList.remove('hl');if(ok)vis++;if(v===q)exact=true;});g.classList.toggle('hide',!vis);if(vis)any=true;});const nw=document.getElementById('catNew');nw.classList.toggle('hide',!q||exact);document.getElementById('catNewText').textContent=q?document.getElementById('catInput').value.trim():'';}
+function catPickItem(v){const i=document.getElementById('catInput');i.value=v;catClose();}
+function catKey(e){if(e.key==='Enter'){e.preventDefault();const first=document.querySelector('#catList .catitem:not(.hide)');const q=e.target.value.trim();if(first&&first.dataset.v.toLowerCase()===q.toLowerCase())catPickItem(first.dataset.v);else catClose();}else if(e.key==='Escape')catClose();}
+document.addEventListener('mousedown',e=>{if(!e.target.closest('#catPick'))catClose();});
+function openExpenseCreator(){const f=document.getElementById('expForm');f.reset();f.action='{{ url('/expenses') }}';document.getElementById('expMethod').value='';document.getElementById('expModalTitle').textContent='Add Expense';openModal('addExp');}
+function openExpenseEditor(id){const e=(window.expensesById&&expensesById[id])||data.find(x=>x.id===id);if(!e)return;const f=document.getElementById('expForm');f.reset();f.action='{{ url('/expenses') }}/'+e.id;document.getElementById('expMethod').value='PUT';document.getElementById('expModalTitle').textContent='Edit Expense';['name','quantity','amount'].forEach(k=>{if(f.elements[k])f.elements[k].value=e[k]??'';});if(f.elements.date)f.elements.date.value=String(e.date||'').slice(0,10);if(f.elements.category)f.elements.category.value=e.category||'';openModal('addExp');}
+function editExpenseButton(id){return CAN_MANAGE?'<button class="eye" title="Edit" onclick="event.stopPropagation();openExpenseEditor('+id+')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>':'';}
 function deleteExpenseButton(id){return IS_ADMIN?'<button class="eye" title="Delete" onclick="event.stopPropagation();if(confirm(\'Delete this expense?\'))post(\'/expenses/'+id+'\',\'DELETE\')">🗑</button>':'';}
-render=list=>{renderMobile(list);const html=list.map(e=>'<div class="trow" style="cursor:pointer" onclick="viewExpense('+e.id+')"><span>'+e.name+'</span><span>'+(e.category||'')+'</span><span>'+e.quantity+'</span><span>PKR '+e.amount+'</span><span>'+fmt(e.date)+'</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="event.stopPropagation();viewExpense('+e.id+')">'+eye+'</button><a class="dl" href="/expenses/'+e.id+'/download" onclick="event.stopPropagation()">'+dl+' Download</a>'+deleteExpenseButton(e.id)+'</span></div>').join('');document.getElementById('rows').innerHTML=html||'<div class="trow"><span>No results</span></div>';};
-function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;pgReset('exp');paginateRender('exp',sortList('exp',data.filter(e=>(!mxDate()||String(e.date||'').slice(0,10)===mxDate())&&(!cat||e.category===cat)&&(!q||[e.name,e.category].join(' ').toLowerCase().includes(q)))),8,render);}
+render=list=>{renderMobile(list);const html=list.map(e=>'<div class="trow" style="cursor:pointer" onclick="viewExpense('+e.id+')"><span>'+e.name+'</span><span>'+(e.category||'')+'</span><span>'+e.quantity+'</span><span>PKR '+e.amount+'</span><span>'+fmt(e.date)+'</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="event.stopPropagation();viewExpense('+e.id+')">'+eye+'</button><a class="dl" href="/expenses/'+e.id+'/download" onclick="event.stopPropagation()">'+dl+' Download</a>'+editExpenseButton(e.id)+deleteExpenseButton(e.id)+'</span></div>').join('');document.getElementById('rows').innerHTML=html||'<div class="trow"><span>No results</span></div>';};
+function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;pgReset('exp');paginateRender('exp',sortList('exp',data.filter(e=>(!mxDate()||String(e.date||'').slice(0,10)===mxDate())&&(!(document.getElementById('fFrom')||{}).value||String(e.date||'').slice(0,10)>=document.getElementById('fFrom').value)&&(!(document.getElementById('fTo')||{}).value||String(e.date||'').slice(0,10)<=document.getElementById('fTo').value)&&(!cat||e.category===cat)&&(!q||[e.name,e.category].join(' ').toLowerCase().includes(q)))),8,render);}
 msMirror([['mSearch','fSearch','input'],['mCat','fCat'],['mStatus','fStatus']]);
 function mxDate(){const d=document.getElementById('mDate');return d?d.value:'';}
 (function(){const d=document.getElementById('mDate');if(d)d.addEventListener('change',applyFilters);})();
@@ -285,14 +307,22 @@ function mxViewAll(){['mSearch','fSearch','mCat','fCat','mStatus','fStatus','mDa
 (function(){const plot=document.getElementById('mxPlot'),y=document.getElementById('mxY'),x=document.getElementById('mxX');if(!plot||!earn.length)return;const H2=100,n=earn.length,w=100/n;const k=v=>{const t=Math.abs(v)/1000;return (v<0?'-':'')+(t>=10?Math.round(t):Math.round(t*10)/10)+'K';};y.innerHTML=[MAX,MAX/2,0,-MAX/2,-MAX].map(v=>'<span>'+(v?k(v):'0')+'</span>').join('');plot.insertAdjacentHTML('beforeend',earn.map((m,i)=>'<div class="mo" style="left:'+(i*w)+'%;width:'+w+'%"><div class="up" style="height:'+Math.round(Math.min(1,m.income/MAX)*H2)+'px"></div><div class="dn" style="height:'+Math.round(Math.min(1,m.expense/MAX)*H2)+'px"></div></div>').join(''));x.style.gridTemplateColumns='repeat('+n+',1fr)';x.innerHTML=earn.map(m=>'<span>'+m.month+'</span>').join('');})();
 function mxDonut(type){const cats=type==='income'?incomeDonut:expenseDonut;const total=cats.reduce((s,c)=>s+Number(c.amount||0),0);let start=0;const stops=[];cats.forEach(c=>{const end=start+Number(c.percent||0);stops.push(c.color+' '+start+'% '+Math.max(start,end-.8)+'%','#fff '+Math.max(start,end-.8)+'% '+end+'%');start=end;});const d=document.getElementById('mxDonut');if(!d)return;d.style.background=stops.length?'conic-gradient('+stops.join(',')+')':'conic-gradient(#d9f5e5 0 100%)';document.getElementById('mxTotal').textContent=msMoney(total);document.getElementById('mxLabel').textContent=type==='income'?'Total Income':'Total Expense';document.getElementById('mxLegend').innerHTML=cats.length?cats.map(c=>'<div><i style="background:'+c.color+'"></i><span>'+c.name+' <em>('+Number(c.percent).toFixed(2).replace(/\.00$/,'')+'%)</em></span><b>'+msMoney(c.amount)+'</b></div>').join(''):'<div><span style="color:#aaa">No '+type+' data yet</span></div>';document.getElementById('mxIncBtn').classList.toggle('on',type==='income');document.getElementById('mxExpBtn').classList.toggle('on',type!=='income');}
 mxDonut('expense');
-['fSearch','fCat','fStatus'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
+['fSearch','fCat','fStatus','fFrom','fTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener(id==='fSearch'?'input':'change',applyFilters);});
 applyFilters();
 </script>
-<div class="modal-ov" id="addExp"><div class="modal"><h3>Add Expense</h3><form method="POST" action="{{ url('/expenses') }}" enctype="multipart/form-data">@csrf
+<div class="modal-ov" id="addExp"><div class="modal"><h3 id="expModalTitle">Add Expense</h3><form id="expForm" method="POST" action="{{ url('/expenses') }}" enctype="multipart/form-data">@csrf<input type="hidden" name="_method" id="expMethod" value="">
 <label>Expense Name</label><input name="name" placeholder="Housekeeping Supplies" required>
-<label>Category</label><select name="category"><option value="Supplies">Supplies</option><option value="Utilities">Utilities</option><option value="Marketing and Advertising">Marketing and Advertising</option><option value="Maintenance and Repairs">Maintenance and Repairs</option><option value="Salaries and Wages">Salaries and Wages</option></select>
-<label>Or type a new category</label><input name="custom_category" placeholder="e.g. Staff Refreshments">
-<div class="mrow"><div><label>Quantity</label><input type="number" name="quantity" value="1"></div><div><label>Amount ($)</label><input type="number" name="amount" value="0"></div></div>
+<label>Category</label>
+<div class="catpick" id="catPick">
+  <input type="text" name="category" id="catInput" autocomplete="off" placeholder="Search or type a category, e.g. Electricity Bill" required onfocus="catOpen()" oninput="catFilter(this.value)" onkeydown="catKey(event)">
+  <div class="catlist" id="catList">
+    @foreach($categoryGroups as $group => $items)
+    <div class="catgroup" data-group="{{ $group }}"><div class="cathead">{{ $group }}</div>@foreach($items as $item)<div class="catitem" data-v="{{ $item }}" onmousedown="catPickItem('{{ addslashes($item) }}')">{{ $item }}</div>@endforeach</div>
+    @endforeach
+    <div class="catnew" id="catNew" onmousedown="catPickItem(document.getElementById('catInput').value.trim())">Add "<b id="catNewText"></b>" as a new category</div>
+  </div>
+</div>
+<div class="mrow"><div><label>Quantity</label><input type="number" name="quantity" value="1"></div><div><label>Amount (PKR)</label><input type="number" name="amount" value="0"></div></div>
 <label>Date</label><input type="date" name="date" value="{{ now()->format('Y-m-d') }}">
 <label>Receipt / Picture</label><div style="display:flex;align-items:center;gap:10px"><label for="receipt" style="margin:0;background:var(--lime);color:#2f3a0c;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer">Upload Receipt Image</label><span id="receiptName" style="color:#777;font-size:13px">No image selected</span></div><input id="receipt" type="file" name="receipt" accept="image/*" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" onchange="document.getElementById('receiptName').textContent=this.files[0]?.name||'No image selected'">
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addExp')">Cancel</button><button class="mbtn save">Save</button></div>

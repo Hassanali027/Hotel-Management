@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -37,7 +37,9 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .iconbtn svg{width:19px;height:19px;fill:none;stroke:#555;stroke-width:1.8}
 .add{height:44px;border:0;border-radius:11px;background:var(--lime);padding:0 20px;font-size:15px;font-weight:700;color:#2f3a0c;cursor:pointer}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:1.6fr 1.1fr 1.25fr 1.25fr 1.6fr .8fr;align-items:center;min-width:1050px}
+.thead,.trow{display:grid;grid-template-columns:1.6fr 1.1fr 1.25fr 1.2fr 1.6fr .7fr 96px;align-items:center;min-width:1050px;column-gap:12px}
+.act{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.ib{width:34px;height:34px;border:1px solid #ededed;background:#fff;border-radius:9px;display:inline-grid;place-items:center;cursor:pointer;color:#555;font-size:14px;line-height:1;transition:.15s}.ib:hover{background:#f6f6f6}.ib svg{width:15px;height:15px;fill:none;stroke:#555;stroke-width:1.7}.ib.del{color:#b3352f;border-color:#f3d4d4;background:#fff7f7}.ib.del:hover{background:#ffe1e1}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 24px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -61,9 +63,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
-@php $msAct = '<button class="ms-add" type="button" onclick="openModal(\'addConcierge\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Staff</button>'; @endphp
+@php $msAct = '<button class="ms-add" type="button" onclick="openConciergeCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Staff</button>'; @endphp
 @include('partials.mobile-shell', ['msTitle'=>'Staff','msSubtitle'=>'Concierge team and schedules','msAction'=>$msAct])
 <div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search name, email, etc..."></label></div>
 <div class="ms-selrow"><select class="ms-sel" id="mPos"><option value="">All Position</option><option>Head Concierge</option><option>Concierge</option></select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option value="active">Active</option></select><select class="ms-sel" id="mSch"><option value="">All Schedule</option><option>Monday - Friday</option><option>Saturday - Sunday</option></select></div>
@@ -73,11 +76,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Staff</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -92,7 +95,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search placeholder"></div>
                 <button class="iconbtn" onclick="document.getElementById('fSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
                 <button class="iconbtn" onclick="resetFilters()" title="Reset filters"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h7M15 17h5"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="13" cy="17" r="2"/></svg></button>
-                <button class="add" onclick="openModal('addConcierge')">Add Concierge</button>
+                <button class="add" onclick="openConciergeCreator()">Add Staff</button>
             </div>
         </div>
         <div class="tbl">
@@ -103,6 +106,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span onclick="sortBy('contact')" style="cursor:pointer">Contact @include('partials.sort')</span>
                 <span onclick="sortBy('email')" style="cursor:pointer">Email @include('partials.sort')</span>
                 <span onclick="sortBy('status')" style="cursor:pointer">Status @include('partials.sort')</span>
+                <span style="justify-content:flex-end">Action</span>
             </div>
             <div id="rows"></div>
         </div>
@@ -124,10 +128,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 </main>
 <script>
 const data=@json($concierges);
-const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
+const ini=n=>String(n||'').split(' ').filter(Boolean).map(w=>w[0]).slice(0,2).join('');
+const editIco='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+function openConciergeCreator(){const f=document.getElementById('conForm');f.reset();f.action='{{ url('/concierge') }}';document.getElementById('conMethod').value='';document.getElementById('conModalTitle').textContent='Add Staff';openModal('addConcierge');}
+function openConciergeEditor(id){const c=data.find(x=>x.id===id);if(!c)return;const f=document.getElementById('conForm');f.reset();f.action='{{ url('/concierge') }}/'+c.id;document.getElementById('conMethod').value='PUT';document.getElementById('conModalTitle').textContent='Edit Staff';['name','position','schedule_days','schedule_time','contact','email'].forEach(k=>{if(f.elements[k])f.elements[k].value=c[k]??'';});openModal('addConcierge');}
 const mIco={pos:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',phone:'<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>',mail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg>'};
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((c,i)=>`<article class="ms-card"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(c.name)}</span><div class="ms-name"><b>${c.name}</b><small>${c.code||''}${c.position?' · '+c.position:''}</small></div><span class="ms-pill active">Active</span></div><div class="ms-meta"><span>${mIco.clock}${c.schedule_days||'—'}${c.schedule_time?', '+c.schedule_time:''}</span>${c.contact?`<span>${mIco.phone}<a href="tel:${String(c.contact).replace(/[^\d+]/g,'')}">${c.contact}</a></span>`:''}${c.email?`<span>${mIco.mail}<a href="mailto:${c.email}">${c.email}</a></span>`:''}</div></article>`).join('')||'<div class="ms-empty">No staff found</div>';}
-function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(c=>`<div class="trow"><span class="who"><span class="pic">${ini(c.name)}</span><span><b>${c.name}</b><small>${c.code||''}</small></span></span><span>${c.position||''}</span><span class="sch"><b>${c.schedule_days||''}</b><small>${c.schedule_time||''}</small></span><span>${c.contact||''}</span><span>${c.email||''}</span><span><em class="st">Active</em></span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((c,i)=>`<article class="ms-card"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(c.name)}</span><div class="ms-name"><b>${c.name}</b><small>${c.code||''}${c.position?' · '+c.position:''}</small></div><span class="ms-pill active">Active</span></div>${CAN_MANAGE?`<div class="ms-act"><button type="button" class="ms-btn gray" onclick="openConciergeEditor(${c.id})">Edit</button>${IS_ADMIN?`<button type="button" class="ms-btn cancel" onclick="if(confirm('Remove this staff member?'))post('/concierge/${c.id}','DELETE')">Delete</button>`:''}</div>`:''}<div class="ms-meta"><span>${mIco.clock}${c.schedule_days||'—'}${c.schedule_time?', '+c.schedule_time:''}</span>${c.contact?`<span>${mIco.phone}<a href="tel:${String(c.contact).replace(/[^\d+]/g,'')}">${c.contact}</a></span>`:''}${c.email?`<span>${mIco.mail}<a href="mailto:${c.email}">${c.email}</a></span>`:''}</div></article>`).join('')||'<div class="ms-empty">No staff found</div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(c=>`<div class="trow"><span class="who"><span class="pic">${ini(c.name)}</span><span><b>${c.name}</b><small>${c.code||''}</small></span></span><span>${c.position||''}</span><span class="sch"><b>${c.schedule_days||''}</b><small>${c.schedule_time||''}</small></span><span>${c.contact||''}</span><span>${c.email||''}</span><span><em class="st">Active</em></span><span class="act">${CAN_MANAGE?`<button class="ib" title="Edit" onclick="openConciergeEditor(${c.id})">${editIco}</button>`:''}${IS_ADMIN?`<button class="ib del" title="Delete" onclick="if(confirm('Remove this staff member?'))post('/concierge/${c.id}','DELETE')"><svg viewBox="0 0 24 24" style="stroke:#b3352f"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 let sortField='',sortAsc=true;
 function sortBy(f){if(sortField===f)sortAsc=!sortAsc;else{sortField=f;sortAsc=true;}applyFilters();}
 function applyFilters(){
@@ -141,7 +148,7 @@ msMirror([['mSearch','fSearch','input'],['mPos','fPos'],['mStatus','fStatus'],['
 ['fSearch','fPos','fStatus','fSch'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 </script>
-<div class="modal-ov" id="addConcierge"><div class="modal"><h3>Add Concierge</h3><form method="POST" action="{{ url('/concierge') }}">@csrf
+<div class="modal-ov" id="addConcierge"><div class="modal"><h3 id="conModalTitle">Add Staff</h3><form id="conForm" method="POST" action="{{ url('/concierge') }}">@csrf<input type="hidden" name="_method" id="conMethod" value="">
 <label>Name</label><input name="name" required>
 <label>Position</label><input name="position" value="Concierge">
 <div class="mrow"><div><label>Schedule Days</label><input name="schedule_days" placeholder="Monday - Friday"></div><div><label>Schedule Time</label><input name="schedule_time" placeholder="8 AM - 4 PM"></div></div>

@@ -20,9 +20,16 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
         'role',
     ];
+
+    /** Two-letter initials for the avatar fallback. */
+    public function initials(): string
+    {
+        return collect(explode(' ', trim($this->name)))->filter()->map(fn ($w) => mb_substr($w, 0, 1))->take(2)->implode('');
+    }
 
     /** Tabs each role may access (admin = all). */
     public const ACCESS = [

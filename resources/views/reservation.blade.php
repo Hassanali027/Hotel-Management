@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Reservation - Indus Resort Restaurant</title>
+<title>Reservations - Indus Resort Restaurant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -70,6 +70,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <style>
 /* ===== Phone reservations (Figma clone). Only on screens up to 768px; desktop table untouched. ===== */
 .m-res{display:none}
@@ -143,11 +144,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
             <div class="mr-tools">
                 <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
-                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.')"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
-                <span class="mr-avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
+                <span class="mr-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             </div>
         </header>
-        <div class="mr-title"><h1>Reservations</h1>@if(auth()->user()->role !== 'staff')<button class="mr-add" type="button" onclick="openModal('addBooking')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Booking</button>@endif</div>
+        <div class="mr-title"><h1>Reservations</h1>@if(auth()->user()->role !== 'staff')<button class="mr-add" type="button" onclick="openBookingCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Reservation</button>@endif</div>
         <div class="mr-filters">
             <label class="mr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search guest, room, etc..."></label>
             <select class="mr-sel" id="mStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
@@ -159,13 +160,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         @include('partials.mobile-nav')
     </section>
     <header class="top">
-        <h1>Reservation</h1>
+        <h1>Reservations</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
@@ -176,7 +177,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search guest, status, etc"></div>
                 <select class="fsel" id="fStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
                 <div class="pill date-filter"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fDateStart" type="date" aria-label="Start date"><span class="date-separator">to</span><input id="fDateEnd" type="date" aria-label="End date"></div>
-                @if(auth()->user()->role !== 'staff')<button class="pill lime" onclick="openModal('addBooking')">Add Booking</button>@endif
+                @if(auth()->user()->role !== 'staff')<button class="pill lime" onclick="openBookingCreator()">Add Reservation</button>@endif
             </div>
         </div>
         <div class="tbl">
@@ -212,7 +213,17 @@ const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10
 const edit='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
 const data=@json($bookings);
 const roomRates=@json($rooms->pluck('price','name'));
-function fillRoomPrice(roomType){const rate=roomRates[roomType];if(rate!==undefined)document.getElementById('bookingPrice').value=rate;}
+const roomUnits=@json($units);
+/* Room numbers come from the room-number list: only free rooms can be picked; booked ones are shown disabled. */
+function fillRoomUnits(type,keep){const sel=document.getElementById('bookingRoomNumber'),inp=document.getElementById('bookingRoomInput');const list=roomUnits.filter(u=>u.type===type);if(!list.length){sel.style.display='none';sel.disabled=true;inp.style.display='';inp.disabled=false;return;}inp.style.display='none';inp.disabled=true;sel.style.display='';sel.disabled=false;const free=list.filter(u=>u.status==='available').length;sel.innerHTML='<option value="">'+(free?'Select room number ('+free+' available)':'No rooms available')+'</option>'+list.map(u=>{const ok=u.status==='available'||u.number===keep;return '<option value="'+u.number+'"'+(ok?'':' disabled')+(u.number===keep?' selected':'')+'>Room '+u.number+(ok?'':' - '+u.status.replace('_',' '))+'</option>';}).join('');if(keep){sel.value=keep;inp.value=keep;}}
+const guestsById=@json($guests ?? []);
+function openBookingCreator(){const f=document.getElementById('bookingForm');f.reset();f.action='{{ url('/bookings') }}';document.getElementById('bookingMethod').value='';document.getElementById('bookingModalTitle').textContent='Add Reservation';fillRoomUnits('');openModal('addBooking');}
+function openBookingEditor(id){const b=data.find(x=>x.id===id);if(!b)return;const f=document.getElementById('bookingForm');f.reset();f.action='{{ url('/bookings') }}/'+b.id;document.getElementById('bookingMethod').value='PUT';document.getElementById('bookingModalTitle').textContent='Edit Reservation '+b.code;
+ const g=guestsById[b.guest_id]||{};['guest_name','cnic','request','duration','check_in','check_out','guests','price_per_night','extra_charges','status','source'].forEach(k=>{if(f.elements[k])f.elements[k].value=(b[k]??'')===null?'':(k==='check_in'||k==='check_out')?String(b[k]||'').slice(0,10):(b[k]??'');});
+ ['phone','email','dob','gender','nationality','passport_no'].forEach(k=>{if(f.elements[k]&&g[k]!=null)f.elements[k].value=g[k];});
+ if(f.elements.room_type){f.elements.room_type.value=b.room_type||'';fillRoomUnits(b.room_type||'',b.room_number);}
+ openModal('addBooking');}
+function fillRoomPrice(roomType){const rate=roomRates[roomType];if(rate!==undefined)document.getElementById('bookingPrice').value=rate;fillRoomUnits(roomType);}
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 const STL={pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'};
 const NEXT={pending:['confirmed','Confirm'],confirmed:['checked_in','Check-In'],checked_in:['checked_out','Check-Out']};
@@ -227,7 +238,7 @@ function renderMobile(list){
  el.innerHTML=list.map((b,i)=>{
   const next=NEXT[b.status]?`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
   const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="mr-btn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span><span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span><span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${next}${cancel}</div></article>`;
+  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span><span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span><span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
  }).join('')||'<div class="mr-empty">No reservations found</div>';
  const pg=document.getElementById('mPager'),st=(window.PGSTATE&&PGSTATE.res)||{page:1},pages=Math.max(1,Math.ceil(lastFiltered.length/8));
  if(pg)pg.innerHTML=pages>1?`<button ${st.page<=1?'disabled':''} onclick="mPage(-1)">\u2039 Prev</button><span>Page ${st.page} of ${pages}</span><button ${st.page>=pages?'disabled':''} onclick="mPage(1)">Next \u203a</button>`:'';
@@ -240,7 +251,8 @@ function render(list){
   if(NEXT[b.status])action=`<button class="abtn confirm" onclick="event.stopPropagation();post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`;
   else action=`<span class="abtn done">Done</span>`;
   const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="abtn cancel" onclick="event.stopPropagation();if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  return `<div class="trow" style="cursor:pointer" onclick="location.href='/guest-profile?id=${b.id}'"><span class="g"><b>${b.guest_name}</b><small>${b.code}</small></span><span>${b.room_label||''}</span><span>${b.request||''}</span><span>${b.duration||''}</span><span>${fmt(b.check_in)} &nbsp;-&nbsp; ${fmt(b.check_out)}</span><span><em class="st ${b.status}">${STL[b.status]||b.status}</em></span><span class="act"><button class="ib" title="View guest profile" onclick="event.stopPropagation();location.href='/guest-profile?id=${b.id}'">${eye}</button>${action}${cancel}</span></div>`;
+  const editBtn=(CAN_MANAGE&&b.status!=='checked_out')?`<button class="ib" title="Edit reservation" onclick="event.stopPropagation();openBookingEditor(${b.id})">${edit}</button>`:'';
+  return `<div class="trow" style="cursor:pointer" onclick="location.href='/guest-profile?id=${b.id}'"><span class="g"><b>${b.guest_name}</b><small>${b.code}</small></span><span>${b.room_label||''}</span><span>${b.request||''}</span><span>${b.duration||''}</span><span>${fmt(b.check_in)} &nbsp;-&nbsp; ${fmt(b.check_out)}</span><span><em class="st ${b.status}">${STL[b.status]||b.status}</em></span><span class="act"><button class="ib" title="View guest profile" onclick="event.stopPropagation();location.href='/guest-profile?id=${b.id}'">${eye}</button>${editBtn}${action}${cancel}</span></div>`;
  }).join('')||'<div class="trow"><span>No results</span></div>';
 }
 function applyFilters(){
@@ -257,20 +269,24 @@ document.getElementById('fDateEnd').addEventListener('change',applyFilters);
 /* Phone filters mirror into the desktop inputs so one applyFilters() serves both layouts. */
 [['mSearch','fSearch','input'],['mStatus','fStatus','change'],['mDateStart','fDateStart','change'],['mDateEnd','fDateEnd','change']].forEach(([m,d,ev])=>{const me=document.getElementById(m),de=document.getElementById(d);if(me&&de)me.addEventListener(ev,()=>{de.value=me.value;applyFilters();});});
 applyFilters();
+(function(){const q=new URLSearchParams(location.search).get('q');if(q){['fSearch','mSearch'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=q;});applyFilters();}})();
+(function(){const id=new URLSearchParams(location.search).get('edit');if(id&&typeof openBookingEditor==='function')openBookingEditor(+id);})();
 </script>
-<div class="modal-ov" id="addBooking"><div class="modal"><h3>Add Booking</h3><form method="POST" action="{{ url('/bookings') }}" enctype="multipart/form-data">@csrf
+<div class="modal-ov" id="addBooking"><div class="modal wide"><h3 id="bookingModalTitle">Add Reservation</h3><form id="bookingForm" method="POST" action="{{ url('/bookings') }}" enctype="multipart/form-data">@csrf<input type="hidden" name="_method" id="bookingMethod" value="">
 @if($errors->any())<div style="margin:0 0 12px;padding:10px 12px;border-radius:9px;background:#fff0f0;color:#b3352f;font-size:13px">Please check the highlighted details below. @foreach($errors->all() as $error)<div style="margin-top:3px">• {{ $error }}</div>@endforeach</div>@endif
-<label>Guest Name</label><input name="guest_name" required>
-<label>CNIC</label><input name="cnic" inputmode="numeric" maxlength="20" placeholder="12345-1234567-1">
+<div class="msec">Guest details</div>
+<div class="mrow"><div><label>Guest Name</label><input name="guest_name" required></div><div><label>CNIC</label><input name="cnic" inputmode="numeric" maxlength="20" placeholder="12345-1234567-1"></div></div>
 <div class="mrow"><div><label>Phone Number</label><input name="phone" type="tel" placeholder="+92 300 0000000"></div><div><label>Email Address</label><input name="email" type="email" placeholder="guest@example.com"></div></div>
 <div class="mrow"><div><label>Date of Birth</label><input name="dob" type="date"></div><div><label>Gender</label><select name="gender"><option value="">Select gender</option><option>Male</option><option>Female</option><option>Other</option></select></div></div>
 <div class="mrow"><div><label>Nationality</label><input name="nationality" placeholder="Pakistani"></div><div><label>Passport No.</label><input name="passport_no" placeholder="Optional"></div></div>
-<div class="mrow"><div><label>Room Type</label><select name="room_type" onchange="fillRoomPrice(this.value)" required><option value="">Select room type</option>@foreach($rooms->pluck('name')->filter()->unique()->values() as $roomType)<option value="{{ $roomType }}">{{ $roomType }}</option>@endforeach</select></div><div><label>Room Number</label><input name="room_number" placeholder="101"></div></div>
+<div class="msec">Stay details</div>
+<div class="mrow"><div><label>Room Type</label><select name="room_type" onchange="fillRoomPrice(this.value)" required><option value="">Select room type</option>@foreach($rooms->pluck('name')->filter()->unique()->values() as $roomType)<option value="{{ $roomType }}">{{ $roomType }}</option>@endforeach</select></div><div><label>Room Number</label><select name="room_number" id="bookingRoomNumber"><option value="">Select room type first</option></select><input name="room_number" id="bookingRoomInput" placeholder="101" style="display:none" disabled></div></div>
 <div class="amenity-box"><h4>Room Features, Facilities &amp; Amenities</h4><div class="amenity-grid"><label><input type="checkbox" name="amenities[]" value="Free Wi-Fi">Free Wi-Fi</label><label><input type="checkbox" name="amenities[]" value="Air Conditioning">Air Conditioning</label><label><input type="checkbox" name="amenities[]" value="Smart TV">Smart TV</label><label><input type="checkbox" name="amenities[]" value="Mini Fridge">Mini Fridge</label><label><input type="checkbox" name="amenities[]" value="Coffee / Tea Maker">Coffee / Tea Maker</label><label><input type="checkbox" name="amenities[]" value="In-room Safe">In-room Safe</label><label><input type="checkbox" name="amenities[]" value="24-hour Room Service">24-hour Room Service</label><label><input type="checkbox" name="amenities[]" value="Balcony / City View">Balcony / City View</label></div><label style="margin-top:10px">Other facility or amenity</label><input name="amenity_notes" placeholder="e.g. Extra bed, hairdryer, work desk"></div>
-<label>Request</label><input name="request" placeholder="None">
-<div class="mrow"><div><label>Duration</label><input name="duration" placeholder="3 nights"></div><div><label>Status</label><select name="status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select></div></div>
+<div class="mrow three"><div><label>Guests</label><input type="number" name="guests" value="2" min="1" max="20"></div><div><label>Request</label><input name="request" placeholder="None"></div><div><label>Duration</label><input name="duration" placeholder="3 nights"></div></div>
+<div class="mrow"><div><label>Booking Source</label><select name="source"><option>Direct Booking</option><option>Booking.com</option><option>Agoda</option><option>Airbnb</option><option>Hotels.com</option><option>Walk-in</option><option>Phone</option><option>Other</option></select></div><div><label>Status</label><select name="status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select></div></div>
 <div class="mrow"><div><label>Check In</label><input type="date" name="check_in"></div><div><label>Check Out</label><input type="date" name="check_out"></div></div>
-<div class="mrow"><div><label>Price / night</label><input id="bookingPrice" type="number" name="price_per_night" min="1" required placeholder="Select a room type"></div><div><label>Amount</label><input type="number" name="amount" value="0"></div></div>
+<div class="msec">Payment</div>
+<div class="mrow"><div><label>Price / night</label><input id="bookingPrice" type="number" name="price_per_night" min="1" required placeholder="Select a room type"></div><div><label>Extra Charges (PKR)</label><input type="number" name="extra_charges" value="0" min="0" placeholder="0 if none"></div></div>
 <label class="partial-payment-toggle"><input type="checkbox" name="partial_payment" value="1" onchange="document.getElementById('partialPaymentFields').style.display=this.checked?'block':'none'"><span><b>Partial Payment</b><small>Record the advance payment received from the guest</small></span></label>
 <div id="partialPaymentFields" class="partial-payment-fields">
 <label>Advance Amount (PKR)</label><input type="number" name="advance_amount" min="0" placeholder="Enter advance amount">

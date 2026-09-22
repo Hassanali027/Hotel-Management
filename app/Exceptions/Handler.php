@@ -34,6 +34,11 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        // An expired session on a form submit should send the user to sign in again, not show a 419 page.
+        $this->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->guest('/login')->withErrors(['email' => 'Your session expired. Please sign in again.']);
+        });
+
         $this->reportable(function (Throwable $e) {
             //
         });

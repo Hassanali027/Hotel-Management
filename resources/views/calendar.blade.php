@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--sage:#b6d8cb;--olive:#cbd877;--pevent:#eef7c9;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#eee;--red:#ff4e52}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -81,10 +81,12 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
-@php $msAct = '<button class="ms-add" type="button" onclick="openModal(\'addSchedule\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Schedule</button>'; @endphp
+@php $msAct = '<button class="ms-add" type="button" onclick="openScheduleCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Schedule</button>'; @endphp
 @include('partials.mobile-shell', ['msTitle'=>'Calendar','msSubtitle'=>now()->format('F Y'),'msAction'=>$msAct])
+<div style="display:flex;align-items:center;justify-content:space-between;margin:-6px 0 10px"><button class="ms-btn gray" type="button" onclick="calShift(-1)">‹ Prev</button><b id="mcTitle">{{ now()->format('F Y') }}</b><button class="ms-btn gray" type="button" onclick="calShift(1)">Next ›</button></div>
 <style>@media(max-width:768px){.mc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}.mc-grid .wd{font-size:11px;color:#888;font-weight:700;padding:4px 0}.mc-d{height:38px;display:grid;place-items:center;border-radius:10px;font-size:13px;position:relative;cursor:pointer;border:0;background:none;font-family:inherit;color:#111}.mc-d.mut{color:#c0c0c0}.mc-d.today{background:#d9f5e5;color:#1f5f3f;font-weight:800}.mc-d.on{background:#1f7a4d;color:#fff}.mc-d i{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:#1f7a4d}.mc-d.on i{background:#fff}.mc-day{font-size:13px;font-weight:700;color:#555;margin:14px 0 8px}.mc-ev{display:grid;grid-template-columns:5px minmax(0,1fr) auto;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee}.mc-ev i{align-self:stretch;border-radius:4px}.mc-ev small{display:block;font-size:12px;color:#777}.mc-ev b{display:block;font-size:15px;margin-top:2px}.mc-ev em{font-style:normal;font-size:11px;font-weight:700;padding:5px 9px;border-radius:12px;background:#f1f3f2;color:#333;white-space:nowrap}}</style>
 <section class="ms-card"><div class="mc-grid" id="mMini"></div></section>
 <div class="ms-chips" id="mCats"><button class="ms-chip on" type="button" data-cat="">All</button><button class="ms-chip" type="button" data-cat="training"><i style="background:var(--sage)"></i>Training</button><button class="ms-chip" type="button" data-cat="meeting"><i style="background:var(--mint)"></i>Meeting</button><button class="ms-chip" type="button" data-cat="guest"><i style="background:var(--olive)"></i>Guest Service</button><button class="ms-chip" type="button" data-cat="maintenance"><i style="background:var(--lime)"></i>Maintenance</button><button class="ms-chip" type="button" data-cat="event"><i style="background:var(--pevent)"></i>Event</button></div>
@@ -94,17 +96,17 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Calendar</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
     <div class="cal-wrap">
         <aside class="card">
-            <div class="mini-head"><button class="nav p"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button><b>{{ now()->format('F Y') }}</b><button class="nav n"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></div>
+            <div class="mini-head"><button class="nav p" type="button" onclick="calShift(-1)"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button><b id="calTitle">{{ now()->format('F Y') }}</b><button class="nav n" type="button" onclick="calShift(1)"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></div>
             <div class="mini-grid" id="mini"></div>
             <div class="cat">
                 <div class="cat-top"><h2>Category</h2><span class="dots">···</span></div>
@@ -121,9 +123,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="sched-top">
                 <h2>Schedule</h2>
                 <div class="sright">
-                    <div class="seg"><button>Day</button><button>Week</button><button class="on">Month</button></div>
+                    <div class="seg"><button type="button" onclick="calShift(0,true)">Today</button><button type="button" class="on">Month</button></div>
                     <select class="fsel" id="fCat"><option value="">All Category</option><option value="training">Training</option><option value="meeting">Meeting</option><option value="guest">Guest Service</option><option value="maintenance">Maintenance</option><option value="event">Event</option></select>
-                    <button class="add" onclick="openModal('addSchedule')">Add Schedule</button>
+                    <button class="add" onclick="openScheduleCreator()">Add Schedule</button>
                 </div>
             </div>
             <div class="cal-grid">
@@ -146,17 +148,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <script>
 // June 2028 starts Thursday. Cells: 28,29,30,31(May,mut), 1..30(Jun), 1(Jul,mut) = 35
 const _now=new Date();
-const _Y=_now.getFullYear(),_Mo=_now.getMonth();
-const _first=new Date(_Y,_Mo,1).getDay();
-const _dim=new Date(_Y,_Mo+1,0).getDate();
-const _prevDim=new Date(_Y,_Mo,0).getDate();
-const cells=[];
-for(let i=_first-1;i>=0;i--)cells.push({d:_prevDim-i,mut:1});
-for(let d=1;d<=_dim;d++)cells.push({d,mut:0});
-let _nx=1;while(cells.length%7!==0)cells.push({d:_nx++,mut:1});
-// mini calendar
+let _Y=_now.getFullYear(),_Mo=_now.getMonth();
+let cells=[];
 const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-document.getElementById('mini').innerHTML=wd.map(w=>`<span class="wd">${w}</span>`).join('')+cells.map(c=>`<span class="d ${c.mut?'mut':''}">${c.d}</span>`).join('');
+const _MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+/* Build the day cells for the month currently shown; the arrows move a month at a time. */
+function buildCells(){const first=new Date(_Y,_Mo,1).getDay(),dim=new Date(_Y,_Mo+1,0).getDate(),prevDim=new Date(_Y,_Mo,0).getDate();cells=[];for(let i=first-1;i>=0;i--)cells.push({d:prevDim-i,mut:1});for(let d=1;d<=dim;d++)cells.push({d,mut:0});let nx=1;while(cells.length%7!==0)cells.push({d:nx++,mut:1});
+ const t=document.getElementById('calTitle');if(t)t.textContent=_MN[_Mo]+' '+_Y;const mini=document.getElementById('mini');if(mini)mini.innerHTML=wd.map(w=>`<span class="wd">${w}</span>`).join('')+cells.map(c=>`<span class="d ${c.mut?'mut':''}">${c.d}</span>`).join('');}
+function calShift(n,today){if(today){_Y=_now.getFullYear();_Mo=_now.getMonth();}else{_Mo+=n;if(_Mo<0){_Mo=11;_Y--;}if(_Mo>11){_Mo=0;_Y++;}}buildCells();if(typeof mcDay!=='undefined')mcDay=0;render(document.getElementById('fCat').value);}
+buildCells();
 // events keyed by June day (from DB)
 const clabel={training:'Training',meeting:'Meeting',guest:'Guest Service',maintenance:'Maintenance',event:'Event'};
 const schedules=@json($schedules);
@@ -164,7 +164,7 @@ const mcCol={training:'var(--sage)',meeting:'var(--mint)',guest:'var(--olive)',m
 let mcDay=0;
 function renderMobileCal(cat){
  const mini=document.getElementById('mMini'),ag=document.getElementById('mAgenda');if(!mini||!ag)return;
- const mm=String(_Mo+1).padStart(2,'0'),ym=_Y+'-'+mm;
+ const mm=String(_Mo+1).padStart(2,'0'),ym=_Y+'-'+mm;const mt=document.getElementById('mcTitle');if(mt)mt.textContent=_MN[_Mo]+' '+_Y;
  const list=schedules.filter(s=>String(s.date).slice(0,7)===ym&&(!cat||s.category===cat)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
  const days=new Set(list.map(s=>+String(s.date).slice(8,10)));
  const today=(_now.getFullYear()===_Y&&_now.getMonth()===_Mo)?_now.getDate():0;
@@ -172,17 +172,20 @@ function renderMobileCal(cat){
  const shown=mcDay?list.filter(s=>+String(s.date).slice(8,10)===mcDay):list;
  const groups={};shown.forEach(s=>{(groups[s.date]=groups[s.date]||[]).push(s);});
  const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
- ag.innerHTML=Object.keys(groups).sort().map(d=>{const dt=new Date(d+'T00:00:00');return `<div class="mc-day">${dn[dt.getDay()]}, ${msDate(d)}</div>`+groups[d].map(s=>`<div class="mc-ev"><i style="background:${mcCol[s.category]||'#ddd'}"></i><div><small>${(s.start_time||'')}${s.end_time?' - '+s.end_time:''}</small><b>${s.title}</b></div><em>${clabel[s.category]||s.category||''}</em></div>`).join('');}).join('')||`<div class="ms-empty">${mcDay?'Nothing scheduled on this day':'No schedules this month'}</div>`;
+ ag.innerHTML=Object.keys(groups).sort().map(d=>{const dt=new Date(d+'T00:00:00');return `<div class="mc-day">${dn[dt.getDay()]}, ${msDate(d)}</div>`+groups[d].map(s=>`<div class="mc-ev" onclick="openScheduleEditor(${s.id})"><i style="background:${mcCol[s.category]||'#ddd'}"></i><div><small>${(s.start_time||'')}${s.end_time?' - '+s.end_time:''}</small><b>${s.title}</b></div><em>${clabel[s.category]||s.category||''}</em></div>`).join('');}).join('')||`<div class="ms-empty">${mcDay?'Nothing scheduled on this day':'No schedules this month'}</div>`;
 }
 function mcPick(d){mcDay=(mcDay===d?0:d);renderMobileCal(document.getElementById('fCat').value);}
 document.querySelectorAll('#mCats .ms-chip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#mCats .ms-chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');const sel=document.getElementById('fCat');sel.value=b.dataset.cat;render(sel.value);markLegend(sel.value);}));
+function openScheduleCreator(){const f=document.getElementById('schForm');f.reset();f.action='{{ url('/schedules') }}';document.getElementById('schMethod').value='';document.getElementById('schModalTitle').textContent='Add Schedule';document.getElementById('schDelete').style.display='none';openModal('addSchedule');}
+function openScheduleEditor(id){if(!window.CAN_MANAGE)return;const s=schedules.find(x=>x.id===id);if(!s)return;const f=document.getElementById('schForm');f.reset();f.action='{{ url('/schedules') }}/'+s.id;document.getElementById('schMethod').value='PUT';document.getElementById('schModalTitle').textContent='Edit Schedule';['title','category','start_time','end_time'].forEach(k=>{if(f.elements[k])f.elements[k].value=s[k]??'';});f.elements.date.value=String(s.date||'').slice(0,10);const d=document.getElementById('schDelete');d.style.display=window.IS_ADMIN?'':'none';d.dataset.id=s.id;openModal('addSchedule');}
 function render(cat){
  renderMobileCal(cat);
  const ev={};
- schedules.filter(s=>!cat||s.category===cat).forEach(s=>{const day=+String(s.date).slice(8,10);const time=(s.start_time||'')+(s.end_time?' - '+s.end_time:'');(ev[day]=ev[day]||[]).push([time,s.title,clabel[s.category]||s.category,s.category])});
+ const _ym=_Y+'-'+String(_Mo+1).padStart(2,'0');
+ schedules.filter(s=>String(s.date).slice(0,7)===_ym&&(!cat||s.category===cat)).forEach(s=>{const day=+String(s.date).slice(8,10);const time=(s.start_time||'')+(s.end_time?' - '+s.end_time:'');(ev[day]=ev[day]||[]).push([time,s.title,clabel[s.category]||s.category,s.category,s.id])});
  document.getElementById('calbody').innerHTML=cells.map(c=>{
   const list=(!c.mut&&ev[c.d])?ev[c.d]:[];
-  const evs=list.map(e=>`<div class="ev ${e[3]}"><span class="t">${e[0]}</span><b>${e[1]}</b><span class="c">${e[2]}</span></div>`).join('');
+  const evs=list.map(e=>`<div class="ev ${e[3]}" style="cursor:pointer" onclick="openScheduleEditor(${e[4]})"><span class="t">${e[0]}</span><b>${e[1]}</b><span class="c">${e[2]}</span></div>`).join('');
   return `<div class="cell ${c.mut?'mut':''}"><div class="dn">${c.mut?String(c.d).padStart(2,'0'):c.d}</div>${evs}</div>`;
  }).join('');
 }
@@ -191,12 +194,12 @@ function filterCat(c){const sel=document.getElementById('fCat');sel.value=(sel.v
 document.getElementById('fCat').addEventListener('change',e=>{render(e.target.value);markLegend(e.target.value);});
 render('');
 </script>
-<div class="modal-ov" id="addSchedule"><div class="modal"><h3>Add Schedule</h3><form method="POST" action="{{ url('/schedules') }}">@csrf
+<div class="modal-ov" id="addSchedule"><div class="modal"><h3 id="schModalTitle">Add Schedule</h3><form id="schForm" method="POST" action="{{ url('/schedules') }}">@csrf<input type="hidden" name="_method" id="schMethod" value="">
 <label>Title</label><input name="title" required>
 <label>Category</label><select name="category"><option value="training">Training</option><option value="meeting">Meeting</option><option value="guest">Guest Service</option><option value="maintenance">Maintenance</option><option value="event">Event</option></select>
-<label>Date</label><input type="date" name="date" value="2028-06-15" required>
+<label>Date</label><input type="date" name="date" value="{{ now()->format('Y-m-d') }}" required>
 <div class="mrow"><div><label>Start Time</label><input name="start_time" placeholder="11:00 AM"></div><div><label>End Time</label><input name="end_time" placeholder="1:00 PM"></div></div>
-<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addSchedule')">Cancel</button><button class="mbtn save">Save</button></div>
+<div class="mact"><button type="button" class="mbtn cancel" id="schDelete" style="display:none;margin-right:auto;background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this schedule?'))post('/schedules/'+this.dataset.id,'DELETE')">Delete</button><button type="button" class="mbtn cancel" onclick="closeModal('addSchedule')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
 </body>
 </html>

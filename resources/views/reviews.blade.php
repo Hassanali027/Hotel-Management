@@ -11,7 +11,7 @@
 :root{--lime:#e8fb82;--mint:#d2f3e4;--mint-d:#b6d8cb;--ink:#151515;--muted:#8f8f8f;--bg:#f6f6f5;--line:#f0f0f0;--red:#ff4e52;--star:#f2c94c}
 *{box-sizing:border-box}
 body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-serif;color:var(--ink);zoom:.9}
-@media(min-width:1301px) and (max-width:1550px){body{zoom:.82}}
+@media(min-width:1301px) and (max-width:1700px){body{zoom:.82}}
 @media(min-width:1101px) and (max-width:1300px){body{zoom:.72}}
 @media(min-width:701px) and (max-width:1100px){body{zoom:.62}}
 .main{flex:1;min-width:0;padding:26px 30px 16px}
@@ -84,14 +84,28 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
 @media(max-width:1100px){.grid2{grid-template-columns:1fr}.clay{grid-template-columns:1fr}.rev-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.rbody{grid-template-columns:1fr}.rev-grid{grid-template-columns:1fr}footer{flex-direction:column;align-items:flex-start}}
+/* Review card actions */
+.crsort{display:flex;align-items:center;gap:12px}
+.rv-add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border:0;border-radius:11px;background:var(--lime);color:#2f3a0c;font:700 15px Lato,Arial,sans-serif;cursor:pointer}
+.rv-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.rv-add:hover{filter:brightness(.97)}
+.rev{display:flex;flex-direction:column}
+.rv-foot{margin-top:auto;padding-top:14px;display:flex;justify-content:flex-end}
+.rv-del{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:0;border-radius:9px;background:#fff1f1;color:#b3352f;font:700 12.5px Lato,Arial,sans-serif;cursor:pointer;transition:.15s}
+.rv-del svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rv-del:hover{background:#ffe1e1}
+@media(max-width:768px){.mv-rev .rv-foot{padding-top:10px}}
 </style>
 </head>
 <body>
+@include('partials.crud')
 @include('partials.sidebar')
+@include('partials.responsive')
 <main class="main">
 <section class="m-page">
 @php $rAvg = round((float) $reviews->avg('rating'), 1); $rCount = $reviews->count(); $rDist = collect([5,4,3,2,1])->map(fn($n) => ['n'=>$n,'c'=>$reviews->where('rating',$n)->count(),'p'=>$rCount ? round($reviews->where('rating',$n)->count()/$rCount*100) : 0]); @endphp
-@include('partials.mobile-shell', ['msTitle'=>'Reviews','msSubtitle'=>'What guests are saying'])
+@php $msAct = auth()->user()->can_access('reviews') ? '<button class="ms-add" type="button" onclick="openModal(\'addReview\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Review</button>' : ''; @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Reviews','msSubtitle'=>'What guests are saying','msAction'=>$msAct])
 <style>@media(max-width:768px){.mv-score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}.mv-score .big{font-size:44px;font-weight:800;line-height:1;letter-spacing:-1px}.mv-score .big small{font-size:16px;color:#777;font-weight:400;letter-spacing:0}.mv-score .stars{color:#f5b301;font-size:16px;letter-spacing:1px;margin-top:4px}.mv-score .cnt{font-size:13px;color:#666;margin-top:4px}.mv-bars{display:grid;gap:7px}.mv-bar{display:grid;grid-template-columns:22px minmax(0,1fr) 34px;align-items:center;gap:8px;font-size:12px;color:#555}.mv-bar span{height:8px;border-radius:4px;background:#eef1ef;overflow:hidden}.mv-bar span i{display:block;height:100%;background:#2e9e5e;border-radius:4px}.mv-rev p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#444}.mv-rev .stars{color:#f5b301;font-size:14px;letter-spacing:1px}}</style>
 <section class="ms-card"><div class="mv-score"><div><div class="big">{{ number_format($rAvg, 1) }}<small>/5</small></div><div class="stars">{{ str_repeat('★', (int) round($rAvg)) }}{{ str_repeat('☆', 5 - (int) round($rAvg)) }}</div><div class="cnt">from {{ number_format($rCount) }} reviews</div></div><div class="mv-bars">@foreach($rDist as $d)<div class="mv-bar"><b>{{ $d['n'] }} ★</b><span><i style="width:{{ $d['p'] }}%"></i></span><small>{{ $d['c'] }}</small></div>@endforeach</div></div></section>
 <div class="ms-sec"><h2>Customer Reviews</h2><select class="ms-sel" id="mSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="high">Highest Rated</option><option value="low">Lowest Rated</option></select></div>
@@ -101,64 +115,38 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <header class="top">
         <h1>Reviews</h1>
         <div class="profile">
-            <span class="avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            <span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             <div class="pinfo"><b>{{ auth()->user()->name }}</b><small>{{ ucfirst(auth()->user()->role) }}</small></div>
             <div class="tools">
-                <button class="tool"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-                <button class="tool bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
+                <button class="tool" type="button" title="My account" onclick="openAccount()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                <button class="tool bell" type="button" title="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
             </div>
         </div>
     </header>
     <section class="grid2">
         <div class="card">
-            <div class="chd"><h2>Review Statistics</h2><button class="sel"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Last 7 Days<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="chd"><h2>Review Statistics</h2><span class="sel" style="cursor:default">Last 7 Days</span></div>
             <div class="legend"><span><i class="lp"></i>Positive</span><span><i class="ln"></i>Negative</span></div>
             <div class="ec">
-                <div class="ey"><span>30K</span><span>15K</span><span>0</span><span>-15K</span><span>-30K</span></div>
+                <div class="ey" id="revY"></div>
                 <div class="eplot" id="eplot"><div class="gl g1"></div><div class="gl g0"></div><div class="gl g3"></div></div>
             </div>
         </div>
         <div class="card">
-            <div class="chd"><h2>Overall Rating</h2><button class="sel">This Week<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+            <div class="chd"><h2>Overall Rating</h2><span class="sel" style="cursor:default">All time</span></div>
             <div class="rbody">
                 <div>
                     <div class="gauge">
-                        <svg viewBox="0 0 200 118"><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#e6f4ec" stroke-width="20" stroke-linecap="round"/><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#bfe8d3" stroke-width="20" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="33"/></svg>
-                        <div class="gscore"><small>Rating</small><b>4.6<span>/5</span></b></div>
+                        <svg viewBox="0 0 200 118"><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#e6f4ec" stroke-width="20" stroke-linecap="round"/><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#bfe8d3" stroke-width="20" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="{{ round(270 - 270 * min(5, $avg) / 5) }}"/></svg>
+                        <div class="gscore"><small>Rating</small><b>{{ number_format($avg, 1) }}<span>/5</span></b></div>
                     </div>
-                    <div class="impress">Impressive<small>from 2546 reviews</small></div>
+                    <div class="impress">{{ $count === 0 ? 'No reviews yet' : ($avg >= 4.5 ? 'Excellent' : ($avg >= 4 ? 'Impressive' : ($avg >= 3 ? 'Good' : 'Needs attention'))) }}<small>from {{ number_format($count) }} reviews</small></div>
                 </div>
-                <div class="rlist">
-                    <div class="rrow">Facilities<span class="bar"><i style="width:88%"></i></span><b>4.4</b></div>
-                    <div class="rrow">Cleanliness<span class="bar"><i style="width:88%"></i></span><b>4.4</b></div>
-                    <div class="rrow">Services<span class="bar"><i style="width:92%"></i></span><b>4.6</b></div>
-                    <div class="rrow">Comfort<span class="bar"><i style="width:96%"></i></span><b>4.8</b></div>
-                    <div class="rrow">Food and Dining<span class="bar"><i style="width:90%"></i></span><b>4.5</b></div>
-                </div>
+                <div class="rlist">@forelse($cats->filter(fn($c) => $c['score'] > 0) as $c)<div class="rrow">{{ $c['name'] }}<span class="bar"><i style="width:{{ min(100, $c['score'] / 5 * 100) }}%"></i></span><b>{{ number_format($c['score'], 1) }}</b></div>@empty<div class="rrow" style="color:#aaa">Category scores appear once reviews with ratings are added.</div>@endforelse</div>
             </div>
         </div>
     </section>
-    <section class="card country-card">
-        <div class="chd"><h2>Reviews by Country</h2><span style="color:#c4c4c4;font-size:18px">···</span></div>
-        <div class="clay">
-            <div class="cmap"><img src="{{ asset('images/World.png') }}" alt="World reviews map"></div>
-            <aside class="csum">
-                <small>Total Customers</small>
-                <strong>17,850</strong>
-                <div class="clist">
-                    <div class="crow"><i style="background:#cbd877"></i><span>United States of America</span><b>23%</b></div>
-                    <div class="crow"><i style="background:#e8fb82"></i><span>China</span><b>20%</b></div>
-                    <div class="crow"><i style="background:#f4fac3"></i><span>United Kingdom</span><b>18%</b></div>
-                    <div class="crow"><i style="background:#b6d8cb"></i><span>Netherlands</span><b>13%</b></div>
-                    <div class="crow"><i style="background:#d2f3e4"></i><span>Australia</span><b>11%</b></div>
-                    <div class="crow"><i style="background:#e3f6ec"></i><span>Saudi Arabia</span><b>9%</b></div>
-                    <div class="crow"><i style="background:#9a9a9a"></i><span>Uni Emirates Arab</span><b>8%</b></div>
-                    <div class="crow"><i style="background:#dddddd"></i><span>Indonesia</span><b>4%</b></div>
-                </div>
-            </aside>
-        </div>
-    </section>
-    <div class="crhead"><h2>Customer Reviews</h2><div class="crsort">Sort by: <select class="fsel lime" id="fSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="high">Highest Rated</option><option value="low">Lowest Rated</option></select> <span style="font-size:18px;color:#c4c4c4">···</span></div></div>
+    <div class="crhead"><h2>Customer Reviews</h2><div class="crsort">@if(auth()->user()->can_access('reviews'))<button class="rv-add" type="button" onclick="openModal('addReview')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Review</button>@endif Sort by: <select class="fsel lime" id="fSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="high">Highest Rated</option><option value="low">Lowest Rated</option></select></div></div>
     <section class="rev-grid" id="revgrid"></section>
     <footer>
         <div class="flinks"><span>Copyright © 2026 Indus Resort Restaurant</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div>
@@ -172,22 +160,29 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     </footer>
 </main>
 <script>
-// diverging positive/negative bars (K). [label,posK,negK]
-const H=105,MAX=30;
-const _MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function _day(off){const d=new Date();d.setDate(d.getDate()-6+off);return d.getDate()+' '+_MON[d.getMonth()];}
-const _vals=[[28,7],[23,6],[16,9],[21,7],[24,4],[19,7],[23,9]];
-const stats=_vals.map((v,i)=>[_day(i),v[0],v[1]]);
-document.getElementById('eplot').insertAdjacentHTML('beforeend',stats.map(m=>`<div class="mo"><div class="up" style="height:${Math.round(m[1]/MAX*H)}px"></div><div class="dn" style="height:${Math.round(m[2]/MAX*H)}px"></div><span class="ml">${m[0]}</span></div>`).join(''));
+// Positive vs negative reviews per day for the last 7 days (from the reviews table).
+const trend=@json($trend);
+const H=105,MAX=Math.max(1,...trend.map(t=>Math.max(t.positive,t.negative)));
+document.getElementById('revY').innerHTML=[MAX,Math.round(MAX/2),0,-Math.round(MAX/2),-MAX].map(v=>'<span>'+v+'</span>').join('');
+document.getElementById('eplot').insertAdjacentHTML('beforeend',trend.map(m=>`<div class="mo"><div class="up" style="height:${Math.round(m.positive/MAX*H)}px"></div><div class="dn" style="height:${Math.round(m.negative/MAX*H)}px"></div><span class="ml">${m.label}</span></div>`).join(''));
 // customer reviews
 const st=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
 const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const revs=@json($reviews);
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((r,i)=>`<article class="ms-card mv-rev"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(r.customer_name)}</span><div class="ms-name"><b>${r.customer_name}</b><small>${r.date||''}</small></div><span class="stars">${st(r.rating)}</span></div><p>${r.text||''}</p></article>`).join('')||'<div class="ms-empty">No reviews yet</div>';}
-function render(list){renderMobile(list);document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date}</small></div><p>${r.text}</p></article>`).join('');}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((r,i)=>`<article class="ms-card mv-rev"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(r.customer_name)}</span><div class="ms-name"><b>${r.customer_name}</b><small>${r.date||''}</small></div><span class="stars">${st(r.rating)}</span></div><p>${r.text||''}</p>${IS_ADMIN?`<div class="rv-foot"><button class="rv-del" type="button" onclick="if(confirm('Delete this review?'))post('/reviews/${r.id}','DELETE')">Delete</button></div>`:''}</article>`).join('')||'<div class="ms-empty">No reviews yet</div>';}
+function render(list){renderMobile(list);document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date||''}</small></div><p>${r.text||''}</p>${IS_ADMIN?`<div class="rv-foot"><button class="rv-del" type="button" onclick="if(confirm('Delete this review?'))post('/reviews/${r.id}','DELETE')"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>Delete</button></div>`:''}</article>`).join('')||'<div style="color:#aaa;padding:20px">No reviews yet</div>';}
 msMirror([['mSort','fSort']]);
 document.getElementById('fSort').addEventListener('change',e=>{const s=e.target.value;let l=[...revs];if(s==='newest')l.sort((a,b)=>b.id-a.id);else if(s==='oldest')l.sort((a,b)=>a.id-b.id);else if(s==='high')l.sort((a,b)=>b.rating-a.rating);else if(s==='low')l.sort((a,b)=>a.rating-b.rating);render(l);});
 render(revs);
 </script>
+<div class="modal-ov" id="addReview"><div class="modal"><h3>Add Review</h3><form method="POST" action="{{ url('/reviews') }}">@csrf
+<label>Guest Name</label><input name="customer_name" required>
+<label>Overall Rating (1-5)</label><select name="rating"><option value="5">5 - Excellent</option><option value="4">4 - Good</option><option value="3">3 - Average</option><option value="2">2 - Poor</option><option value="1">1 - Bad</option></select>
+<div class="mrow"><div><label>Facilities</label><input type="number" name="facilities" min="1" max="5" placeholder="1-5"></div><div><label>Cleanliness</label><input type="number" name="cleanliness" min="1" max="5" placeholder="1-5"></div></div>
+<div class="mrow"><div><label>Services</label><input type="number" name="services" min="1" max="5" placeholder="1-5"></div><div><label>Comfort</label><input type="number" name="comfort" min="1" max="5" placeholder="1-5"></div></div>
+<label>Location</label><input type="number" name="location" min="1" max="5" placeholder="1-5">
+<label>Review</label><textarea name="text" placeholder="What did the guest say?"></textarea>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addReview')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
 </body>
 </html>
