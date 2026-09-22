@@ -55,7 +55,8 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .av.out{background:#ffe1e1;color:#b3352f}
 .act{display:flex;gap:14px;align-items:center}
 .vd{border:0;background:none;color:#555;font-size:15px;cursor:pointer;padding:0}
-.reorder{height:40px;border:0;border-radius:9px;background:var(--lime);padding:0 20px;font-size:14px;font-weight:700;color:#2f3a0c;cursor:pointer}
+.add-stock{height:40px;border:0;border-radius:9px;background:var(--lime);padding:0 20px;font-size:14px;font-weight:700;color:#2f3a0c;cursor:pointer}
+.delete-item{height:40px;border:1px solid #ffc7c7;background:#fff1f1;color:#b3352f;padding:0 15px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;line-height:1}.delete-item:hover{background:#ffe1e1}
 .tbottom{display:flex;justify-content:space-between;align-items:center;padding:20px 4px 16px;color:#8a8a8a;font-size:15px}
 .pages{display:flex;gap:8px}
 .pg{min-width:40px;height:40px;border:0;border-radius:9px;background:#f4f4f4;font-size:15px;color:#555;cursor:pointer;display:grid;place-items:center}
@@ -125,8 +126,10 @@ const avl={available:'Available',low:'Low',out:'Out of Stock'};
 const data=@json($items);
 function itemVisual(item){return item.image_path?'<img src="/'+item.image_path+'" alt="">':(item.emoji||'');}
 function render(list){
- document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button class="vd" onclick="showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button class="reorder" onclick="post('/inventory/${r.id}/reorder','POST')">Reorder</button>${IS_ADMIN?`<button class="vd" title="Delete" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">🗑</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
+ document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button type="button" class="vd" onclick="showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button type="button" class="add-stock" data-item-id="${r.id}" data-item-name="${r.name}">Add Stock</button>${IS_ADMIN?`<button type="button" class="delete-item" data-item-id="${r.id}">Delete</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
  document.querySelectorAll('.cb').forEach(c=>c.onclick=()=>{c.classList.toggle('ck');c.closest('.trow').classList.toggle('on')});
+ document.querySelectorAll('.add-stock').forEach(button=>button.onclick=()=>openAddStock(button.dataset.itemId,button.dataset.itemName));
+ document.querySelectorAll('.delete-item').forEach(button=>button.onclick=()=>{if(confirm('Delete this item?'))post('/inventory/'+button.dataset.itemId,'DELETE')});
 }
 function applyFilters(){
  const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;const sort=document.getElementById('fSort').value;
@@ -136,6 +139,12 @@ function applyFilters(){
 }
 ['fSearch','fCat','fSort'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
+function openAddStock(id,name){
+ document.getElementById('addStockForm').action='/inventory/'+id+'/add-stock';
+ document.getElementById('addStockTitle').textContent='Add Stock — '+name;
+ document.getElementById('addStockQuantity').value='';
+ openModal('addStock');
+}
 </script>
 <div class="modal-ov" id="addItem"><div class="modal"><h3>Add Item</h3><form method="POST" action="{{ url('/inventory') }}" enctype="multipart/form-data">@csrf
 <label>Item Name</label><input name="name" required>
@@ -143,6 +152,10 @@ applyFilters();
 <label>Availability</label><select name="availability"><option value="available">Available</option><option value="low">Low</option><option value="out">Out of Stock</option></select>
 <div class="mrow"><div><label>Quantity in Stock</label><input type="number" name="quantity_stock" value="0"></div><div><label>Quantity in Reorder</label><input type="number" name="quantity_reorder" value="0"></div></div>
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addItem')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
+<div class="modal-ov" id="addStock"><div class="modal"><h3 id="addStockTitle">Add Stock</h3><form id="addStockForm" method="POST">@csrf
+<label>Quantity to add</label><input id="addStockQuantity" type="number" name="quantity" min="1" required autofocus placeholder="e.g. 25">
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addStock')">Cancel</button><button class="mbtn save">Add Stock</button></div>
 </form></div></div>
 </body>
 </html>

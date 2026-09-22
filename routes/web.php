@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/bookings/{id}/confirm', [PageController::class, 'bookingConfirm']);
     Route::post('/bookings/{id}/status/{status}', [PageController::class, 'bookingStatus']);
     Route::post('/housekeeping/{id}', [PageController::class, 'hkUpdate']);
-    Route::post('/inventory/{id}/reorder', [PageController::class, 'invReorder']);
+    Route::post('/inventory/{id}/add-stock', [PageController::class, 'invAddStock']);
     Route::post('/tasks/{id}/toggle', [PageController::class, 'taskToggle']);
 
     // ---- Admin + Manager: restricted pages + create/edit ----

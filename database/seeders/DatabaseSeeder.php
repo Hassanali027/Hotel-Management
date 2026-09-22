@@ -85,20 +85,20 @@ class DatabaseSeeder extends Seeder
         }
 
         $inv = [
-            ['Bath Towels','🧻','Linen','available',120,50,0],
-            ['Shampoo Bottles','🧴','Toiletries','low',20,100,0],
-            ['Coffee Pods','☕','Refreshments','out',0,200,1],
-            ['Room Key Cards','🎫','Electronics','available',500,100,0],
-            ['Cleaning Supplies','🧹','Housekeeping','available',300,50,0],
-            ['Mini Bar Snacks','🍫','Refreshments','low',15,50,0],
-            ['Bed Linens','🛏️','Linen','available',80,30,0],
-            ['Bathrobes','🥼','Linen','low',10,50,0],
-            ['Slippers','🥿','Guest Comfort','available',150,50,0],
-            ['Water Bottles','💧','Refreshments','available',200,100,0],
-            ['Kettle','🫖','Kitchen','out',0,130,0],
+            ['Bath Towels','🧻','Linen','available',120,50,0,'assets/inventory/bath-towels.jpg'],
+            ['Shampoo Bottles','🧴','Toiletries','low',20,100,0,'assets/inventory/shampoo-bottles.jpg'],
+            ['Coffee Pods','☕','Refreshments','out',0,200,1,'assets/inventory/coffee-pods.jpg'],
+            ['Room Key Cards','🎫','Electronics','available',500,100,0,'assets/inventory/room-key-cards.jpg'],
+            ['Cleaning Supplies','🧹','Housekeeping','available',300,50,0,'assets/inventory/cleaning-supplies.jpg'],
+            ['Mini Bar Snacks','🍫','Refreshments','low',15,50,0,'assets/inventory/mini-bar-snacks.jpg'],
+            ['Bed Linens','🛏️','Linen','available',80,30,0,'assets/inventory/bed-linens.jpg'],
+            ['Bathrobes','🥼','Linen','low',10,50,0,'assets/inventory/bathrobes.jpg'],
+            ['Slippers','🥿','Guest Comfort','available',150,50,0,'assets/inventory/slippers.jpg'],
+            ['Water Bottles','💧','Refreshments','available',200,100,0,'assets/inventory/water-bottles.jpg'],
+            ['Kettle','🫖','Kitchen','out',0,130,0,'assets/inventory/kettle.jpg'],
         ];
         foreach ($inv as $i) {
-            InventoryItem::create(['name'=>$i[0],'emoji'=>$i[1],'category'=>$i[2],'availability'=>$i[3],'quantity_stock'=>$i[4],'quantity_reorder'=>$i[5],'is_checked'=>$i[6]]);
+            InventoryItem::create(['name'=>$i[0],'emoji'=>$i[1],'category'=>$i[2],'availability'=>$i[3],'quantity_stock'=>$i[4],'quantity_reorder'=>$i[5],'is_checked'=>$i[6],'image_path'=>$i[7]]);
         }
 
         // title, category, date, start, end

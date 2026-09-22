@@ -681,17 +681,20 @@ class PageController extends Controller
         return back()->with('ok', 'Item added');
     }
 
-    public function invReorder($id)
+    public function invAddStock(Request $r, $id)
     {
         $i = InventoryItem::findOrFail($id);
-        $i->update(['quantity_stock' => $i->quantity_stock + $i->quantity_reorder, 'availability' => 'available']);
-        return back()->with('ok', 'Reordered');
+        $data = $r->validate(['quantity' => 'required|integer|min:1']);
+        $stock = $i->quantity_stock + $data['quantity'];
+        $availability = $stock <= 0 ? 'out' : ($stock < $i->quantity_reorder ? 'low' : 'available');
+        $i->update(['quantity_stock' => $stock, 'availability' => $availability]);
+        return back()->with('ok', 'Stock added successfully');
     }
 
     public function invDestroy($id)
     {
         InventoryItem::findOrFail($id)->delete();
-        return back();
+        return back()->with('ok', 'Item deleted successfully');
     }
 
     /* ===================== CALENDAR ===================== */
