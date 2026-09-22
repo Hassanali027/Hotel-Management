@@ -141,7 +141,7 @@
             .app-sidebar .app-menu>a,.app-sidebar .financial-toggle{flex:0 0 auto!important;white-space:nowrap!important;height:40px!important;padding:0 11px!important;font-size:13px!important}
             .app-sidebar .icon,.app-sidebar .app-upgrade{display:none!important}
             .content{width:100%!important;max-width:none!important;padding:16px 12px!important}
-            .top{align-items:flex-start!important;margin-bottom:16px!important;gap:12px}
+            .top{align-items:flex-start!important;margin-bottom:16px!important;gap:12px;padding-right:54px!important}
             .top h1{font-size:24px!important;padding-top:8px}
             .actions{flex:1!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:wrap}
             .search{order:3;width:100%!important;height:42px!important}
@@ -170,7 +170,7 @@
         @media(max-width:390px){
             body{background:#f5f8f7!important}
             .content{padding:18px 14px 82px!important}
-            .top{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:14px!important;margin-bottom:20px!important}
+            .top{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:14px!important;margin-bottom:20px!important;padding-right:52px!important}
             .top h1{display:block!important;grid-column:1!important;grid-row:1!important;font-size:19px!important;line-height:1.15!important;padding-top:12px!important}
             .top h1:before{content:'Welcome back,';display:block;color:#7b8491;font-size:11px!important;font-weight:400!important;margin-bottom:2px}
             .top h1:after{content:'Here’s what’s happening today';display:block;color:#7b8491;font-size:10px!important;font-weight:400!important;margin-top:3px}

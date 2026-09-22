@@ -26,22 +26,16 @@
     .app-sidebar .app-upgrade p{margin:0 0 14px!important;font-size:10px!important;font-weight:400!important;line-height:1.5!important;color:#6a6a6a!important}
     .app-sidebar .app-upgrade button{background:#e9fa86!important;border:0!important;border-radius:9px!important;padding:11px 15px!important;font:700 12px Lato,Arial,sans-serif!important;cursor:pointer}
     .app-menu-toggle{display:none!important}
-    @media(max-width:700px){
-        .app-sidebar{width:100%!important;flex-basis:auto!important;min-height:auto!important;padding:22px 16px!important}
-        .app-sidebar .app-menu{display:flex!important;overflow-x:auto}
-        .app-sidebar .app-menu>a,.app-sidebar .financial-toggle{height:46px!important;white-space:nowrap}
-        .app-sidebar .icon{display:none!important}
-        .app-sidebar .financial-group,.app-sidebar .app-upgrade{display:none!important}
-    }
     @media(max-width:768px){
-        /* Every page uses this sidebar: stack navigation above its content on phones. */
+        /* One clean header on phones: brand bar removed, hamburger floats top-right,
+           menu opens as a dropdown panel over the page's own header. */
         body{display:block!important;overflow-x:hidden!important}
-        .app-sidebar{width:100%!important;min-height:auto!important;padding:16px!important;position:relative!important}
-        .app-sidebar .app-brand{padding:0 52px 0 8px!important;font-size:16px!important;min-height:42px!important}
-        .app-menu-toggle{display:grid!important;place-items:center!important;position:absolute!important;right:16px!important;top:16px!important;width:40px!important;height:40px!important;border:0!important;border-radius:9px!important;background:#e9fa86!important;color:#2f3a0c!important;font-size:22px!important;line-height:1!important;cursor:pointer!important}
-        .app-sidebar .app-menu{display:none!important;margin-top:14px!important;gap:5px!important}
-        .app-sidebar .app-menu.open{display:grid!important}
-        .app-sidebar .app-menu>a,.app-sidebar .financial-toggle{height:42px!important;font-size:14px!important}
+        .app-sidebar{width:100%!important;min-height:0!important;padding:0!important;position:static!important;flex-basis:auto!important}
+        .app-sidebar .app-brand{display:none!important}
+        .app-menu-toggle{display:grid!important;place-items:center!important;position:fixed!important;right:14px!important;top:14px!important;width:42px!important;height:42px!important;border:0!important;border-radius:10px!important;background:#e9fa86!important;color:#2f3a0c!important;font-size:22px!important;line-height:1!important;cursor:pointer!important;z-index:1200!important;box-shadow:0 4px 14px rgba(0,0,0,.14)!important}
+        .app-sidebar .app-menu{display:none!important;position:fixed!important;top:66px!important;left:12px!important;right:12px!important;z-index:1199!important;margin:0!important;padding:10px!important;background:#fff!important;border-radius:14px!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;max-height:78vh!important;overflow:auto!important}
+        .app-sidebar .app-menu.open{display:grid!important;gap:5px!important}
+        .app-sidebar .app-menu>a,.app-sidebar .financial-toggle{height:46px!important;font-size:15px!important;white-space:nowrap!important}
         .app-sidebar .icon{display:block!important}
         .app-sidebar .financial-group{display:block!important}
         .app-sidebar .app-upgrade{display:none!important}
