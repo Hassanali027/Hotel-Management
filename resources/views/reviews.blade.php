@@ -89,6 +89,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.sidebar')
 <main class="main">
+<section class="m-page">
+@php $rAvg = round((float) $reviews->avg('rating'), 1); $rCount = $reviews->count(); $rDist = collect([5,4,3,2,1])->map(fn($n) => ['n'=>$n,'c'=>$reviews->where('rating',$n)->count(),'p'=>$rCount ? round($reviews->where('rating',$n)->count()/$rCount*100) : 0]); @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Reviews','msSubtitle'=>'What guests are saying'])
+<style>@media(max-width:768px){.mv-score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}.mv-score .big{font-size:44px;font-weight:800;line-height:1;letter-spacing:-1px}.mv-score .big small{font-size:16px;color:#777;font-weight:400;letter-spacing:0}.mv-score .stars{color:#f5b301;font-size:16px;letter-spacing:1px;margin-top:4px}.mv-score .cnt{font-size:13px;color:#666;margin-top:4px}.mv-bars{display:grid;gap:7px}.mv-bar{display:grid;grid-template-columns:22px minmax(0,1fr) 34px;align-items:center;gap:8px;font-size:12px;color:#555}.mv-bar span{height:8px;border-radius:4px;background:#eef1ef;overflow:hidden}.mv-bar span i{display:block;height:100%;background:#2e9e5e;border-radius:4px}.mv-rev p{margin:10px 0 0;font-size:14px;line-height:1.5;color:#444}.mv-rev .stars{color:#f5b301;font-size:14px;letter-spacing:1px}}</style>
+<section class="ms-card"><div class="mv-score"><div><div class="big">{{ number_format($rAvg, 1) }}<small>/5</small></div><div class="stars">{{ str_repeat('★', (int) round($rAvg)) }}{{ str_repeat('☆', 5 - (int) round($rAvg)) }}</div><div class="cnt">from {{ number_format($rCount) }} reviews</div></div><div class="mv-bars">@foreach($rDist as $d)<div class="mv-bar"><b>{{ $d['n'] }} ★</b><span><i style="width:{{ $d['p'] }}%"></i></span><small>{{ $d['c'] }}</small></div>@endforeach</div></div></section>
+<div class="ms-sec"><h2>Customer Reviews</h2><select class="ms-sel" id="mSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="high">Highest Rated</option><option value="low">Lowest Rated</option></select></div>
+<div id="mRows"></div>
+@include('partials.mobile-nav')
+</section>
     <header class="top">
         <h1>Reviews</h1>
         <div class="profile">
@@ -174,7 +183,9 @@ document.getElementById('eplot').insertAdjacentHTML('beforeend',stats.map(m=>`<d
 const st=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
 const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const revs=@json($reviews);
-function render(list){document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date}</small></div><p>${r.text}</p></article>`).join('');}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((r,i)=>`<article class="ms-card mv-rev"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(r.customer_name)}</span><div class="ms-name"><b>${r.customer_name}</b><small>${r.date||''}</small></div><span class="stars">${st(r.rating)}</span></div><p>${r.text||''}</p></article>`).join('')||'<div class="ms-empty">No reviews yet</div>';}
+function render(list){renderMobile(list);document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date}</small></div><p>${r.text}</p></article>`).join('');}
+msMirror([['mSort','fSort']]);
 document.getElementById('fSort').addEventListener('change',e=>{const s=e.target.value;let l=[...revs];if(s==='newest')l.sort((a,b)=>b.id-a.id);else if(s==='oldest')l.sort((a,b)=>a.id-b.id);else if(s==='high')l.sort((a,b)=>b.rating-a.rating);else if(s==='low')l.sort((a,b)=>a.rating-b.rating);render(l);});
 render(revs);
 </script>

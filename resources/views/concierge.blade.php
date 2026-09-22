@@ -62,6 +62,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 <main class="main">
+<section class="m-page">
+@php $msAct = '<button class="ms-add" type="button" onclick="openModal(\'addConcierge\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Staff</button>'; @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Staff','msSubtitle'=>'Concierge team and schedules','msAction'=>$msAct])
+<div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search name, email, etc..."></label></div>
+<div class="ms-selrow"><select class="ms-sel" id="mPos"><option value="">All Position</option><option>Head Concierge</option><option>Concierge</option></select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option value="active">Active</option></select><select class="ms-sel" id="mSch"><option value="">All Schedule</option><option>Monday - Friday</option><option>Saturday - Sunday</option></select></div>
+<div id="mRows"></div><div class="ms-pager" id="mPager"></div>
+@include('partials.mobile-nav')
+</section>
     <header class="top">
         <h1>Staff</h1>
         <div class="profile">
@@ -117,7 +125,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <script>
 const data=@json($concierges);
 const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
-function render(list){document.getElementById('rows').innerHTML=list.map(c=>`<div class="trow"><span class="who"><span class="pic">${ini(c.name)}</span><span><b>${c.name}</b><small>${c.code||''}</small></span></span><span>${c.position||''}</span><span class="sch"><b>${c.schedule_days||''}</b><small>${c.schedule_time||''}</small></span><span>${c.contact||''}</span><span>${c.email||''}</span><span><em class="st">Active</em></span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+const mIco={pos:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',phone:'<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>',mail:'<svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg>'};
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((c,i)=>`<article class="ms-card"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(c.name)}</span><div class="ms-name"><b>${c.name}</b><small>${c.code||''}${c.position?' · '+c.position:''}</small></div><span class="ms-pill active">Active</span></div><div class="ms-meta"><span>${mIco.clock}${c.schedule_days||'—'}${c.schedule_time?', '+c.schedule_time:''}</span>${c.contact?`<span>${mIco.phone}<a href="tel:${String(c.contact).replace(/[^\d+]/g,'')}">${c.contact}</a></span>`:''}${c.email?`<span>${mIco.mail}<a href="mailto:${c.email}">${c.email}</a></span>`:''}</div></article>`).join('')||'<div class="ms-empty">No staff found</div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(c=>`<div class="trow"><span class="who"><span class="pic">${ini(c.name)}</span><span><b>${c.name}</b><small>${c.code||''}</small></span></span><span>${c.position||''}</span><span class="sch"><b>${c.schedule_days||''}</b><small>${c.schedule_time||''}</small></span><span>${c.contact||''}</span><span>${c.email||''}</span><span><em class="st">Active</em></span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 let sortField='',sortAsc=true;
 function sortBy(f){if(sortField===f)sortAsc=!sortAsc;else{sortField=f;sortAsc=true;}applyFilters();}
 function applyFilters(){
@@ -127,6 +137,7 @@ function applyFilters(){
  pgReset('con');paginateRender('con',l,8,render);
 }
 function resetFilters(){document.getElementById('fSearch').value='';document.getElementById('fPos').value='';document.getElementById('fStatus').value='';document.getElementById('fSch').value='';sortField='';applyFilters();}
+msMirror([['mSearch','fSearch','input'],['mPos','fPos'],['mStatus','fStatus'],['mSch','fSch']]);
 ['fSearch','fPos','fStatus','fSch'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 </script>

@@ -82,6 +82,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 <main class="main">
+<section class="m-page">
+@php $msAct = '<button class="ms-add" type="button" onclick="openModal(\'addSchedule\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Schedule</button>'; @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Calendar','msSubtitle'=>now()->format('F Y'),'msAction'=>$msAct])
+<style>@media(max-width:768px){.mc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}.mc-grid .wd{font-size:11px;color:#888;font-weight:700;padding:4px 0}.mc-d{height:38px;display:grid;place-items:center;border-radius:10px;font-size:13px;position:relative;cursor:pointer;border:0;background:none;font-family:inherit;color:#111}.mc-d.mut{color:#c0c0c0}.mc-d.today{background:#d9f5e5;color:#1f5f3f;font-weight:800}.mc-d.on{background:#1f7a4d;color:#fff}.mc-d i{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:#1f7a4d}.mc-d.on i{background:#fff}.mc-day{font-size:13px;font-weight:700;color:#555;margin:14px 0 8px}.mc-ev{display:grid;grid-template-columns:5px minmax(0,1fr) auto;gap:10px;align-items:center;background:#fff;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee}.mc-ev i{align-self:stretch;border-radius:4px}.mc-ev small{display:block;font-size:12px;color:#777}.mc-ev b{display:block;font-size:15px;margin-top:2px}.mc-ev em{font-style:normal;font-size:11px;font-weight:700;padding:5px 9px;border-radius:12px;background:#f1f3f2;color:#333;white-space:nowrap}}</style>
+<section class="ms-card"><div class="mc-grid" id="mMini"></div></section>
+<div class="ms-chips" id="mCats"><button class="ms-chip on" type="button" data-cat="">All</button><button class="ms-chip" type="button" data-cat="training"><i style="background:var(--sage)"></i>Training</button><button class="ms-chip" type="button" data-cat="meeting"><i style="background:var(--mint)"></i>Meeting</button><button class="ms-chip" type="button" data-cat="guest"><i style="background:var(--olive)"></i>Guest Service</button><button class="ms-chip" type="button" data-cat="maintenance"><i style="background:var(--lime)"></i>Maintenance</button><button class="ms-chip" type="button" data-cat="event"><i style="background:var(--pevent)"></i>Event</button></div>
+<div id="mAgenda"></div>
+@include('partials.mobile-nav')
+</section>
     <header class="top">
         <h1>Calendar</h1>
         <div class="profile">
@@ -151,7 +160,24 @@ document.getElementById('mini').innerHTML=wd.map(w=>`<span class="wd">${w}</span
 // events keyed by June day (from DB)
 const clabel={training:'Training',meeting:'Meeting',guest:'Guest Service',maintenance:'Maintenance',event:'Event'};
 const schedules=@json($schedules);
+const mcCol={training:'var(--sage)',meeting:'var(--mint)',guest:'var(--olive)',maintenance:'var(--lime)',event:'var(--pevent)'};
+let mcDay=0;
+function renderMobileCal(cat){
+ const mini=document.getElementById('mMini'),ag=document.getElementById('mAgenda');if(!mini||!ag)return;
+ const mm=String(_Mo+1).padStart(2,'0'),ym=_Y+'-'+mm;
+ const list=schedules.filter(s=>String(s.date).slice(0,7)===ym&&(!cat||s.category===cat)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+ const days=new Set(list.map(s=>+String(s.date).slice(8,10)));
+ const today=(_now.getFullYear()===_Y&&_now.getMonth()===_Mo)?_now.getDate():0;
+ mini.innerHTML=wd.map(w=>`<span class="wd">${w}</span>`).join('')+cells.map(c=>`<button type="button" class="mc-d ${c.mut?'mut':''} ${!c.mut&&c.d===today?'today':''} ${!c.mut&&c.d===mcDay?'on':''}" ${c.mut?'disabled':`onclick="mcPick(${c.d})"`}>${c.d}${(!c.mut&&days.has(c.d))?'<i></i>':''}</button>`).join('');
+ const shown=mcDay?list.filter(s=>+String(s.date).slice(8,10)===mcDay):list;
+ const groups={};shown.forEach(s=>{(groups[s.date]=groups[s.date]||[]).push(s);});
+ const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+ ag.innerHTML=Object.keys(groups).sort().map(d=>{const dt=new Date(d+'T00:00:00');return `<div class="mc-day">${dn[dt.getDay()]}, ${msDate(d)}</div>`+groups[d].map(s=>`<div class="mc-ev"><i style="background:${mcCol[s.category]||'#ddd'}"></i><div><small>${(s.start_time||'')}${s.end_time?' - '+s.end_time:''}</small><b>${s.title}</b></div><em>${clabel[s.category]||s.category||''}</em></div>`).join('');}).join('')||`<div class="ms-empty">${mcDay?'Nothing scheduled on this day':'No schedules this month'}</div>`;
+}
+function mcPick(d){mcDay=(mcDay===d?0:d);renderMobileCal(document.getElementById('fCat').value);}
+document.querySelectorAll('#mCats .ms-chip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#mCats .ms-chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');const sel=document.getElementById('fCat');sel.value=b.dataset.cat;render(sel.value);markLegend(sel.value);}));
 function render(cat){
+ renderMobileCal(cat);
  const ev={};
  schedules.filter(s=>!cat||s.category===cat).forEach(s=>{const day=+String(s.date).slice(8,10);const time=(s.start_time||'')+(s.end_time?' - '+s.end_time:'');(ev[day]=ev[day]||[]).push([time,s.title,clabel[s.category]||s.category,s.category])});
  document.getElementById('calbody').innerHTML=cells.map(c=>{

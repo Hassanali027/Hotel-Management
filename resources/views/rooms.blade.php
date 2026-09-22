@@ -86,7 +86,96 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+<style>
+/* ===== Phone rooms (Figma clone). Only on screens up to 768px; desktop layout untouched. ===== */
+.m-rooms{display:none}
+.mr-close{display:none}
+@media(max-width:768px){
+    body{zoom:1!important;background:#f4f6f5!important;display:block!important}
+    .main{padding:10px 16px 100px!important}
+    .main>.top,.main>footer,.wrap>.col{display:none!important}
+    .wrap{display:block!important}
+    .detail{display:none}
+    .detail.open{display:block!important;position:fixed;inset:0;z-index:1300;overflow:auto;border-radius:0;padding:16px 16px 60px;-webkit-overflow-scrolling:touch}
+    .detail .dtop{flex-wrap:wrap;gap:10px}
+    .detail .dtitle h1{font-size:26px}.detail .ghero{height:220px}.detail .gallery{grid-template-columns:1fr 90px}.detail .gthumbs img{height:62px}
+    .detail .dspecs{flex-wrap:wrap;gap:12px 18px;font-size:14px}.detail .flist,.detail .flist.three{grid-template-columns:1fr}
+    .mr-close{display:inline-flex;align-items:center;gap:6px;height:38px;border:0;border-radius:10px;background:#f1f3f2;padding:0 14px;font:700 14px Lato,Arial,sans-serif;color:#222;cursor:pointer}
+    .m-rooms{display:block;font-family:Lato,Arial,sans-serif;color:#111}
+    .mr-head{display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px}
+    .mr-brand{display:flex;align-items:center;gap:11px}
+    .mr-brand img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .mr-brand b{display:block;font-size:17px;font-weight:800;line-height:1.1;color:#111;white-space:nowrap}
+    .mr-brand small{display:block;font-size:13px;color:#333;margin-top:2px}
+    .mr-tools{display:flex;align-items:center;gap:8px}
+    .mr-ib{width:44px;height:44px;border:0;border-radius:12px;background:#fff;display:grid;place-items:center;color:#222;cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .mr-ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .mr-ib.bell:after{content:'';position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:#ff3b30;border:2px solid #fff}
+    .mr-avatar{width:48px;height:48px;border-radius:50%;background:#d7f0a0;color:#1f5f3f;display:grid;place-items:center;font-weight:800;font-size:16px;margin-left:4px}
+    .mr-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:2px 0 14px}
+    .mr-title h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+    .mr-title p{margin:4px 0 0;font-size:13px;color:#555}
+    .mr-add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border:0;border-radius:12px;background:#dff55f;color:#1f2a08;font:700 15px Lato,Arial,sans-serif;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+    .mr-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .mr-filters{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-bottom:12px}
+    .mr-search{display:flex;align-items:center;gap:9px;height:50px;border-radius:14px;background:#fff;padding:0 14px;min-width:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-search svg{width:20px;height:20px;flex:0 0 20px;fill:none;stroke:#222;stroke-width:2;stroke-linecap:round}
+    .mr-search input{flex:1;min-width:0;border:0;outline:0;background:none;font:400 14px Lato,Arial,sans-serif;color:#111}
+    .mr-search input::placeholder{color:#9a9a9a}
+    .mr-fbtn{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 16px;border:0;border-radius:14px;background:#fff;font:600 15px Lato,Arial,sans-serif;color:#111;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-fbtn.on{background:#dff55f}
+    .mr-fbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .mr-sortrow{display:none;align-items:center;gap:10px;margin:-2px 0 12px;font-size:13px;color:#666}
+    .mr-sortrow.open{display:flex}
+    .mr-sortrow select{flex:1;height:44px;border:0;border-radius:12px;background:#fff;padding:0 12px;font:400 14px Lato,Arial,sans-serif;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;margin:0 -16px 8px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+    .mr-chips::-webkit-scrollbar{display:none}
+    .mr-chip{flex:0 0 auto;height:40px;padding:0 18px;border:0;border-radius:20px;background:#e9ecea;color:#222;font:600 14px Lato,Arial,sans-serif;cursor:pointer;white-space:nowrap}
+    .mr-chip.on{background:#1f7a4d;color:#fff}
+    .mr-card{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;background:#fff;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee;cursor:pointer}
+    .mr-img{width:118px;height:100%;min-height:150px;border-radius:12px;object-fit:cover;background:#e9e9e9}
+    .mr-body{position:relative;display:flex;flex-direction:column;min-width:0;padding-bottom:2px}
+    .mr-nm{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .mr-nm b{font-size:18px;font-weight:800;line-height:1.15;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .mr-st{flex:0 0 auto;padding:5px 11px;border-radius:14px;font-size:12px;font-weight:600;white-space:nowrap}
+    .mr-st.available{background:#d9f5e5;color:#2f6b4f}.mr-st.occupied{background:#fdf3d2;color:#7a5a00}
+    .mr-specs{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:13px;color:#333}
+    .mr-specs span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+    .mr-specs svg{width:15px;height:15px;flex:0 0 15px;fill:none;stroke:#333;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mr-desc{margin:8px 0 0;font-size:13px;line-height:1.4;color:#666;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .mr-price{margin-top:auto;padding-top:10px;font-size:20px;font-weight:800;padding-right:56px;white-space:nowrap}
+    .mr-price small{font-size:14px;font-weight:400;color:#666}
+    .mr-go{position:absolute;right:0;bottom:0;width:46px;height:46px;border-radius:50%;background:#d9f5e5;display:grid;place-items:center;color:#1f5f3f}
+    .mr-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .mr-empty{background:#fff;border-radius:18px;padding:28px;text-align:center;color:#888;font-size:14px}
+}
+@media(max-width:360px){
+    .m-rooms .mr-brand b{font-size:15px}.m-rooms .mr-brand small{font-size:12px}.m-rooms .mr-brand img{width:40px;height:40px}.m-rooms .mr-ib{width:40px;height:40px}.m-rooms .mr-avatar{width:42px;height:42px;font-size:14px}
+    .m-rooms .mr-title h1{font-size:25px}.m-rooms .mr-title p{font-size:12px}.m-rooms .mr-add{height:40px;padding:0 12px;font-size:14px}
+    .m-rooms .mr-card{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}.m-rooms .mr-img{width:96px}
+    .m-rooms .mr-nm b{font-size:16px}.m-rooms .mr-specs{font-size:12px;gap:3px 9px}.m-rooms .mr-desc{font-size:12px}.m-rooms .mr-price{font-size:17px;padding-right:46px}.m-rooms .mr-go{width:38px;height:38px}
+}
+</style>
 <main class="main">
+    <section class="m-rooms">
+        <header class="mr-head">
+            <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
+            <div class="mr-tools">
+                <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.')"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
+                <span class="mr-avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            </div>
+        </header>
+        <div class="mr-title"><div><h1>Rooms</h1><p>Find the perfect room for your stay</p></div><button class="mr-add" type="button" onclick="openRoomCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button></div>
+        <div class="mr-filters">
+            <label class="mr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search room type, number, etc..."></label>
+            <button class="mr-fbtn" id="mFilterBtn" type="button" onclick="document.getElementById('mSortRow').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filter</button>
+        </div>
+        <div class="mr-sortrow" id="mSortRow"><span>Sort by</span><select id="mSort"><option value="popular">Popular</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option></select></div>
+        <div class="mr-chips" id="mChips"><button class="mr-chip on" type="button" data-type="">All</button>@foreach($rooms->pluck('name')->filter()->unique()->values() as $roomType)<button class="mr-chip" type="button" data-type="{{ $roomType }}">{{ $roomType }}</button>@endforeach</div>
+        <div id="mRooms"></div>
+        @include('partials.mobile-nav')
+    </section>
     <header class="top">
         <h1>Rooms</h1>
         <div class="profile">
@@ -110,7 +199,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div id="roomlist"></div>
         </div>
         <aside class="detail">
-            <div class="dtop"><h2>Room Detail</h2><div style="display:flex;gap:8px"><button class="edit" onclick="openRoomEditor()">Edit</button>@if(auth()->user()->role === 'admin')<button class="edit" style="background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this room?'))post('/rooms/'+selectedId,'DELETE')">Delete</button>@endif</div></div>
+            <div class="dtop"><h2>Room Detail</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="mr-close" type="button" onclick="document.querySelector('.detail').classList.remove('open')">‹ Back</button><button class="edit" onclick="openRoomEditor()">Edit</button>@if(auth()->user()->role === 'admin')<button class="edit" style="background:#ffe1e1;color:#b3352f" onclick="if(confirm('Delete this room?'))post('/rooms/'+selectedId,'DELETE')">Delete</button>@endif</div></div>
             <div class="dtitle"><h1 id="dName">{{ $featured->name }} Room</h1><span class="st" id="dStatus">{{ ucfirst($featured->status) }}</span></div>
             <div class="docc" id="dOcc">Occupied: {{ $featured->availability_used }}/{{ $featured->availability_total }} Rooms</div>
             <div class="gallery">
@@ -152,7 +241,10 @@ const rooms=@json($rooms);
  const facIcons={'High-speed Wi-Fi':'<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/>','In-room safe':'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="13" cy="12" r="3"/>','Mini-fridge':'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M6 10h12M10 5v2M10 13v3"/>','Flat-screen TV':'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/>','Air conditioning':'<rect x="2" y="4" width="20" height="9" rx="2"/><path d="M6 17v1M10 17v2M14 17v1M18 17v2"/>','Coffee/tea maker':'<path d="M4 8h13v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2M6 3v2M10 3v2M14 3v2"/>'};
  let selectedId={{ $featured->id }};
  function currentList(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const ty=document.getElementById('fType').value;const sort=document.getElementById('fSort').value;let l=rooms.filter(r=>(!ty||r.name===ty)&&(!q||[r.name,r.description,r.bed].join(' ').toLowerCase().includes(q)));if(sort==='low')l=[...l].sort((a,b)=>a.price-b.price);else if(sort==='high')l=[...l].sort((a,b)=>b.price-a.price);return l;}
- function render(list){document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
+ function mGuests(g){g=String(g||'').trim();return /^\d+$/.test(g)?g+(g==='1'?' guest':' guests'):g;}
+ function mOpenRoom(id){selectRoom(id);document.querySelector('.detail').classList.add('open');window.scrollTo(0,0);}
+ function renderMobile(list){const el=document.getElementById('mRooms');if(!el)return;el.innerHTML=list.map(r=>`<article class="mr-card" onclick="mOpenRoom(${r.id})"><img class="mr-img" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="mr-body"><div class="mr-nm"><b>${r.name}</b><span class="mr-st ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span></div><div class="mr-specs">${r.size?'<span>'+m2+r.size+'</span>':''}${r.bed?'<span>'+bed+r.bed+'</span>':''}${r.guests?'<span>'+gst+mGuests(r.guests)+'</span>':''}</div><p class="mr-desc">${r.description||''}</p><div class="mr-price">PKR ${Number(r.price||0).toLocaleString()}<small>/night</small></div><span class="mr-go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div></article>`).join('')||'<div class="mr-empty">No rooms found</div>';}
+ function render(list){renderMobile(list);document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
  function renderDetail(r){
   document.getElementById('dName').textContent=r.name+' Room';
   document.getElementById('dStatus').textContent=(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1);
@@ -172,6 +264,12 @@ const rooms=@json($rooms);
  function openRoomEditor(){const r=rooms.find(x=>x.id===selectedId);if(!r)return;const f=document.getElementById('roomForm');f.reset();f.action='{{ url('/rooms') }}/'+r.id;document.getElementById('roomMethod').value='PUT';document.getElementById('roomModalTitle').textContent='Edit Room';['name','status','price','size','bed','guests','availability_total','availability_used','description'].forEach(k=>{if(f.elements[k])f.elements[k].value=r[k]??'';});const F=r.features||[];f.elements.feature_bedrooms.value=F.find(x=>/bedroom/i.test(x))||'';f.elements.kitchen_feature.value=F.find(x=>x==='Kitchen'||x==='No Kitchen')||'';f.querySelectorAll('[name="features[]"]').forEach(el=>{el.checked=F.includes(el.value);});openModal('addRoom');}
  function applyFilters(){render(currentList());}
  ['fSearch','fType','fSort'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
+ /* Phone controls mirror into the desktop inputs so one currentList() serves both layouts. */
+ (function(){const ms=document.getElementById('mSearch'),mo=document.getElementById('mSort'),ch=document.getElementById('mChips');
+  if(ms)ms.addEventListener('input',()=>{document.getElementById('fSearch').value=ms.value;applyFilters();});
+  if(mo)mo.addEventListener('change',()=>{document.getElementById('fSort').value=mo.value;applyFilters();});
+  if(ch)ch.querySelectorAll('.mr-chip').forEach(b=>b.addEventListener('click',()=>{ch.querySelectorAll('.mr-chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById('fType').value=b.dataset.type;applyFilters();}));
+ })();
  render(rooms);
  const _init=rooms.find(x=>x.id===selectedId)||rooms[0];if(_init)renderDetail(_init);
 </script>

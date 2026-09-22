@@ -70,6 +70,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 <main class="main">
+<section class="m-page">
+@php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openModal(\'addHk\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button>' : ''; @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Housekeeping','msSubtitle'=>'Room cleaning status and priorities','msAction'=>$msAct])
+<div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search room, floor, etc..."></label></div>
+<div class="ms-selrow"><select class="ms-sel" id="mRoom"><option value="">All Room</option><option>Deluxe</option><option>Standard</option><option>Suite</option></select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option value="progress">Cleaning in Progress</option><option value="ready">Ready</option><option value="needs">Needs Cleaning</option><option value="inspect">Needs Inspection</option></select><select class="ms-sel" id="mPriority"><option value="">All Priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+<div id="mRows"></div><div class="ms-pager" id="mPager"></div>
+@include('partials.mobile-nav')
+</section>
     <header class="top">
         <h1>Housekeeping</h1>
         <div class="profile">
@@ -127,8 +135,10 @@ const sl={progress:'Cleaning in Progress',ready:'Ready',needs:'Needs Cleaning',i
 const pl={high:'High',medium:'Medium',low:'Low'};
 const data=@json($rows);
 function opt(map,cur){return Object.keys(map).map(k=>`<option value="${k}"${k===cur?' selected':''}>${map[k]}</option>`).join('');}
-function render(list){document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span>${r.room_number}</span><span>${r.room_type||''}</span><span><select class="tag hs ${r.status} tsel" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="tag pr ${r.priority} tsel" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span>${r.floor||''}</span><span>${r.reservation_status||''}</span><span>${r.notes||''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-check ${r.is_checked?'on':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span><div class="ms-name"><b>${r.room_number}</b><small>${r.room_type||''}${r.floor?' · Floor '+r.floor:''}</small></div><select class="ms-tagsel ${r.status}" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></div><div class="ms-kv"><div><small>Priority</small><select class="ms-tagsel ${r.priority}" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></div><div><small>Reservation</small><b>${r.reservation_status||'—'}</b></div><div><small>Floor</small><b>${r.floor||'—'}</b></div></div>${r.notes?`<div class="ms-note">${r.notes}</div>`:''}</article>`).join('')||'<div class="ms-empty">No rooms found</div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span>${r.room_number}</span><span>${r.room_type||''}</span><span><select class="tag hs ${r.status} tsel" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="tag pr ${r.priority} tsel" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span>${r.floor||''}</span><span>${r.reservation_status||''}</span><span>${r.notes||''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const rm=document.getElementById('fRoom').value;const st=document.getElementById('fStatus').value;const pr=document.getElementById('fPriority').value;pgReset('hk');paginateRender('hk',sortList('hk',data.filter(r=>(!rm||r.room_type===rm)&&(!st||r.status===st)&&(!pr||r.priority===pr)&&(!q||[r.room_number,r.floor,r.notes,r.reservation_status].join(' ').toLowerCase().includes(q)))),8,render);}
+msMirror([['mSearch','fSearch','input'],['mRoom','fRoom'],['mStatus','fStatus'],['mPriority','fPriority']]);
 ['fSearch','fRoom','fStatus','fPriority'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 </script>

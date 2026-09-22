@@ -732,6 +732,7 @@ class PageController extends Controller
             $guest = new Guest(['name' => $booking ? $booking->guest_name : 'Guest']);
         }
         $history = Booking::orderBy('id')->take(2)->get();
-        return view('guest-profile', compact('guest', 'booking', 'history'));
+        $room = $booking ? Room::where('name', $booking->room_type)->first() : null;
+        return view('guest-profile', compact('guest', 'booking', 'history', 'room'));
     }
 }

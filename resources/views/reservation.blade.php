@@ -70,7 +70,94 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <body>
 @include('partials.crud')
 @include('partials.sidebar')
+<style>
+/* ===== Phone reservations (Figma clone). Only on screens up to 768px; desktop table untouched. ===== */
+.m-res{display:none}
+@media(max-width:768px){
+    body{zoom:1!important;background:#f4f6f5!important;display:block!important}
+    .main{padding:10px 16px 100px!important}
+    .main>*:not(.m-res){display:none!important}
+    .m-res{display:block;font-family:Lato,Arial,sans-serif;color:#111}
+    .mr-head{display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px}
+    .mr-brand{display:flex;align-items:center;gap:11px}
+    .mr-brand img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .mr-brand b{display:block;font-size:17px;font-weight:800;line-height:1.1;color:#111}
+    .mr-brand small{display:block;font-size:13px;color:#333;margin-top:2px}
+    .mr-tools{display:flex;align-items:center;gap:8px}
+    .mr-ib{width:44px;height:44px;border:0;border-radius:12px;background:#fff;display:grid;place-items:center;color:#222;cursor:pointer;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .mr-ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .mr-ib.bell:after{content:'';position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:#ff3b30;border:2px solid #fff}
+    .mr-avatar{width:48px;height:48px;border-radius:50%;background:#d7f0a0;color:#1f5f3f;display:grid;place-items:center;font-weight:800;font-size:16px;margin-left:4px}
+    .mr-title{display:flex;align-items:center;justify-content:space-between;margin:2px 0 16px}
+    .mr-title h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.4px}
+    .mr-add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border:0;border-radius:12px;background:#dff55f;color:#1f2a08;font:700 15px Lato,Arial,sans-serif;cursor:pointer}
+    .mr-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .mr-filters{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;margin-bottom:14px}
+    .mr-search{display:flex;align-items:center;gap:9px;height:50px;border-radius:14px;background:#fff;padding:0 14px;min-width:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-search svg{width:20px;height:20px;flex:0 0 20px;fill:none;stroke:#222;stroke-width:2;stroke-linecap:round}
+    .mr-search input{flex:1;min-width:0;border:0;outline:0;background:none;font:400 14px Lato,Arial,sans-serif;color:#111}
+    .mr-search input::placeholder{color:#9a9a9a}
+    .mr-sel{height:50px;border:0;border-radius:14px;background:#fff;padding:0 30px 0 12px;font:400 14px Lato,Arial,sans-serif;color:#111;appearance:none;-webkit-appearance:none;box-shadow:0 1px 4px rgba(0,0,0,.05);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:14px}
+    .mr-cal{width:50px;height:50px;border:0;border-radius:14px;background:#fff;display:grid;place-items:center;color:#222;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-cal.on{background:#dff55f}
+    .mr-cal svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+    .mr-dates{display:none;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:-4px 0 14px;font-size:13px;color:#777}
+    .mr-dates.open{display:grid}
+    .mr-dates input{height:44px;border:0;border-radius:12px;background:#fff;padding:0 12px;font:400 14px Lato,Arial,sans-serif;color:#111;min-width:0;width:100%;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-card{background:#fff;border-radius:18px;padding:14px 14px 14px;margin-bottom:12px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee}
+    .mr-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px 8px}
+    .mr-av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px;color:#1f5f3f;background:#d9f5e5}
+    .mr-av.c1{background:#dfebfb;color:#1e4f8f}.mr-av.c2{background:#fdf3d2;color:#7a5a00}.mr-av.c3{background:#d9f5e5;color:#1f5f3f}.mr-av.c4{background:#e9e4fb;color:#4b3a8f}
+    .mr-name{min-width:0}
+    .mr-name b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mr-name small{display:block;font-size:14px;color:#8a8a8a;margin-top:2px}
+    .mr-st{display:inline-flex;align-items:center;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;font-style:italic;white-space:nowrap}
+    .mr-st.confirmed{background:#d9f5e5;color:#2f6b4f}.mr-st.pending{background:#ffe1e1;color:#c0392b}.mr-st.checked_in{background:#e8fb82;color:#3d4a10}.mr-st.checked_out{background:#ececec;color:#666}
+    .mr-go{width:22px;height:28px;display:grid;place-items:center;color:#222;text-decoration:none}
+    .mr-go svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+    .mr-meta{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;margin:14px 0 0;font-size:13px;color:#333}
+    .mr-meta span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;min-width:0}
+    .mr-meta span:nth-child(2){justify-content:center;overflow:hidden}.mr-meta span:nth-child(2) i{overflow:hidden;text-overflow:ellipsis;font-style:normal}
+    .mr-meta svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:#222;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mr-act{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+    .mr-eye{width:52px;height:38px;border:1px solid #e3e3e3;background:#fff;border-radius:10px;display:grid;place-items:center;cursor:pointer;color:#333}
+    .mr-eye svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .mr-btn{height:38px;border:0;border-radius:10px;padding:0 20px;font:700 14px Lato,Arial,sans-serif;cursor:pointer;white-space:nowrap}
+    .mr-btn.next{background:#dff55f;color:#1f2a08}.mr-btn.cancel{background:#ffe1e1;color:#c0392b}.mr-btn.done{background:#ececec;color:#888}
+    .mr-empty{background:#fff;border-radius:18px;padding:28px;text-align:center;color:#888;font-size:14px}
+    .mr-pager{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 0;font-size:13px;color:#777}
+    .mr-pager button{height:38px;padding:0 14px;border:0;border-radius:10px;background:#fff;font:700 13px Lato,Arial,sans-serif;color:#333;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    .mr-pager button:disabled{opacity:.4;cursor:default}
+}
+@media(max-width:360px){
+    .m-res .mr-title h1{font-size:25px}.m-res .mr-add{height:40px;padding:0 12px;font-size:14px}
+    .m-res .mr-filters{grid-template-columns:minmax(0,1fr) auto}.m-res .mr-cal{display:none}.m-res .mr-dates{display:grid}
+    .m-res .mr-brand b{font-size:15px;white-space:nowrap}.m-res .mr-brand small{font-size:12px}.m-res .mr-brand img{width:40px;height:40px}.m-res .mr-ib{width:40px;height:40px}.m-res .mr-avatar{width:42px;height:42px;font-size:14px}
+    .m-res .mr-av{width:44px;height:44px;font-size:15px}.m-res .mr-name b{font-size:15px}.m-res .mr-st{padding:5px 10px;font-size:11px}
+    .m-res .mr-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px}.m-res .mr-meta span:nth-child(2){justify-content:flex-start;order:3;flex-basis:100%}.m-res .mr-btn{padding:0 14px}
+}
+</style>
 <main class="main">
+    <section class="m-res">
+        <header class="mr-head">
+            <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
+            <div class="mr-tools">
+                <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+                <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showDetail('Notifications','<b>Notifications</b><br>No new notifications right now.')"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
+                <span class="mr-avatar">{{ collect(explode(' ', auth()->user()->name))->map(fn($w)=>$w[0])->take(2)->implode('') }}</span>
+            </div>
+        </header>
+        <div class="mr-title"><h1>Reservations</h1>@if(auth()->user()->role !== 'staff')<button class="mr-add" type="button" onclick="openModal('addBooking')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Booking</button>@endif</div>
+        <div class="mr-filters">
+            <label class="mr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search guest, room, etc..."></label>
+            <select class="mr-sel" id="mStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
+            <button class="mr-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button>
+        </div>
+        <div class="mr-dates" id="mDates"><input id="mDateStart" type="date" aria-label="Start date"><span>to</span><input id="mDateEnd" type="date" aria-label="End date"></div>
+        <div id="mRows"></div>
+        <div class="mr-pager" id="mPager"></div>
+        @include('partials.mobile-nav')
+    </section>
     <header class="top">
         <h1>Reservation</h1>
         <div class="profile">
@@ -129,7 +216,25 @@ function fillRoomPrice(roomType){const rate=roomRates[roomType];if(rate!==undefi
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 const STL={pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'};
 const NEXT={pending:['confirmed','Confirm'],confirmed:['checked_in','Check-In'],checked_in:['checked_out','Check-Out']};
+const mIcon={bed:'<svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>',moon:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',chev:'<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>'};
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function mRange(ci,co){const a=ci?String(ci).slice(0,10).split('-'):null,b=co?String(co).slice(0,10).split('-'):null;const f=(p,y)=>MON[+p[1]-1]+' '+(+p[2])+(y?', '+p[0]:'');if(a&&b){if(a[0]===b[0]&&a[1]===b[1])return MON[+a[1]-1]+' '+(+a[2])+' \u2013 '+(+b[2])+', '+b[0];return f(a,a[0]!==b[0])+' \u2013 '+f(b,true);}if(a)return f(a,true);if(b)return f(b,true);return '';}
+function mNights(b){const ci=Date.parse(String(b.check_in||'').slice(0,10)),co=Date.parse(String(b.check_out||'').slice(0,10));if(!isNaN(ci)&&!isNaN(co)&&co>ci){const n=Math.round((co-ci)/86400000);return n+(n===1?' night':' nights');}return b.duration||'';}
+function mInitials(n){return String(n||'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');}
+let lastFiltered=[];
+function renderMobile(list){
+ const el=document.getElementById('mRows');if(!el)return;
+ el.innerHTML=list.map((b,i)=>{
+  const next=NEXT[b.status]?`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
+  const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="mr-btn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
+  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span><span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span><span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${next}${cancel}</div></article>`;
+ }).join('')||'<div class="mr-empty">No reservations found</div>';
+ const pg=document.getElementById('mPager'),st=(window.PGSTATE&&PGSTATE.res)||{page:1},pages=Math.max(1,Math.ceil(lastFiltered.length/8));
+ if(pg)pg.innerHTML=pages>1?`<button ${st.page<=1?'disabled':''} onclick="mPage(-1)">\u2039 Prev</button><span>Page ${st.page} of ${pages}</span><button ${st.page>=pages?'disabled':''} onclick="mPage(1)">Next \u203a</button>`:'';
+}
+function mPage(d){PGSTATE.res.page+=d;paginateRender('res',lastFiltered,8,render);window.scrollTo({top:0,behavior:'smooth'});}
 function render(list){
+ renderMobile(list);
  document.getElementById('rows').innerHTML=list.map(b=>{
   let action;
   if(NEXT[b.status])action=`<button class="abtn confirm" onclick="event.stopPropagation();post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`;
@@ -143,12 +248,14 @@ function applyFilters(){
  const st=document.getElementById('fStatus').value;
  const from=document.getElementById('fDateStart').value;
  const to=document.getElementById('fDateEnd').value;
- pgReset('res');paginateRender('res',sortList('res',data.filter(b=>{const matchesText=!q||[b.guest_name,b.code,b.room_label,b.request].join(' ').toLowerCase().includes(q);const matchesStatus=!st||b.status===st;const matchesDate=(!from||String(b.check_out||'')>=from)&&(!to||String(b.check_in||'')<=to);return matchesText&&matchesStatus&&matchesDate;})),8,render);
+ pgReset('res');lastFiltered=sortList('res',data.filter(b=>{const matchesText=!q||[b.guest_name,b.code,b.room_label,b.request].join(' ').toLowerCase().includes(q);const matchesStatus=!st||b.status===st;const matchesDate=(!from||String(b.check_out||'')>=from)&&(!to||String(b.check_in||'')<=to);return matchesText&&matchesStatus&&matchesDate;}));paginateRender('res',lastFiltered,8,render);
 }
 document.getElementById('fSearch').addEventListener('input',applyFilters);
 document.getElementById('fStatus').addEventListener('change',applyFilters);
 document.getElementById('fDateStart').addEventListener('change',applyFilters);
 document.getElementById('fDateEnd').addEventListener('change',applyFilters);
+/* Phone filters mirror into the desktop inputs so one applyFilters() serves both layouts. */
+[['mSearch','fSearch','input'],['mStatus','fStatus','change'],['mDateStart','fDateStart','change'],['mDateEnd','fDateEnd','change']].forEach(([m,d,ev])=>{const me=document.getElementById(m),de=document.getElementById(d);if(me&&de)me.addEventListener(ev,()=>{de.value=me.value;applyFilters();});});
 applyFilters();
 </script>
 <div class="modal-ov" id="addBooking"><div class="modal"><h3>Add Booking</h3><form method="POST" action="{{ url('/bookings') }}" enctype="multipart/form-data">@csrf

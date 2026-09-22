@@ -71,6 +71,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 <main class="main">
+<section class="m-page">
+@php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openModal(\'addItem\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Item</button>' : ''; @endphp
+@include('partials.mobile-shell', ['msTitle'=>'Inventory','msSubtitle'=>'Stock levels and reorders','msAction'=>$msAct])
+<div class="ms-filters one"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search item, category, etc..."></label></div>
+<div class="ms-selrow"><select class="ms-sel" id="mSort"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">Name</option><option value="stock">Stock</option></select><select class="ms-sel" id="mCat"><option value="">All Category</option><option>Linen</option><option>Toiletries</option><option>Refreshments</option><option>Electronics</option><option>Housekeeping</option><option>Guest Comfort</option><option>Kitchen</option></select></div>
+<div id="mRows"></div><div class="ms-pager" id="mPager"></div>
+@include('partials.mobile-nav')
+</section>
     <header class="top">
         <h1>Inventory</h1>
         <div class="profile">
@@ -125,7 +133,10 @@ const chk='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>';
 const avl={available:'Available',low:'Low',out:'Out of Stock'};
 const data=@json($items);
 function itemVisual(item){return item.image_path?'<img src="/'+item.image_path+'" alt="">':(item.emoji||'');}
+function mInvDetail(id){const r=data.find(x=>x.id===id);if(r)showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder);}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-av sq">${itemVisual(r)}</span><div class="ms-name"><b>${r.name}</b><small>${r.category||''}</small></div><span class="ms-pill ${r.availability}">${avl[r.availability]||''}</span></div><div class="ms-kv two"><div><small>Quantity in Stock</small><b>${r.quantity_stock}</b></div><div><small>Quantity in Reorder</small><b>${r.quantity_reorder}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="mInvDetail(${r.id})">Details</button><button type="button" class="ms-btn lime" onclick="openAddStock(${r.id},${JSON.stringify(r.name).replace(/"/g,'&quot;')})">Add Stock</button>${IS_ADMIN?`<button type="button" class="ms-btn cancel" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">Delete</button>`:''}</div></article>`).join('')||'<div class="ms-empty">No items found</div>';}
 function render(list){
+ renderMobile(list);
  document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button type="button" class="vd" onclick="showDetail(r.name,'Category: '+(r.category||'-')+'<br>Availability: '+avl[r.availability]+'<br>Quantity in Stock: '+r.quantity_stock+'<br>Quantity in Reorder: '+r.quantity_reorder)">View Detail</button><button type="button" class="add-stock" data-item-id="${r.id}" data-item-name="${r.name}">Add Stock</button>${IS_ADMIN?`<button type="button" class="delete-item" data-item-id="${r.id}">Delete</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
  document.querySelectorAll('.cb').forEach(c=>c.onclick=()=>{c.classList.toggle('ck');c.closest('.trow').classList.toggle('on')});
  document.querySelectorAll('.add-stock').forEach(button=>button.onclick=()=>openAddStock(button.dataset.itemId,button.dataset.itemName));
@@ -137,6 +148,7 @@ function applyFilters(){
  if(sort==='oldest')l=[...l].sort((a,b)=>a.id-b.id);else if(sort==='newest')l=[...l].sort((a,b)=>b.id-a.id);else if(sort==='name')l=[...l].sort((a,b)=>a.name.localeCompare(b.name));else if(sort==='stock')l=[...l].sort((a,b)=>b.quantity_stock-a.quantity_stock);
  pgReset('inv');paginateRender('inv',sortList('inv',l),8,render);
 }
+msMirror([['mSearch','fSearch','input'],['mCat','fCat'],['mSort','fSort']]);
 ['fSearch','fCat','fSort'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));
 applyFilters();
 function openAddStock(id,name){
