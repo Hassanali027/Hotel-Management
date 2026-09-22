@@ -30,8 +30,8 @@
     .app-sidebar .financial-submenu a.active{background:rgba(232,251,130,.18)!important;color:#fff!important}
     .app-sidebar .app-chevron{border-color:#c9d8ce!important}
     .app-sidebar .app-logout{background:transparent!important;border-top:1px solid rgba(255,255,255,.10)!important;backdrop-filter:blur(2px)}
-    .app-sidebar .app-logout button{color:#f1b6b6!important}
-    .app-sidebar .app-logout button .icon{stroke:#f1b6b6!important}
+    .app-sidebar .app-logout button{color:#fff!important}
+    .app-sidebar .app-logout button .icon{stroke:#fff!important}
     /* Pine forest artwork at the foot of the sidebar (Figma). */
     .app-sidebar::before{content:'';position:fixed;left:0;bottom:0;width:230px;height:min(430px,50vh);
         background:linear-gradient(180deg,rgba(18,53,39,.72) 0%,rgba(18,53,39,.52) 38%,rgba(18,53,39,.60) 72%,rgba(18,53,39,.86) 100%),url('{{ asset('images/rooms/resort-hero.jpg') }}') center bottom/cover no-repeat;

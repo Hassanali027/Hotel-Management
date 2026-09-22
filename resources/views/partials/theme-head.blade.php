@@ -40,7 +40,7 @@
     .app-sidebar .financial-submenu a{color:#c9d8ce!important;background:transparent!important}
     .app-sidebar .app-menu a.active{background:#e6f4ea!important;color:#123527!important}
     .app-sidebar .app-logout{background:transparent!important;border-top:1px solid rgba(255,255,255,.10)!important}
-    .app-sidebar .app-logout button{color:#f1b6b6!important}
+    .app-sidebar .app-logout button{color:#fff!important}
     .app-sidebar .app-upgrade{display:none!important}
 }
 </style>
