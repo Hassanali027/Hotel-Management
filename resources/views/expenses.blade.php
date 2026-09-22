@@ -124,6 +124,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .modal .catnew{margin-top:4px;padding:9px 10px;border-top:1px solid #f0f0f0;font-size:13px;color:#2f5a45;cursor:pointer}
 .modal .catnew:hover{background:#f3f8e6;border-radius:7px}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')
@@ -155,7 +156,16 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .mx-empty{padding:40px 16px;text-align:center;color:#8b948f;font-size:13px;background:#fafcfb;border:1px dashed #dfe7e2;border-radius:12px}
 .mx-tog{display:flex;background:#f1f3f2;border-radius:12px;padding:4px;margin-bottom:14px}.mx-tog button{flex:1;height:36px;border:0;border-radius:9px;background:none;font:700 14px Lato,Arial,sans-serif;color:#555;cursor:pointer}.mx-tog button.on{background:#dff55f;color:#1f2a08}
 .mx-donut{width:190px;height:190px;border-radius:50%;margin:0 auto 14px;position:relative;background:conic-gradient(#d9f5e5 0 100%)}.mx-donut:after{content:'';position:absolute;inset:36px;border-radius:50%;background:#fff}.mx-donut .c{position:absolute;inset:0;display:grid;place-content:center;text-align:center;z-index:1}.mx-donut .c b{font-size:19px;font-weight:800;line-height:1.1;display:block}.mx-donut .c small{font-size:12px;color:#777;display:block;margin-top:3px}
-.mx-dl{display:grid;gap:8px}.mx-dl div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:12px;color:#333}.mx-dl i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.06)}.mx-dl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mx-dl em{font-style:normal;color:#888}.mx-dl b{font-weight:800;white-space:nowrap}
+.mx-dl{display:grid;gap:8px}.mx-dl div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:12px;color:#333}.mx-dl i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.06)}.mx-dl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* The empty-state row has no colour swatch, so it must not sit in the 12px column. */
+.mx-dl div:not(:has(i)){grid-template-columns:minmax(0,1fr)}
+.mx-dl div:not(:has(i)) span{white-space:normal;text-align:center}.mx-dl em{font-style:normal;color:#888}.mx-dl b{font-weight:800;white-space:nowrap}
+.mx-cal{flex:0 0 auto;width:42px;height:42px;border:1px solid #e6e6e6;border-radius:12px;background:#fff;display:grid;place-items:center;color:#222;cursor:pointer}
+.mx-cal svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mx-cal.on{background:#1e4a36;border-color:#1e4a36;color:#fff}
+.mx-dates{display:none;margin:-2px 0 12px}
+.mx-dates.open{display:block}
+.mx-dates input{width:100%;height:46px;border:1px solid #e6e6e6;border-radius:12px;background:#fff;padding:0 14px;font:400 14px Lato,Arial,sans-serif;color:#333}
 .mx-flt{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 10px;padding:2px 16px 6px;scrollbar-width:none}.mx-flt::-webkit-scrollbar{display:none}
 .mx-flt .ms-search{flex:0 0 180px;height:42px;border:1px solid #e6e6e6;box-shadow:none;border-radius:12px}.mx-flt .ms-sel{flex:0 0 auto;height:42px;border:1px solid #e6e6e6;box-shadow:none;font-size:13px;border-radius:12px}
 .mx-date{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;height:42px;padding:0 12px;border:1px solid #e6e6e6;border-radius:12px;background:#fff;font-size:13px;color:#333}.mx-date svg{width:15px;height:15px;fill:none;stroke:#333;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.mx-date input{border:0;background:none;font:400 13px Lato,Arial,sans-serif;color:#333;width:120px;padding:0;outline:0}
@@ -176,7 +186,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
 <div class="mx-h"><h2>Transactions</h2><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
-<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search expense..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option>Completed</option></select><label class="mx-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg><input id="mDate" type="date" aria-label="Filter by date"></label></div>
+<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search expense..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option>Completed</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 </section>
 @include('partials.mobile-nav')

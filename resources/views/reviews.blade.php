@@ -96,6 +96,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .rv-del:hover{background:#ffe1e1}
 @media(max-width:768px){.mv-rev .rv-foot{padding-top:10px}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')

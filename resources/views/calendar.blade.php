@@ -77,6 +77,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @media(max-width:1100px){.cal-wrap{grid-template-columns:1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.cal-grid{overflow-x:auto}.cal-grid .hrow,.cal-body{min-width:840px}footer{flex-direction:column;align-items:flex-start}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')

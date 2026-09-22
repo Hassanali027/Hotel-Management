@@ -255,6 +255,7 @@
 /* The second stack is the real cancelled count, set by the chart script. */
 .bar:before{height:var(--c,0%)}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
     @include('partials.crud')

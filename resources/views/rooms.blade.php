@@ -92,6 +92,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @media(max-width:1200px){.wrap{grid-template-columns:1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.rcard{flex-direction:column}.rimg{width:100%;flex-basis:auto}.flist,.flist.three{grid-template-columns:1fr}footer{flex-direction:column;align-items:flex-start}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')
@@ -155,12 +156,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .mr-chips::-webkit-scrollbar{display:none}
     .mr-chip{flex:0 0 auto;height:40px;padding:0 18px;border:0;border-radius:20px;background:#e9ecea;color:#222;font:600 14px Lato,Arial,sans-serif;cursor:pointer;white-space:nowrap}
     .mr-chip.on{background:#1f7a4d;color:#fff}
-    .mr-card{display:grid;grid-template-columns:118px minmax(0,1fr);gap:12px;background:#fff;border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee;cursor:pointer}
-    .mr-img{width:118px;height:100%;min-height:150px;border-radius:12px;object-fit:cover;background:#e9e9e9}
-    .mr-body{position:relative;display:flex;flex-direction:column;min-width:0;padding-bottom:2px}
-    .mr-nm{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-    .mr-nm b{font-size:18px;font-weight:800;line-height:1.15;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .mr-st{flex:0 0 auto;padding:5px 11px;border-radius:14px;font-size:12px;font-weight:600;white-space:nowrap}
+    .mr-card{display:block;background:#fff;border-radius:18px;padding:0;margin-bottom:14px;box-shadow:0 4px 18px rgba(16,24,40,.05);border:1px solid #eef0ee;cursor:pointer;overflow:hidden;position:relative}
+    .mr-img{width:100%;aspect-ratio:16/10;height:auto;border-radius:0;object-fit:cover;object-position:center;background:#e9e9e9;display:block}
+    /* The status pill floats over the photo so it never pushes the name onto two lines. */
+    .mr-card .mr-st{position:absolute;top:12px;right:12px;z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+    .mr-body{position:static;display:flex;flex-direction:column;min-width:0;padding:14px}
+    .mr-nm{display:block}
+    .mr-nm b{font-size:18px;font-weight:800;line-height:1.25;display:block}
+    .mr-st{align-self:flex-start;padding:4px 10px;border-radius:14px;font-size:11.5px;font-weight:600;white-space:nowrap}
     .mr-st.available{background:#d9f5e5;color:#2f6b4f}.mr-st.occupied{background:#dfebfb;color:#1e4f8f}.mr-st.reserved{background:#fdf1d3;color:#7a5400}.mr-st.not_ready{background:#fde3e5;color:#b3352f}
     .mr-specs{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:13px;color:#333}
     .mr-specs span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
@@ -176,8 +179,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @media(max-width:360px){
     .m-rooms .mr-brand b{font-size:15px}.m-rooms .mr-brand small{font-size:12px}.m-rooms .mr-brand img{width:40px;height:40px}.m-rooms .mr-ib{width:40px;height:40px}.m-rooms .mr-avatar{width:42px;height:42px;font-size:14px}
     .m-rooms .mr-title h1{font-size:25px}.m-rooms .mr-title p{font-size:12px}.m-rooms .mr-add{height:40px;padding:0 12px;font-size:14px}
-    .m-rooms .mr-card{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}.m-rooms .mr-img{width:96px}
-    .m-rooms .mr-nm b{font-size:16px}.m-rooms .mr-specs{font-size:12px;gap:3px 9px}.m-rooms .mr-desc{font-size:12px}.m-rooms .mr-price{font-size:16px}.m-rooms .mr-go{width:36px;height:36px;flex-basis:36px}
+    .m-rooms .mr-body{padding:12px}
+    .m-rooms .mr-nm b{font-size:16.5px}.m-rooms .mr-specs{font-size:12px;gap:3px 9px}.m-rooms .mr-desc{font-size:12px}.m-rooms .mr-price{font-size:16px}.m-rooms .mr-go{width:36px;height:36px;flex-basis:36px}
 }
 </style>
 <main class="main">
@@ -185,7 +188,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <header class="mr-head">
             <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
             <div class="mr-tools">
-                <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
                 <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
                 <span class="mr-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             </div>

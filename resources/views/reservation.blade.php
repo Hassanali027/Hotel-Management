@@ -66,6 +66,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.pt-r{width:100%}.search{width:100%}footer{flex-direction:column;align-items:flex-start}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')
@@ -174,7 +175,12 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 }
 @media(max-width:360px){
     .m-res .mr-title h1{font-size:25px}.m-res .mr-add{height:40px;padding:0 12px;font-size:14px}
-    .m-res .mr-filters{grid-template-columns:minmax(0,1fr) auto}.m-res .mr-cal{display:none}.m-res .mr-dates{display:grid}
+    /* Narrow phones keep the calendar button too: forcing the raw date inputs open here
+       is what made them show as dd/mm/yyyy instead of the icon. */
+    .m-res .mr-filters{grid-template-columns:minmax(0,1fr) auto auto;gap:6px}
+    .m-res .mr-sel{padding:0 26px 0 10px;font-size:13px}
+    .m-res .mr-cal{width:44px;height:44px}
+    .m-res .mr-search{height:44px}
     .m-res .mr-brand b{font-size:15px;white-space:nowrap}.m-res .mr-brand small{font-size:12px}.m-res .mr-brand img{width:40px;height:40px}.m-res .mr-ib{width:40px;height:40px}.m-res .mr-avatar{width:42px;height:42px;font-size:14px}
     .m-res .mr-av{width:44px;height:44px;font-size:15px}.m-res .mr-name b{font-size:15px}.m-res .mr-st{padding:5px 10px;font-size:11px}
     .m-res .mr-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px}.m-res .mr-meta span:nth-child(2){justify-content:flex-start;order:3;flex-basis:100%}.m-res .mr-btn{padding:0 14px}
@@ -185,7 +191,6 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <header class="mr-head">
             <div class="mr-brand"><img src="{{ asset('images/logo.png') }}" alt=""><div><b>Indus Resort</b><small>Restaurant</small></div></div>
             <div class="mr-tools">
-                <button class="mr-ib" type="button" aria-label="Search" onclick="document.getElementById('mSearch').focus()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
                 <button class="mr-ib bell" type="button" aria-label="Notifications" onclick="showNotifications()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></button>
                 <span class="mr-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             </div>
@@ -282,7 +287,7 @@ function renderMobile(list){
  el.innerHTML=list.map((b,i)=>{
   const next=NEXT[b.status]?`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
   const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="mr-btn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span><span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span><span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
+  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span>${(b.check_in||b.check_out)?`<span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span>`:''}<span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
  }).join('')||'<div class="mr-empty">No reservations found</div>';
  const pg=document.getElementById('mPager'),st=(window.PGSTATE&&PGSTATE.res)||{page:1},pages=Math.max(1,Math.ceil(lastFiltered.length/8));
  if(pg)pg.innerHTML=pages>1?`<button ${st.page<=1?'disabled':''} onclick="mPage(-1)">\u2039 Prev</button><span>Page ${st.page} of ${pages}</span><button ${st.page>=pages?'disabled':''} onclick="mPage(1)">Next \u203a</button>`:'';

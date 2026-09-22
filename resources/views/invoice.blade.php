@@ -63,6 +63,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .fsoc{display:flex;gap:16px;align-items:center}.fsoc a{color:#c2c2c2}.fsoc svg{width:18px;height:18px;fill:currentColor}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.top h1{font-size:24px}.profile .pinfo,.tools{display:none}.filters{flex-direction:column;align-items:stretch}.fr{flex-direction:column;align-items:stretch}.search{width:100%}footer{flex-direction:column;align-items:flex-start}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')

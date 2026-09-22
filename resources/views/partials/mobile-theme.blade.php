@@ -66,6 +66,17 @@
     .app-sidebar .app-menu a:hover{background:#f2f7f4!important;color:#1e4a36!important}
     .app-sidebar .app-brand-mark i:nth-child(2),.app-sidebar .app-brand-mark i:nth-child(3){background:#2f6b4f!important}
 
+    /* The desktop page title is duplicated by each phone page's own header. */
+    .pg-head{display:none!important}
+
+    /* ---------- Links ----------
+       "View Details", "View Room" and the inline stock action were still the default
+       blue; the whole phone UI uses the brand green. */
+    .md-link,.gp-link,.mx-link,.ms-meta a,.ms-link,
+    .ms-card a:not(.ms-btn),.vd[style*="1d6ae5"]{color:#1e4a36!important}
+    .md-link svg,.gp-link svg,.mx-link svg{stroke:#1e4a36!important}
+    .ms-sec a,.ms-viewall{color:#1e4a36!important}
+
     /* ---------- Modals, toasts and the invoice sheet ---------- */
     .modal .mbtn.save{background:#1e4a36!important;color:#fff!important}
     .flash{background:#1e4a36!important;color:#fff!important}

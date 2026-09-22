@@ -117,6 +117,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @media(max-width:1200px){.gtop{grid-template-columns:1fr}}
 @media(max-width:700px){body{zoom:1}.main{padding:18px 14px}.tl h1{font-size:22px}.profile .pinfo,.tools{display:none}.brow,.pairs{grid-template-columns:1fr}footer{flex-direction:column;align-items:flex-start}}
 </style>
+@include('partials.theme-head')
 </head>
 <body>
 @include('partials.crud')
