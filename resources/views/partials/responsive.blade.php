@@ -11,7 +11,7 @@
     .app-sidebar>.app-brand{position:sticky;top:0;background:#fff;z-index:2;margin:-28px -18px 0!important;padding:28px 28px 30px!important}
     .app-sidebar>.app-menu{position:sticky;top:96px}
     /* Logout pinned to the bottom-left of the sidebar, always visible. */
-    .app-sidebar{padding-bottom:80px!important}
+    .app-sidebar{padding-bottom:104px!important}
     .app-sidebar .app-logout{position:fixed!important;left:0;bottom:0;width:230px;margin:0!important;padding:10px 18px 16px;background:#fff;border-top:1px solid #f0f0f0;z-index:3}
     .main,.content{flex:1 1 auto;min-width:0;width:auto!important;max-width:none!important;min-height:100vh;display:flex;flex-direction:column}
     /* Footer sits right under the content (a little breathing room), and the page bottom stays tight. */

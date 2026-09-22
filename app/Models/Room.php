@@ -14,17 +14,35 @@ class Room extends Model
     /** Recompute occupied / total / status from the room-number list (types without numbers keep their manual values). */
     public static function syncCounts()
     {
-        $rooms = static::withCount(['units', 'units as busy_count' => function ($q) {
-            $q->whereIn('status', ['reserved', 'occupied']);
-        }])->get();
+        $rooms = static::withCount([
+            'units',
+            'units as occupied_count' => fn ($q) => $q->where('status', 'occupied'),
+            'units as reserved_count' => fn ($q) => $q->where('status', 'reserved'),
+            'units as free_count' => fn ($q) => $q->where('status', 'available'),
+        ])->get();
+
         foreach ($rooms as $room) {
             if ($room->units_count === 0) {
                 continue;
             }
+
+            // A room type is only "occupied" once a guest has actually checked in. While every unit is
+            // held by a confirmed booking but nobody has arrived yet it is "reserved", which is what the
+            // dashboard room-status card counts too.
+            if ($room->free_count > 0) {
+                $status = 'available';
+            } elseif ($room->occupied_count > 0) {
+                $status = 'occupied';
+            } elseif ($room->reserved_count > 0) {
+                $status = 'reserved';
+            } else {
+                $status = 'not_ready';
+            }
+
             $room->update([
                 'availability_total' => $room->units_count,
-                'availability_used'  => $room->busy_count,
-                'status'             => $room->busy_count >= $room->units_count ? 'occupied' : 'available',
+                'availability_used'  => $room->occupied_count + $room->reserved_count,
+                'status'             => $status,
             ]);
         }
     }

@@ -38,7 +38,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .sliders{width:44px;height:44px;border:0;border-radius:11px;background:var(--lime);display:grid;place-items:center;cursor:pointer}
 .sliders svg{width:20px;height:20px;fill:none;stroke:#222;stroke-width:1.8}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:1.2fr 1.05fr 1fr 1.2fr .9fr .9fr 1.15fr .9fr 1.35fr;align-items:center;min-width:1200px}
+.thead,.trow{display:grid;grid-template-columns:1.1fr 1fr 1.25fr 1fr .8fr 1fr 1.25fr .95fr 1.3fr;align-items:center;min-width:1220px;column-gap:10px}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 24px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -68,6 +68,43 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ /* Summary strip so the page reads as a financial overview, not a lone table. */
+ .iv-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+ .iv-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+ .iv-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 36px;background:#e6f4ea}
+ .iv-ic svg{width:18px;height:18px;fill:none;stroke:#2f6b4f;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+ .iv-ic.amber{background:#fdf1d3}.iv-ic.amber svg{stroke:#9a7100}
+ .iv-ic.red{background:#fde3e5}.iv-ic.red svg{stroke:#b3352f}
+ .iv-ic.blue{background:#dfebfb}.iv-ic.blue svg{stroke:#1e4f8f}
+ .iv-card small{display:block;color:#6b7671;font-size:12.5px;margin-bottom:5px}
+ .iv-card b{display:block;font-size:21px;letter-spacing:-.3px;color:#123527;line-height:1.15}
+ .iv-card i{display:block;font-style:normal;color:#8b948f;font-size:11.5px;margin-top:4px}
+ /* Status pills: upright, theme colours. */
+ .st{font-style:normal!important;font-size:12.5px!important;padding:6px 11px!important;border-radius:20px!important}
+ .st.paid{background:#e6f4ea!important;color:#2f6b4f!important}.st.paid:before{background:#2f6b4f!important;border-radius:50%!important}
+ .st.partial{background:#fdf1d3!important;color:#7a5400!important}.st.partial:before{background:#d99b0b!important;border-radius:50%!important}
+ .st.unpaid{background:#fde3e5!important;color:#b3352f!important}.st.unpaid:before{background:#d24b4b!important;border-radius:50%!important}
+ /* Action buttons match the other tables. */
+ .act{gap:8px}
+ .eye{width:34px!important;height:34px!important;border-radius:9px!important;border:1px solid var(--line)!important}
+ .eye svg{width:16px!important;height:16px!important;stroke:#55605a!important}
+ .eye:hover{background:#f7faf8}
+ .dl{height:34px!important;padding:0 13px!important;border-radius:9px!important;background:#e6f4ea!important;color:#1e4a36!important;font-size:12.5px!important;font-weight:700!important;border:1px solid #d5e8dc!important}
+ .dl svg{width:14px!important;height:14px!important}
+ .dl:hover{background:#daeee1!important}
+ .iv-room b{display:block;font-weight:600;font-size:13.5px}
+ .iv-room small{display:block;color:#9ca3af;font-size:12px;margin-top:2px}
+ .iv-bal{font-weight:600}
+ .iv-bal.due{color:#b3352f}
+ .thead span{white-space:nowrap}
+ .iv-bal.clear{color:#2f6b4f}
+}
+</style>
+
 <main class="main">
 <section class="m-page">
 @include('partials.mobile-shell', ['msTitle'=>'Invoices','msSubtitle'=>'Payments and receipts'])
@@ -86,6 +123,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Invoices','pgSub'=>'Booking invoices, payments and downloads.'])
+    <section class="iv-cards">
+        <div class="iv-card"><span class="iv-ic blue"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span><div><small>Total Invoiced</small><b>PKR {{ number_format($totals['invoiced']) }}</b><i>{{ $bookings->count() }} {{ $bookings->count() === 1 ? 'invoice' : 'invoices' }}</i></div></div>
+        <div class="iv-card"><span class="iv-ic"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div><small>Collected</small><b>PKR {{ number_format($totals['collected']) }}</b><i>{{ $totals['invoiced'] > 0 ? round($totals['collected'] / $totals['invoiced'] * 100) : 0 }}% of total</i></div></div>
+        <div class="iv-card"><span class="iv-ic amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><small>Outstanding</small><b>PKR {{ number_format($totals['outstanding']) }}</b><i>still to collect</i></div></div>
+        <div class="iv-card"><span class="iv-ic red"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><div><small>Awaiting Payment</small><b>{{ $totals['unpaid'] }}</b><i>{{ $totals['unpaid'] === 1 ? 'invoice open' : 'invoices open' }}</i></div></div>
+    </section>
     <section class="panel">
         <div class="filters">
             <div class="fl">
@@ -102,10 +146,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span onclick="sortCol('inv','guest_name',applyFilters)" style="cursor:pointer">Guest Name @include('partials.sort')</span>
                 <span onclick="sortCol('inv','code',applyFilters)" style="cursor:pointer">Booking ID @include('partials.sort')</span>
                 <span onclick="sortCol('inv','room_label',applyFilters)" style="cursor:pointer">Room @include('partials.sort')</span>
-                <span onclick="sortCol('inv','price_per_night',applyFilters)" style="cursor:pointer">Price (per night) @include('partials.sort')</span>
+                <span onclick="sortCol('inv','price_per_night',applyFilters)" style="cursor:pointer">Price / Night @include('partials.sort')</span>
                 <span onclick="sortCol('inv','duration',applyFilters)" style="cursor:pointer">Duration @include('partials.sort')</span>
                 <span onclick="sortCol('inv','amount',applyFilters)" style="cursor:pointer">Amount @include('partials.sort')</span>
-                <span onclick="sortCol('inv','advance_amount',applyFilters)" style="cursor:pointer">Remaining Balance @include('partials.sort')</span>
+                <span onclick="sortCol('inv','advance_amount',applyFilters)" style="cursor:pointer">Balance Due @include('partials.sort')</span>
                 <span onclick="sortCol('inv','invoice_status',applyFilters)" style="cursor:pointer">Status @include('partials.sort')</span>
                 <span>Action @include('partials.sort')</span>
             </div>
@@ -134,7 +178,7 @@ const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/>
 const data=@json($bookings);
 
 function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((b,i)=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<article class="ms-card"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${msInitials(b.guest_name)}</span><div class="ms-name"><b>${b.guest_name}</b><small>${b.code}</small></div><span class="ms-pill ${b.invoice_status}">${status}</span></div><div class="ms-kv"><div><small>Room</small><b>${b.room_label||'—'}</b></div><div><small>Duration</small><b>${b.duration||'—'}</b></div><div><small>Rate / night</small><b>${msMoney(b.price_per_night)}</b></div></div><div class="ms-kv two" style="margin-top:12px;padding-top:12px;border-top:1px solid #eee"><div><small>Total Amount</small><b style="font-size:17px">${msMoney(total)}</b></div><div><small>Remaining Balance</small><b style="font-size:17px;color:${remaining>0?'#bf501d':'#287552'}">${partial?msMoney(remaining):'—'}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="showInvoice(${b.id})">View</button><button type="button" class="ms-btn lime" onclick="downloadInvoice(${b.id})">${dl} Download</button></div></article>`}).join('')||'<div class="ms-empty">No invoices found</div>';}
-function render(list){renderMobile(list);list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<div class="trow" style="cursor:pointer" onclick="showInvoice(${b.id})"><span>${b.guest_name}</span><span>${b.code}</span><span>${b.room_label||''}</span><span>PKR ${b.price_per_night}</span><span>${b.duration||''}</span><span>PKR ${total.toLocaleString()}</span><span>${partial?'PKR '+remaining.toLocaleString():'—'}</span><span><em class="st ${b.invoice_status}">${status}</em></span><span class="act"><button class="eye" title="View invoice" onclick="event.stopPropagation();showInvoice(${b.id})">${eye}</button><button class="dl" onclick="event.stopPropagation();downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){renderMobile(list);list.forEach(b=>INV[b.id]=b);document.getElementById('rows').innerHTML=list.map(b=>{const partial=b.invoice_status==='partial'||Number(b.advance_amount)>0;const total=Number(b.amount)||((Number(b.price_per_night)||0)*(parseInt(b.duration)||1));const advance=Math.min(total,Number(b.advance_amount||0));const finalPayment=b.invoice_status==='paid'?Math.min(Math.max(0,total-advance),Number(b.final_payment_amount||Math.max(0,total-advance))):0;const remaining=Math.max(0,total-advance-finalPayment);const status=b.invoice_status==='paid'?'Paid':b.invoice_status==='partial'?'Partial':'Unpaid';return `<div class="trow" style="cursor:pointer" onclick="showInvoice(${b.id})"><span>${b.guest_name}</span><span>${b.code}</span><span class="iv-room"><b>${b.room_type||b.room_label||'—'}</b>${b.room_number?`<small>Room ${b.room_number}</small>`:''}</span><span>PKR ${Number(b.price_per_night||0).toLocaleString()}</span><span>${b.duration?b.duration+(parseInt(b.duration)===1?' Night':' Nights'):'—'}</span><span>PKR ${total.toLocaleString()}</span><span class="iv-bal ${remaining>0?'due':'clear'}">${remaining>0?'PKR '+remaining.toLocaleString():'Settled'}</span><span><em class="st ${b.invoice_status}">${status}</em></span><span class="act"><button class="eye" title="View invoice" onclick="event.stopPropagation();showInvoice(${b.id})">${eye}</button><button class="dl" onclick="event.stopPropagation();downloadInvoice(${b.id})">${dl} Download</button></span></div>`}).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const st=document.getElementById('fStatus').value;pgReset('inv');paginateRender('inv',sortList('inv',data.filter(b=>(!(document.getElementById('fFrom')||{}).value||String(b.check_out||'').slice(0,10)>=document.getElementById('fFrom').value)&&(!(document.getElementById('fTo')||{}).value||String(b.check_in||'').slice(0,10)<=document.getElementById('fTo').value)&&(!st||b.invoice_status===st)&&(!q||[b.guest_name,b.code,b.room_label].join(' ').toLowerCase().includes(q)))),8,render);}
 msMirror([['mSearch','fSearch','input'],['mStatus','fStatus']]);
 document.getElementById('fSearch').addEventListener('input',applyFilters);

@@ -60,8 +60,20 @@ class PageController extends Controller
         $ratingCats = collect(['facilities' => 'Facilities', 'cleanliness' => 'Cleanliness', 'services' => 'Services', 'comfort' => 'Comfort', 'location' => 'Location'])
             ->map(fn ($label, $col) => ['name' => $label, 'score' => round((float) Review::whereNotNull($col)->avg($col), 1)])->values();
 
+        $today = now()->toDateString();
+        $totalUnits = RoomUnit::count();
         return view('Dashboard', [
             'bookings'     => Booking::orderBy('id')->take(5)->get(),
+            // Figma dashboard blocks
+            'arrivals'     => Booking::whereDate('check_in', $today)->whereIn('status', ['pending', 'confirmed', 'checked_in'])->orderBy('id')->get(),
+            'departures'   => Booking::whereDate('check_out', $today)->whereIn('status', ['checked_in', 'checked_out'])->orderBy('id')->get(),
+            'hkCounts'     => [
+                'ready' => HousekeepingTask::where('status', 'ready')->count(), 'needs' => HousekeepingTask::where('status', 'needs')->count(),
+                'progress' => HousekeepingTask::where('status', 'progress')->count(), 'inspect' => HousekeepingTask::where('status', 'inspect')->count(),
+            ],
+            'occupancyPct' => $totalUnits ? round(RoomUnit::where('status', 'occupied')->count() / $totalUnits * 100) : 0,
+            'totalUnits'   => $totalUnits,
+            'todayRevenue' => (int) Booking::where('invoice_status', 'paid')->whereDate('updated_at', $today)->sum('amount'),
             'tasks'        => Task::all(),
             'activities'   => Activity::latest('id')->take(6)->get(),
             'deltas'       => [
@@ -159,7 +171,7 @@ class PageController extends Controller
             'guest_name'=>'required','cnic'=>'nullable|string|max:20','phone'=>'nullable|string|max:30','email'=>'nullable|email|max:255',
             'dob'=>'nullable|date','gender'=>'nullable|string|max:30','nationality'=>'nullable|string|max:100','passport_no'=>'nullable|string|max:100',
             'room_type'=>'nullable','room_number'=>'nullable',
-            'request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable','guests'=>'nullable|integer|min:1|max:20','source'=>'nullable|string|max:60',
+            'request'=>'nullable','duration'=>'nullable','check_in'=>'required|date','check_out'=>'required|date|after:check_in','guests'=>'nullable|integer|min:1|max:20','source'=>'nullable|string|max:60',
             'price_per_night'=>'required|integer|min:1','amount'=>'nullable|integer','extra_charges'=>'nullable|integer|min:0','status'=>'nullable',
             'partial_payment'=>'nullable|boolean','advance_amount'=>'nullable|integer|min:0',
             'advance_receipt'=>'nullable|image|max:5120',
@@ -170,7 +182,8 @@ class PageController extends Controller
         $data['price_per_night'] = (int) $data['price_per_night'];
         // Total = price per night x nights + extra charges.
         $data['extra_charges'] = (int) ($data['extra_charges'] ?? 0);
-        $nights = max(1, (int) preg_replace('/\D+/', '', (string) ($data['duration'] ?? '')));
+        $nights = max(1, \Carbon\Carbon::parse($data['check_in'])->diffInDays(\Carbon\Carbon::parse($data['check_out'])));
+        $data['duration'] = (string) $nights;
         $data['amount'] = $data['price_per_night'] * $nights + $data['extra_charges'];
         $data['amenities'] = json_encode($data['amenities'] ?? []);
         if ($r->hasFile('advance_receipt')) {
@@ -218,7 +231,7 @@ class PageController extends Controller
         $booking = Booking::findOrFail($id);
         $data = $r->validate([
             'guest_name'=>'required','cnic'=>'nullable|string|max:20','phone'=>'nullable|string|max:30','email'=>'nullable|email|max:255',
-            'room_type'=>'nullable','room_number'=>'nullable','request'=>'nullable','duration'=>'nullable','check_in'=>'nullable','check_out'=>'nullable',
+            'room_type'=>'nullable','room_number'=>'nullable','request'=>'nullable','duration'=>'nullable','check_in'=>'required|date','check_out'=>'required|date|after:check_in',
             'guests'=>'nullable|integer|min:1|max:20','source'=>'nullable|string|max:60','price_per_night'=>'required|integer|min:1','extra_charges'=>'nullable|integer|min:0',
         ]);
         $newNumber = trim((string) ($data['room_number'] ?? ''));
@@ -237,7 +250,8 @@ class PageController extends Controller
         }
         unset($data['phone'], $data['email']);
         $data['extra_charges'] = (int) ($data['extra_charges'] ?? 0);
-        $nights = max(1, (int) preg_replace('/\D+/', '', (string) ($data['duration'] ?? '')));
+        $nights = max(1, \Carbon\Carbon::parse($data['check_in'])->diffInDays(\Carbon\Carbon::parse($data['check_out'])));
+        $data['duration'] = (string) $nights;
         $data['amount'] = $data['price_per_night'] * $nights + $data['extra_charges'];
         $data['room_label'] = trim(($data['room_type'] ?? '').' '.$newNumber);
         $booking->update($data);
@@ -444,7 +458,23 @@ class PageController extends Controller
     public function invoice()
     {
         // An invoice becomes available only after the booking is confirmed.
-        return view('invoice', ['bookings' => Booking::whereIn('status', ['confirmed', 'checked_in', 'checked_out'])->orderBy('id')->get()]);
+        $bookings = Booking::whereIn('status', ['confirmed', 'checked_in', 'checked_out'])->orderBy('id')->get();
+
+        $totals = ['invoiced' => 0, 'collected' => 0, 'outstanding' => 0, 'unpaid' => 0];
+        foreach ($bookings as $b) {
+            $nights = max(1, (int) preg_replace('/\D+/', '', (string) $b->duration));
+            $total = (float) ($b->amount ?: ((int) $b->price_per_night * $nights));
+            $advance = min($total, (float) $b->advance_amount);
+            $final = $b->invoice_status === 'paid' ? max(0, $total - $advance) : 0;
+            $paid = $advance + $final;
+
+            $totals['invoiced'] += $total;
+            $totals['collected'] += $paid;
+            $totals['outstanding'] += max(0, $total - $paid);
+            $totals['unpaid'] += $b->invoice_status === 'paid' ? 0 : 1;
+        }
+
+        return view('invoice', compact('bookings', 'totals'));
     }
 
     public function invoiceToggle($id)
@@ -1038,9 +1068,25 @@ class PageController extends Controller
         if (!$guest) {
             $guest = new Guest(['name' => $booking ? $booking->guest_name : 'Guest']);
         }
-        $history = Booking::orderBy('id')->take(2)->get();
+        // This guest's own stay history, newest first (fall back to the shown booking alone).
+        $history = Booking::query()
+            ->when($guest->exists, fn ($q) => $q->where(function ($w) use ($guest) {
+                $w->where('guest_id', $guest->id)->orWhere('guest_name', $guest->name);
+            }), fn ($q) => $q->where('id', $booking->id))
+            ->orderByDesc('id')->get();
+        if ($history->isEmpty()) {
+            $history = collect([$booking]);
+        }
+
+        $stats = [
+            'bookings' => $history->count(),
+            'nights' => $history->sum(fn ($b) => max(1, (int) preg_replace('/\D+/', '', (string) $b->duration))),
+            'spend' => $history->sum(fn ($b) => (int) $b->amount),
+            'since' => optional($history->min('created_at')) ? \Carbon\Carbon::parse($history->min('created_at'))->format('M Y') : null,
+        ];
+
         $room = $booking ? Room::where('name', $booking->room_type)->first() : null;
         $roomImages = Room::pluck('image', 'name');
-        return view('guest-profile', compact('guest', 'booking', 'history', 'room', 'roomImages'));
+        return view('guest-profile', compact('guest', 'booking', 'history', 'room', 'roomImages', 'stats'));
     }
 }

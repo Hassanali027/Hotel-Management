@@ -69,6 +69,10 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .donut{width:220px;height:220px;border-radius:50%;margin:14px auto 6px;position:relative;background:conic-gradient(var(--mint) 0 50%,#fff 50% 50.7%,var(--mint-d) 50.7% 66.67%,#fff 66.67% 67.37%,var(--olive) 67.37% 80%,#fff 80% 80.7%,var(--lime) 80.7% 90%,#fff 90% 90.7%,var(--plime) 90.7% 96.67%,#fff 96.67% 97.37%,var(--pmint) 97.37% 100%)}
 .donut .hole{position:absolute;inset:50px;background:#fff;border-radius:50%;display:grid;place-content:center;text-align:center}
 .donut .hole b{font-size:28px;font-weight:800}.donut .hole span{font-size:13px;color:#8a8a8a}
+.ec-empty{flex:1;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#8b948f;background:#fafcfb;border:1px dashed #dfe7e2;border-radius:14px;padding:24px}
+.ec-empty svg{width:30px;height:30px;fill:none;stroke:#b7c9bf;stroke-width:1.7;stroke-linecap:round}
+.ec-empty b{color:#123527;font-size:15px}
+.ec-empty span{font-size:13px;max-width:360px;line-height:1.5}
 .dlegend{margin-top:10px;display:grid;gap:14px}
 .dl-row{display:grid;grid-template-columns:14px 1fr auto;align-items:center;gap:10px;font-size:14px;color:#444}
 .dl-row i{width:13px;height:13px;border-radius:3px}
@@ -125,6 +129,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
 <main class="main">
 <section class="m-page">
 @php $msAct = '<button class="ms-add" type="button" onclick="openExpenseCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Expense</button>'; @endphp
@@ -146,6 +152,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 .mx-plot .zero{position:absolute;left:0;right:0;top:50%;border-top:1px solid #cfcfcf}
 .mx-plot .mo{position:absolute;top:0;bottom:0}.mx-plot .up,.mx-plot .dn{position:absolute;left:50%;transform:translateX(-50%);width:62%;max-width:16px}.mx-plot .up{bottom:50%;background:#dff55f;border-radius:5px 5px 0 0}.mx-plot .dn{top:50%;background:#b8ebcf;border-radius:0 0 5px 5px}
 .mx-x{display:grid;margin-left:42px;font-size:10px;color:#666;text-align:center;margin-top:6px}
+.mx-empty{padding:40px 16px;text-align:center;color:#8b948f;font-size:13px;background:#fafcfb;border:1px dashed #dfe7e2;border-radius:12px}
 .mx-tog{display:flex;background:#f1f3f2;border-radius:12px;padding:4px;margin-bottom:14px}.mx-tog button{flex:1;height:36px;border:0;border-radius:9px;background:none;font:700 14px Lato,Arial,sans-serif;color:#555;cursor:pointer}.mx-tog button.on{background:#dff55f;color:#1f2a08}
 .mx-donut{width:190px;height:190px;border-radius:50%;margin:0 auto 14px;position:relative;background:conic-gradient(#d9f5e5 0 100%)}.mx-donut:after{content:'';position:absolute;inset:36px;border-radius:50%;background:#fff}.mx-donut .c{position:absolute;inset:0;display:grid;place-content:center;text-align:center;z-index:1}.mx-donut .c b{font-size:19px;font-weight:800;line-height:1.1;display:block}.mx-donut .c small{font-size:12px;color:#777;display:block;margin-top:3px}
 .mx-dl{display:grid;gap:8px}.mx-dl div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:12px;color:#333}.mx-dl i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.06)}.mx-dl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mx-dl em{font-style:normal;color:#888}.mx-dl b{font-weight:800;white-space:nowrap}
@@ -165,7 +172,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <article class="mx-stat {{ $incomeChange < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></i>Total Income</div><div class="v">PKR {{ number_format($totalIncome) }}</div><div class="d"><b>{!! $incomeChange < 0 ? '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M15 17H7V9"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>' !!}{{ number_format(abs($incomeChange), 2) }}%</b>from last week</div></article>
 <article class="mx-stat {{ $expenseChange < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></i>Total Expenses</div><div class="v">PKR {{ number_format($totalExpense) }}</div><div class="d"><b>{!! $expenseChange < 0 ? '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M15 17H7V9"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>' !!}{{ number_format(abs($expenseChange), 2) }}%</b>from last week</div></article>
 </div>
-<section class="mx-card"><div class="mx-h"><h2>Earnings Overview</h2><span class="mx-year"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div><div class="mx-leg"><span><i style="background:#dff55f"></i>Income</span><span><i style="background:#b8ebcf"></i>Expense</span></div><div class="mx-chart"><div class="mx-y" id="mxY"></div><div class="mx-plot" id="mxPlot"><div class="zero"></div></div></div><div class="mx-x" id="mxX"></div></section>
+<section class="mx-card"><div class="mx-h"><h2>Earnings Overview</h2><span class="mx-year"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div><div class="mx-leg"><span><i style="background:#2f6b4f"></i>Income</span><span><i style="background:#bcd9c8"></i>Expense</span></div><div class="mx-chart"><div class="mx-y" id="mxY"></div><div class="mx-plot" id="mxPlot"><div class="zero"></div></div></div><div class="mx-x" id="mxX"></div></section>
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
 <div class="mx-h"><h2>Transactions</h2><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
@@ -185,6 +192,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Financials','pgSub'=>'Income, expenses and transactions.'])
     <div class="fin-top">
         <div class="fin-left">
             <div class="stat-row">
@@ -205,7 +213,14 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="earn-top"><h2>Earnings</h2><select class="fsel" style="height:38px" onchange="location.href='{{ url('/expenses') }}?year='+this.value">@foreach($years as $y)<option value="{{ $y }}" {{ $y == $chartYear ? 'selected' : '' }}>{{ $y == now()->year ? 'This Year' : $y }}</option>@endforeach</select></div>
                 <div class="legend"><span><i class="li"></i>Income</span><span><i class="le"></i>Expense</span></div>
                 <div class="ec">
-                    <div class="ey"><span>{{ number_format($chartMax / 1000, 0) }}K</span><span>{{ number_format($chartMax / 2000, 0) }}K</span><span>0</span><span>-{{ number_format($chartMax / 2000, 0) }}K</span><span>-{{ number_format($chartMax / 1000, 0) }}K</span></div>
+                    @php
+                        // With a small scale the half-step rounds to the same label as the top one
+                        // ("1K, 1K, 0, -1K, -1K"), so fall back to three ticks.
+                        $tickTop = $chartMax / 1000;
+                        $tickMid = $chartMax / 2000;
+                        $showMid = round($tickTop) != round($tickMid) && round($tickMid) > 0;
+                    @endphp
+                    <div class="ey"><span>{{ number_format($tickTop, 0) }}K</span>@if($showMid)<span>{{ number_format($tickMid, 0) }}K</span>@endif<span>0</span>@if($showMid)<span>-{{ number_format($tickMid, 0) }}K</span>@endif<span>-{{ number_format($tickTop, 0) }}K</span></div>
                     <div class="eplot" id="eplot"><div class="gl g1"></div><div class="gl g0"></div><div class="gl g3"></div></div>
                 </div>
             </div>
@@ -265,7 +280,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 // Earnings diverging bars. [month, incomeK, expenseK, highlight]
 const H=140, MAX={{ $chartMax }};
 const earn=@json($earnings);
-document.getElementById('eplot').insertAdjacentHTML('beforeend', earn.map(m=>{
+// With nothing booked or spent this year the bars are all zero and the grid reads as broken.
+const hasEarnings = earn.some(m => Number(m.income) > 0 || Number(m.expense) > 0);
+if(!hasEarnings){
+  document.querySelector('.ec').innerHTML =
+    '<div class="ec-empty"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>'+
+    '<b>No earnings recorded for {{ $chartYear }} yet</b>'+
+    '<span>Income appears here once a booking has check-in dates and is marked paid.</span></div>';
+}
+document.getElementById('eplot') && hasEarnings && document.getElementById('eplot').insertAdjacentHTML('beforeend', earn.map(m=>{
  const up=Math.round(m.income/MAX*H), dn=Math.round(m.expense/MAX*H);
  const tip='<div class="tip"><b>'+m.month+' {{ $chartYear }}</b><div class="r"><span>Income</span><b>PKR '+m.income.toLocaleString()+'</b></div><div class="r"><span>Expense</span><b>PKR '+m.expense.toLocaleString()+'</b></div></div>';
  return '<div class="mo">'+tip+'<div class="up" style="height:'+up+'px"></div><div class="dn" style="height:'+dn+'px"></div><span class="ml">'+m.month+'</span></div>';
@@ -304,7 +327,7 @@ function mxDate(){const d=document.getElementById('mDate');return d?d.value:'';}
 (function(){const d=document.getElementById('mDate');if(d)d.addEventListener('change',applyFilters);})();
 function mxViewAll(){['mSearch','fSearch','mCat','fCat','mStatus','fStatus','mDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});applyFilters();}
 /* Phone earnings chart: income bars up, expense bars down, from the same monthly data as the desktop chart. */
-(function(){const plot=document.getElementById('mxPlot'),y=document.getElementById('mxY'),x=document.getElementById('mxX');if(!plot||!earn.length)return;const H2=100,n=earn.length,w=100/n;const k=v=>{const t=Math.abs(v)/1000;return (v<0?'-':'')+(t>=10?Math.round(t):Math.round(t*10)/10)+'K';};y.innerHTML=[MAX,MAX/2,0,-MAX/2,-MAX].map(v=>'<span>'+(v?k(v):'0')+'</span>').join('');plot.insertAdjacentHTML('beforeend',earn.map((m,i)=>'<div class="mo" style="left:'+(i*w)+'%;width:'+w+'%"><div class="up" style="height:'+Math.round(Math.min(1,m.income/MAX)*H2)+'px"></div><div class="dn" style="height:'+Math.round(Math.min(1,m.expense/MAX)*H2)+'px"></div></div>').join(''));x.style.gridTemplateColumns='repeat('+n+',1fr)';x.innerHTML=earn.map(m=>'<span>'+m.month+'</span>').join('');})();
+(function(){const plot=document.getElementById('mxPlot'),y=document.getElementById('mxY'),x=document.getElementById('mxX');if(!plot||!earn.length)return;if(!hasEarnings){const chart=plot.closest('.mx-chart');if(chart){chart.innerHTML='<div class="mx-empty">No earnings recorded for {{ $chartYear }} yet</div>';chart.style.display='block';}if(x)x.innerHTML='';return;}const H2=100,n=earn.length,w=100/n;const k=v=>{const t=Math.abs(v)/1000;return (v<0?'-':'')+(t>=10?Math.round(t):Math.round(t*10)/10)+'K';};y.innerHTML=[MAX,MAX/2,0,-MAX/2,-MAX].map(v=>'<span>'+(v?k(v):'0')+'</span>').join('');plot.insertAdjacentHTML('beforeend',earn.map((m,i)=>'<div class="mo" style="left:'+(i*w)+'%;width:'+w+'%"><div class="up" style="height:'+Math.round(Math.min(1,m.income/MAX)*H2)+'px"></div><div class="dn" style="height:'+Math.round(Math.min(1,m.expense/MAX)*H2)+'px"></div></div>').join(''));x.style.gridTemplateColumns='repeat('+n+',1fr)';x.innerHTML=earn.map(m=>'<span>'+m.month+'</span>').join('');})();
 function mxDonut(type){const cats=type==='income'?incomeDonut:expenseDonut;const total=cats.reduce((s,c)=>s+Number(c.amount||0),0);let start=0;const stops=[];cats.forEach(c=>{const end=start+Number(c.percent||0);stops.push(c.color+' '+start+'% '+Math.max(start,end-.8)+'%','#fff '+Math.max(start,end-.8)+'% '+end+'%');start=end;});const d=document.getElementById('mxDonut');if(!d)return;d.style.background=stops.length?'conic-gradient('+stops.join(',')+')':'conic-gradient(#d9f5e5 0 100%)';document.getElementById('mxTotal').textContent=msMoney(total);document.getElementById('mxLabel').textContent=type==='income'?'Total Income':'Total Expense';document.getElementById('mxLegend').innerHTML=cats.length?cats.map(c=>'<div><i style="background:'+c.color+'"></i><span>'+c.name+' <em>('+Number(c.percent).toFixed(2).replace(/\.00$/,'')+'%)</em></span><b>'+msMoney(c.amount)+'</b></div>').join(''):'<div><span style="color:#aaa">No '+type+' data yet</span></div>';document.getElementById('mxIncBtn').classList.toggle('on',type==='income');document.getElementById('mxExpBtn').classList.toggle('on',type!=='income');}
 mxDonut('expense');
 ['fSearch','fCat','fStatus','fFrom','fTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener(id==='fSearch'?'input':'change',applyFilters);});

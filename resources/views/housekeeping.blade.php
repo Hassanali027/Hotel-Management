@@ -34,7 +34,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .pill{height:44px;border:0;border-radius:11px;padding:0 16px;display:inline-flex;align-items:center;gap:9px;font-size:15px;background:var(--lime);color:#2f3a0c;cursor:pointer;white-space:nowrap;font-weight:600}
 .pill svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:44px 1fr .85fr 1.6fr 1.1fr .6fr 1.15fr 1.9fr;align-items:center;min-width:1300px}
+.thead,.trow{display:grid;grid-template-columns:40px .85fr 1.25fr 1.35fr .95fr .7fr 1.05fr 1.6fr 64px;align-items:center;min-width:1240px;column-gap:10px}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 20px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -70,6 +70,31 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ .hk-sel{appearance:none;-webkit-appearance:none;border:1px solid transparent;border-radius:20px;height:32px;padding:0 28px 0 12px;font:600 12.5px Inter,Lato,Arial,sans-serif;cursor:pointer;max-width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;background-size:11px}
+ .hk-sel.ready{background-color:#e6f4ea;color:#2f6b4f}
+ .hk-sel.progress{background-color:#e2ecfb;color:#1e4f8f}
+ .hk-sel.needs{background-color:#fde3e5;color:#b3352f}
+ .hk-sel.inspect{background-color:#fdf1d3;color:#7a5400}
+ .hk-sel.high{background-color:#fde3e5;color:#b3352f}
+ .hk-sel.medium{background-color:#fdf1d3;color:#7a5400}
+ .hk-sel.low{background-color:#eef1ef;color:#55605a}
+ .hk-rn{font-weight:600;color:#123527}
+ .hk-muted{color:#6b7671;font-size:13px}
+ .hk-notes{color:#55605a;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+ .hk-edit{height:32px;width:32px;display:inline-grid;place-items:center;border:1px solid var(--line,#e5e9e6);background:#fff;border-radius:9px;color:#55605a;cursor:pointer}
+ .hk-edit:hover{background:#f7faf8;color:#123527}
+ .hk-edit svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+ .trow .cb{width:18px!important;height:18px!important;border-radius:5px!important}
+ .trow .cb.ck{background:#2f6b4f!important;border-color:#2f6b4f!important}
+ .trow .cb.ck svg{stroke:#fff!important}
+ .trow.on{background:#f7faf8!important}
+}
+</style>
 <main class="main">
 <section class="m-page">
 @php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openModal(\'addHk\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button>' : ''; @endphp
@@ -90,6 +115,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Housekeeping','pgSub'=>'Cleaning status, priorities and room notes.'])
     <section class="panel">
         <div class="filters">
             <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search room, floor, etc"></div>
@@ -110,6 +136,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span onclick="sortCol('hk','floor',applyFilters)" style="cursor:pointer">Floor @include('partials.sort')</span>
                 <span onclick="sortCol('hk','reservation_status',applyFilters)" style="cursor:pointer">Reservation Status @include('partials.sort')</span>
                 <span onclick="sortCol('hk','notes',applyFilters)" style="cursor:pointer">Notes @include('partials.sort')</span>
+                <span></span>
             </div>
             <div id="rows"></div>
         </div>
@@ -130,6 +157,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     </footer>
 </main>
 <script>
+const hkEditIco='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
 const chk='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>';
 const cv='<svg class="cv" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>';
 const sl={progress:'Cleaning in Progress',ready:'Ready',needs:'Needs Cleaning',inspect:'Needs Inspection'};
@@ -141,7 +169,7 @@ document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementByI
 function openHkEditor(id){const r=data.find(x=>x.id===id);if(!r)return;const f=document.getElementById('hkEditForm');f.reset();f.action='/housekeeping/'+r.id;document.getElementById('hkEditTitle').textContent='Edit '+r.room_number;f.elements.floor.value=r.floor||'';f.elements.reservation_status.value=r.reservation_status||'Available';f.elements.notes.value=r.notes||'';const d=document.getElementById('hkDelete');if(d)d.dataset.id=r.id;openModal('editHk');}
 function opt(map,cur){return Object.keys(map).map(k=>`<option value="${k}"${k===cur?' selected':''}>${map[k]}</option>`).join('');}
 function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-check ${r.is_checked?'on':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span><div class="ms-name"><b>${r.room_number}</b><small>${r.room_type||''}${r.floor?' · Floor '+r.floor:''}</small></div><select class="ms-tagsel ${r.status}" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></div><div class="ms-kv"><div><small>Priority</small><select class="ms-tagsel ${r.priority}" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></div><div><small>Reservation</small><b>${r.reservation_status||'—'}</b></div><div><small>Floor</small><b>${r.floor||'—'}</b></div></div>${r.notes?`<div class="ms-note">${r.notes}</div>`:''}${CAN_MANAGE?`<div class="ms-act"><button type="button" class="ms-btn gray" onclick="openHkEditor(${r.id})">Edit</button></div>`:''}</article>`).join('')||'<div class="ms-empty">No rooms found</div>';}
-function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span>${r.room_number}</span><span>${r.room_type||''}</span><span><select class="tag hs ${r.status} tsel" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="tag pr ${r.priority} tsel" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span>${r.floor||''}</span><span>${r.reservation_status||''}</span><span>${r.notes||''}${CAN_MANAGE?` <button style="border:0;background:none;color:#1d6ae5;cursor:pointer;font-weight:700;margin-left:6px" onclick="openHkEditor(${r.id})">Edit</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}" onclick="post('/housekeeping/${r.id}','POST',{is_checked:${r.is_checked?0:1}})">${chk}</span></span><span class="hk-rn">${r.room_number}</span><span class="hk-muted">${r.room_type||'—'}</span><span><select class="hk-sel ${r.status}" onchange="post('/housekeeping/${r.id}','POST',{status:this.value})">${opt(sl,r.status)}</select></span><span><select class="hk-sel ${r.priority}" onchange="post('/housekeeping/${r.id}','POST',{priority:this.value})">${opt(pl,r.priority)}</select></span><span class="hk-muted">${r.floor||'—'}</span><span class="hk-muted">${r.reservation_status||'—'}</span><span class="hk-notes" title="${(r.notes||'').replace(/"/g,'&quot;')}">${r.notes||'—'}</span><span>${CAN_MANAGE?`<button class="hk-edit" title="Edit room" onclick="openHkEditor(${r.id})">${hkEditIco}</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
 function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const rm=document.getElementById('fRoom').value;const st=document.getElementById('fStatus').value;const pr=document.getElementById('fPriority').value;pgReset('hk');paginateRender('hk',sortList('hk',data.filter(r=>(!rm||r.room_type===rm)&&(!st||r.status===st)&&(!pr||r.priority===pr)&&(!q||[r.room_number,r.floor,r.notes,r.reservation_status].join(' ').toLowerCase().includes(q)))),8,render);}
 msMirror([['mSearch','fSearch','input'],['mRoom','fRoom'],['mStatus','fStatus'],['mPriority','fPriority']]);
 ['fSearch','fRoom','fStatus','fPriority'].forEach(id=>document.getElementById(id).addEventListener(id==='fSearch'?'input':'change',applyFilters));

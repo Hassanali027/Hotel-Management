@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 220" preserveAspectRatio="xMidYMax slice">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f8f5"/><stop offset="1" stop-color="#e6efe9"/></linearGradient>
+ <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9d8cd"/><stop offset="1" stop-color="#dfe8e1"/></linearGradient>
+ <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b4c8ba"/><stop offset="1" stop-color="#d3e0d6"/></linearGradient>
+ <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb8a7"/><stop offset="1" stop-color="#c6d6c9"/></linearGradient>
+ <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3f6f4" stop-opacity="0"/><stop offset="1" stop-color="#f3f6f4"/></linearGradient>
+</defs>
+<rect width="1400" height="220" fill="url(#sky)"/>
+<polygon points="0,220 120,150 240,190 380,110 520,170 640,90 760,160 880,70 1000,150 1120,100 1260,160 1400,120 1400,220" fill="url(#m1)"/>
+<polygon points="200,220 330,140 430,180 560,120 700,175 830,110 960,170 1080,130 1200,180 1320,140 1400,170 1400,220" fill="url(#m2)"/>
+<polygon points="450,220 560,160 660,195 780,140 900,190 1010,150 1120,195 1240,160 1400,200 1400,220" fill="url(#m3)"/>
+<polygon points="880,70 900,96 890,90 880,100 870,92 862,96" fill="#ffffff" opacity=".9"/>
+<polygon points="640,90 656,112 648,107 640,116 632,108 626,112" fill="#ffffff" opacity=".85"/>
+<polygon points="380,110 394,130 386,126 380,134 372,127 368,130" fill="#ffffff" opacity=".8"/>
+<g fill="#2f5a45" opacity=".75">
+<polygon points="1180,220 1192,178 1204,220"/><polygon points="1210,220 1224,160 1238,220"/><polygon points="1250,220 1262,184 1274,220"/><polygon points="1290,220 1306,150 1322,220"/><polygon points="1335,220 1348,176 1361,220"/><polygon points="1370,220 1384,166 1398,220"/>
+<polygon points="20,220 32,182 44,220"/><polygon points="55,220 70,158 85,220"/><polygon points="96,220 108,188 120,220"/>
+</g>
+<rect width="1400" height="220" fill="url(#fade)" opacity=".55"/>
+</svg>

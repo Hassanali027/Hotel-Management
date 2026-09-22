@@ -36,7 +36,7 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .pill{height:44px;border:0;border-radius:11px;padding:0 16px;display:inline-flex;align-items:center;gap:9px;font-size:15px;background:var(--lime);color:#2f3a0c;cursor:pointer;white-space:nowrap;font-weight:600}
 .pill svg,.plain svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:44px 1.6fr 1.1fr 1.1fr 1.2fr 1.3fr 1.5fr;align-items:center;min-width:1100px}
+.thead,.trow{display:grid;grid-template-columns:44px 1.6fr 1fr .95fr 1fr 1.05fr 2fr;align-items:center;min-width:1180px;column-gap:10px}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 20px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -71,6 +71,23 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ /* Inventory row actions: one row of equal pills */
+ .inv-act{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:nowrap}
+ .inv-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line);background:#fff;color:#4b5563;font:700 12.5px Inter,Lato,sans-serif;cursor:pointer;white-space:nowrap;transition:.15s}
+ .inv-btn:hover{background:#f7faf8}
+ .inv-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+ .inv-btn.add,.inv-btn.add-stock{background:var(--g100)!important;border:1px solid #cfe3d6!important;color:var(--g800)!important;height:34px!important;padding:0 12px!important;border-radius:9px!important;font:700 12.5px Inter,Lato,sans-serif!important}
+ .inv-btn.add:hover{background:#d9efe2}
+ .inv-btn.use{background:#f3f7f4;border-color:var(--line);color:#3b5f4c}
+ .inv-btn.del,.inv-btn.delete-item{background:#fff5f5!important;border:1px solid #f3d4d4!important;color:#b3352f!important;height:34px!important;width:34px!important;padding:0!important;border-radius:9px!important}
+ .inv-btn.del:hover{background:#ffe9e9}
+ .inv-btn.icon{padding:0;width:34px}
+}
+</style>
 <main class="main">
 <section class="m-page">
 @php $msAct = auth()->user()->role !== 'staff' ? '<button class="ms-add" type="button" onclick="openItemCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Item</button>' : ''; @endphp
@@ -91,6 +108,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Inventory','pgSub'=>'Stock levels, reorder points and usage.'])
     <section class="panel">
         <div class="filters">
             <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search item, category, etc"></div>
@@ -130,6 +148,11 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     </footer>
 </main>
 <script>
+const eyeIco='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const editIco='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const plusIco='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+const minusIco='<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>';
+const trashIco='<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>';
 const chk='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>';
 const avl={available:'Available',low:'Low',out:'Out of Stock'};
 const data=@json($items);
@@ -140,7 +163,7 @@ function openUseStock(id){const r=data.find(x=>x.id===id);if(!r)return;document.
 function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(r=>`<article class="ms-card"><div class="ms-top"><span class="ms-av sq">${itemVisual(r)}</span><div class="ms-name"><b>${r.name}</b><small>${r.category||''}</small></div><span class="ms-pill ${r.availability}">${avl[r.availability]||''}</span></div><div class="ms-kv two"><div><small>Quantity in Stock</small><b>${r.quantity_stock}</b></div><div><small>Quantity in Reorder</small><b>${r.quantity_reorder}</b></div></div><div class="ms-act"><button type="button" class="ms-btn gray" onclick="mInvDetail(${r.id})">Details</button>${CAN_MANAGE?`<button type="button" class="ms-btn gray" onclick="openItemEditor(${r.id})">Edit</button>`:''}<button type="button" class="ms-btn lime" onclick="openAddStock(${r.id},${JSON.stringify(r.name).replace(/"/g,'&quot;')})">Add Stock</button><button type="button" class="ms-btn mint" onclick="openUseStock(${r.id})">Use Stock</button>${IS_ADMIN?`<button type="button" class="ms-btn cancel" onclick="if(confirm('Delete this item?'))post('/inventory/${r.id}','DELETE')">Delete</button>`:''}</div></article>`).join('')||'<div class="ms-empty">No items found</div>';}
 function render(list){
  renderMobile(list);
- document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act"><button type="button" class="vd" onclick="mInvDetail(${r.id})">View Detail</button>${CAN_MANAGE?`<button type="button" class="vd" style="color:#1d6ae5" onclick="openItemEditor(${r.id})">Edit</button>`:''}<button type="button" class="add-stock" data-item-id="${r.id}" data-item-name="${r.name}">Add Stock</button><button type="button" class="add-stock" style="background:#d9f5e5;color:#1f5f3f" onclick="openUseStock(${r.id})">Use Stock</button>${IS_ADMIN?`<button type="button" class="delete-item" data-item-id="${r.id}">Delete</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
+ document.getElementById('rows').innerHTML=list.map(r=>`<div class="trow ${r.is_checked?'on':''}"><span><span class="cb ${r.is_checked?'ck':''}">${chk}</span></span><span class="item"><span class="thumb">${itemVisual(r)}</span>${r.name}</span><span>${r.category||''}</span><span><em class="av ${r.availability}">${avl[r.availability]}</em></span><span>${r.quantity_stock}</span><span>${r.quantity_reorder}</span><span class="act inv-act"><button type="button" class="inv-btn icon" title="View detail" onclick="mInvDetail(${r.id})">${eyeIco}</button>${CAN_MANAGE?`<button type="button" class="inv-btn icon" title="Edit item" onclick="openItemEditor(${r.id})">${editIco}</button>`:''}<button type="button" class="inv-btn add add-stock" data-item-id="${r.id}" data-item-name="${r.name}">${plusIco}Add Stock</button><button type="button" class="inv-btn use" onclick="openUseStock(${r.id})">${minusIco}Use Stock</button>${IS_ADMIN?`<button type="button" class="inv-btn del delete-item" data-item-id="${r.id}" title="Delete">${trashIco}</button>`:''}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';
  document.querySelectorAll('.cb').forEach(c=>c.onclick=()=>{c.classList.toggle('ck');c.closest('.trow').classList.toggle('on')});
  document.querySelectorAll('.add-stock').forEach(button=>button.onclick=()=>openAddStock(button.dataset.itemId,button.dataset.itemName));
  document.querySelectorAll('.delete-item').forEach(button=>button.onclick=()=>{if(confirm('Delete this item?'))post('/inventory/'+button.dataset.itemId,'DELETE')});

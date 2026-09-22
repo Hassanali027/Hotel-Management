@@ -41,8 +41,10 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .rbody{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}
 .rbody h3{font-size:22px;margin:0 0 12px;padding-right:104px}
 .rstatus{position:absolute;right:0;top:2px;padding:5px 13px;border-radius:8px;font-size:13px;font-weight:600;white-space:nowrap}
-.rstatus.occupied{background:var(--lime);color:#3d4a10}
-.rstatus.available{background:var(--mint);color:#2f6b4f}
+.rstatus.occupied{background:#dfebfb;color:#1e4f8f}
+.rstatus.available{background:#d9f5e5;color:#2f6b4f}
+.rstatus.reserved{background:#fdf1d3;color:#7a5400}
+.rstatus.not_ready{background:#fde3e5;color:#b3352f}
 .specs{display:flex;gap:22px;color:#555;font-size:14px;margin-bottom:12px}
 .specs span{display:inline-flex;align-items:center;gap:7px}
 .specs svg{width:17px;height:17px;fill:none;stroke:#777;stroke-width:1.7}
@@ -74,6 +76,8 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .flist.three{grid-template-columns:1fr 1fr 1fr}
 .fitem{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#3a3a3a}
 .fitem .ck{width:20px;height:20px;border-radius:50%;background:#e3f6ec;display:grid;place-items:center;flex:0 0 20px;margin-top:1px}
+.fitem .ck.no{background:#fde2e5}
+.fitem .ck.no svg{stroke:#c0392b}
 .fitem .ck svg{width:12px;height:12px;fill:none;stroke:#3f9c74;stroke-width:2.5}
 .fitem .fi{width:19px;height:19px;flex:0 0 19px;fill:none;stroke:#555;stroke-width:1.7;margin-top:1px}
 footer{display:flex;justify-content:space-between;align-items:center;padding:20px 6px 8px;color:#9a9a9a;font-size:14px;flex-wrap:wrap;gap:14px}
@@ -93,6 +97,18 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ .detail .sec h4{font-size:14px!important;margin-bottom:12px!important}
+ .detail .flist{gap:12px 24px!important}
+ .detail .fitem{font-size:13.5px!important;align-items:center!important;gap:9px!important}
+ .detail .fitem .ck{width:22px!important;height:22px!important;flex-basis:22px!important;margin-top:0!important}
+ .detail .fitem .ck svg{width:12px!important;height:12px!important;stroke-width:2.6!important}
+ .detail .fitem .fi{width:17px!important;height:17px!important;flex-basis:17px!important;margin-top:0!important}
+}
+</style>
 <style>
 /* ===== Phone rooms (Figma clone). Only on screens up to 768px; desktop layout untouched. ===== */
 .m-rooms{display:none}
@@ -145,7 +161,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .mr-nm{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
     .mr-nm b{font-size:18px;font-weight:800;line-height:1.15;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .mr-st{flex:0 0 auto;padding:5px 11px;border-radius:14px;font-size:12px;font-weight:600;white-space:nowrap}
-    .mr-st.available{background:#d9f5e5;color:#2f6b4f}.mr-st.occupied{background:#fdf3d2;color:#7a5a00}
+    .mr-st.available{background:#d9f5e5;color:#2f6b4f}.mr-st.occupied{background:#dfebfb;color:#1e4f8f}.mr-st.reserved{background:#fdf1d3;color:#7a5400}.mr-st.not_ready{background:#fde3e5;color:#b3352f}
     .mr-specs{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:13px;color:#333}
     .mr-specs span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
     .mr-specs svg{width:15px;height:15px;flex:0 0 15px;fill:none;stroke:#333;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -174,6 +190,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <span class="mr-avatar hdr-avatar" style="overflow:hidden;cursor:pointer" onclick="openAccount()">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span>
             </div>
         </header>
+@include('partials.page-head', ['pgTitle'=>'Rooms & Availability','pgSub'=>'Room types, room numbers and live availability.'])
         <div class="mr-title"><div><h1>Rooms</h1><p>Find the perfect room for your stay</p></div><button class="mr-add" type="button" onclick="openRoomCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Room</button></div>
         <div class="mr-filters">
             <label class="mr-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search room type, number, etc..."></label>
@@ -258,8 +275,8 @@ const rooms=@json($rooms);
  function currentList(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const ty=document.getElementById('fType').value;const sort=document.getElementById('fSort').value;let l=rooms.filter(r=>(!ty||r.name===ty)&&(!q||[r.name,r.description,r.bed].join(' ').toLowerCase().includes(q)));if(sort==='low')l=[...l].sort((a,b)=>a.price-b.price);else if(sort==='high')l=[...l].sort((a,b)=>b.price-a.price);return l;}
  function mGuests(g){g=String(g||'').trim();return /^\d+$/.test(g)?g+(g==='1'?' guest':' guests'):g;}
  function mOpenRoom(id){selectRoom(id);document.querySelector('.detail').classList.add('open');window.scrollTo(0,0);}
- function renderMobile(list){const el=document.getElementById('mRooms');if(!el)return;el.innerHTML=list.map(r=>`<article class="mr-card" onclick="mOpenRoom(${r.id})"><img class="mr-img" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="mr-body"><div class="mr-nm"><b>${r.name}</b><span class="mr-st ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span></div><div class="mr-specs">${r.size?'<span>'+m2+r.size+'</span>':''}${r.bed?'<span>'+bed+r.bed+'</span>':''}${r.guests?'<span>'+gst+mGuests(r.guests)+'</span>':''}${(r.units&&r.units.length)?'<span><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M15 12h.01M4 21h16"/></svg>'+r.units.filter(u=>u.status==='available').length+' of '+r.units.length+' free</span>':''}</div><p class="mr-desc">${r.description||''}</p><div class="mr-foot"><div class="mr-price">PKR ${Number(r.price||0).toLocaleString()}<small>/night</small></div><span class="mr-go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div></div></article>`).join('')||'<div class="mr-empty">No rooms found</div>';}
- function render(list){renderMobile(list);document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${r.status==='occupied'?'Occupied':'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
+ function renderMobile(list){const el=document.getElementById('mRooms');if(!el)return;el.innerHTML=list.map(r=>`<article class="mr-card" onclick="mOpenRoom(${r.id})"><img class="mr-img" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="mr-body"><div class="mr-nm"><b>${r.name}</b><span class="mr-st ${r.status}">${ULABEL[r.status]||'Available'}</span></div><div class="mr-specs">${r.size?'<span>'+m2+r.size+'</span>':''}${r.bed?'<span>'+bed+r.bed+'</span>':''}${r.guests?'<span>'+gst+mGuests(r.guests)+'</span>':''}${(r.units&&r.units.length)?'<span><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M15 12h.01M4 21h16"/></svg>'+r.units.filter(u=>u.status==='available').length+' of '+r.units.length+' free</span>':''}</div><p class="mr-desc">${r.description||''}</p><div class="mr-foot"><div class="mr-price">PKR ${Number(r.price||0).toLocaleString()}<small>/night</small></div><span class="mr-go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></div></div></article>`).join('')||'<div class="mr-empty">No rooms found</div>';}
+ function render(list){renderMobile(list);document.getElementById('roomlist').innerHTML=list.map((r,i)=>`<div class="rcard ${r.id===selectedId?'sel':''}" onclick="selectRoom(${r.id})" style="cursor:pointer;${i<list.length-1?'margin-bottom:16px':''}"><img class="rimg" src="{{ asset('') }}${r.image}" alt="${r.name}"><div class="rbody"><h3>${r.name}</h3><span class="rstatus ${r.status}">${ULABEL[r.status]||'Available'}</span><div class="specs"><span>${m2}${r.size||''}</span><span>${bed}${r.bed||''}</span><span>${gst}${r.guests||''}</span></div><p class="rdesc">${r.description||''}</p><div class="rfoot"><span class="avail">Availability: <b>${r.availability_used}/${r.availability_total} Rooms</b></span><span class="price">PKR ${r.price}<small>/night</small></span></div></div></div>`).join('')||'<div style="padding:20px;color:#999">No results</div>';}
  function renderDetail(r){
   document.getElementById('dName').textContent=r.name+' Room';
   document.getElementById('dStatus').textContent=(r.status||'').charAt(0).toUpperCase()+(r.status||'').slice(1);
@@ -270,7 +287,7 @@ const rooms=@json($rooms);
   document.getElementById('dThumbs').innerHTML=gal.slice(0,3).map(g=>`<img src="${_b}${g}" alt="" style="width:100%;height:88px;object-fit:cover;border-radius:11px;cursor:pointer" onclick="document.getElementById('dHero').src='${_b}${g}'">`).join('');
   document.getElementById('dSpecs').innerHTML='<span>'+m2+(r.size||'')+'</span><span>'+bed+(r.bed||'')+'</span><span>'+gst+(r.guests||'')+'</span>';
   document.getElementById('dDesc').textContent=r.description||'';
-  const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${f==='No Kitchen'?'<span style="color:#ff4e52;font-size:20px;font-weight:800">×</span>':ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
+  const F=r.features||[];document.getElementById('features').innerHTML=F.length?F.map(f=>`<div class="fitem">${f==='No Kitchen'?'<span class="ck no"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>':ck}<span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No features listed</div>';
   const FA=r.facilities||[];document.getElementById('facilities').innerHTML=FA.length?FA.map(f=>`<div class="fitem"><svg class="fi" viewBox="0 0 24 24">${facIcons[f]||'<circle cx=\"12\" cy=\"12\" r=\"8\"/>'}</svg><span>${f}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No facilities listed</div>';
   const units=r.units||[];const grid=document.getElementById('unitGrid');if(grid){grid.innerHTML=units.length?units.map(u=>`<span class="unit ${u.status}" onclick="unitActions(${u.id})">${u.number}<small>${ULABEL[u.status]||u.status}</small></span>`).join(''):'<div style="color:#aaa;font-size:13px">No room numbers yet</div>';const free=units.filter(u=>u.status==='available').length;document.getElementById('unitSummary').textContent=units.length?free+' of '+units.length+' available':'';const uf=document.getElementById('unitForm');if(uf)uf.action='{{ url('/rooms') }}/'+r.id+'/units';}
   const AM=r.amenities||[];document.getElementById('amenities').innerHTML=AM.length?AM.map(a=>`<div class="fitem">${ck}<span>${a}</span></div>`).join(''):'<div class="fitem" style="color:#aaa">No amenities listed</div>';

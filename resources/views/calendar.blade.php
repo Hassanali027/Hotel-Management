@@ -82,6 +82,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
 <main class="main">
 <section class="m-page">
 @php $msAct = '<button class="ms-add" type="button" onclick="openScheduleCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Schedule</button>'; @endphp
@@ -104,6 +106,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Calendar','pgSub'=>'Staff schedules, events and maintenance.'])
     <div class="cal-wrap">
         <aside class="card">
             <div class="mini-head"><button class="nav p" type="button" onclick="calShift(-1)"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button><b id="calTitle">{{ now()->format('F Y') }}</b><button class="nav n" type="button" onclick="calShift(1)"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button></div>

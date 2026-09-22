@@ -260,6 +260,116 @@
     @include('partials.crud')
     @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+/* ===== Desktop dashboard (Figma) ===== */
+@media(min-width:769px){
+ .dh-only-mobile-title{display:none}
+ .top .actions{width:100%;justify-content:space-between}
+ .top .actions .search{margin-right:auto}
+ .dh-date{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;color:#374151;white-space:nowrap}
+ .dh-date svg{width:15px;height:15px;fill:none;stroke:#374151;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .top .actions .act{font-size:0;background-color:#fff!important;background-repeat:no-repeat!important;background-position:center!important;background-size:18px!important}
+ .top .actions .act:first-of-type{background-image:url('{{ asset('images/GearSix.svg') }}')!important}
+ .top .actions .act:last-of-type{background-image:url('{{ asset('images/Bell.svg') }}')!important;position:relative}
+ .dh-chart .tooltip{transform:translate(-50%,-118%)!important;white-space:nowrap;font-size:11px;padding:6px 10px;border-radius:8px;left:clamp(60px,var(--tx,50%),calc(100% - 60px))!important}
+ .dh-chart .tooltip b{margin-left:4px}
+ .dh-grid{grid-template-columns:1.15fr 1.15fr 1fr}
+ .dh-h h3{white-space:nowrap}
+ .dh-list .dh-h small{white-space:nowrap}
+ .page-body{padding:0 0 8px}
+ .dh-hero{position:relative;margin:0 calc(-1 * var(--gutter)) 18px;padding:26px var(--gutter) 22px;min-height:120px;background:url('{{ asset('images/dashboard-header.svg') }}') center bottom/cover no-repeat;display:flex;justify-content:space-between;align-items:flex-start}
+ .dh-greet{font-size:26px;font-weight:800;letter-spacing:-.3px}
+ .dh-sub{margin-top:6px;font-size:13.5px;color:#4b5563;display:flex;align-items:center;gap:8px}
+ .dh-sub svg{width:14px;height:14px;fill:none;stroke:#4b5563;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .dh-sep{color:#c4ccc7}
+ .dh-tag{font-family:'Great Vibes',cursive;font-style:italic;font-size:22px;color:#2f5a45;text-align:right;line-height:1.1;transform:rotate(-6deg);margin:6px 40px 0 0}
+ .dh-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) 190px;gap:14px;margin-bottom:16px}
+ .dh-stat{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:flex-start;min-width:0;height:auto;overflow:visible}
+ .dh-stat.has-ring .dh-body{padding-right:62px}
+ .dh-ic{width:40px;height:40px;border-radius:11px;background:var(--g100);color:var(--g700);display:grid;place-items:center;flex:0 0 40px}
+ .dh-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+ .dh-ic.sm{width:34px;height:34px;flex-basis:34px;border-radius:9px}.dh-ic.sm svg{width:17px;height:17px}
+ .dh-body{min-width:0}.dh-body small{display:block;font-size:12.5px;color:#4b5563}
+ .dh-body b{display:block;font-size:26px;font-weight:800;margin-top:4px;letter-spacing:-.4px;white-space:nowrap}
+ .dh-body b.dh-money{font-size:19px}
+ .dh-delta{display:block;margin-top:6px;font-size:12px;color:var(--g700);font-weight:600}.dh-delta i{font-style:normal;color:#9ca3af;font-weight:400}.dh-delta.dn{color:#b3352f}
+ .dh-ring{position:absolute;right:14px;top:14px;width:54px;height:54px;border-radius:50%;background:conic-gradient(var(--g700) calc(var(--p)*1%),#e6efe9 0)}
+ .dh-ring i{position:absolute;inset:7px;border-radius:50%;background:#fff}
+ .dh-actions{display:flex;flex-direction:column;gap:10px}
+ .dh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;border:0}
+ .dh-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+ .dh-btn.primary{background:var(--g700);color:#fff}.dh-btn.primary:hover{background:var(--g800)}
+ .dh-btn.soft{background:var(--lime);color:var(--g900)}.dh-btn.soft:hover{background:var(--lime2)}
+ .dh-grid{display:grid;gap:14px}
+ .dh-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:0}
+ .dh-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+ .dh-h h3{margin:0;font-size:15px;font-weight:700}.dh-h small{font-size:12px;color:#6b7280}
+ .dh-h .dh-right{margin-left:auto}.dh-h .dh-right+.dh-link{margin-left:10px}
+ .dh-link{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--g700);text-decoration:none;background:none;border:0;cursor:pointer}
+ .dh-legend{margin-left:auto;display:flex;gap:14px;font-size:12px;color:#4b5563}.dh-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+ .dh-sel{height:32px;border:1px solid var(--line);border-radius:8px;padding:0 8px;font:600 12.5px Inter,Lato,sans-serif;background:#fff;color:#374151}
+ .dh-chart .chart-wrap{margin-top:8px}
+ .dh-chart .yaxis{font-size:11px;color:#6b7280}
+ .dh-chart .chart{height:200px;background:linear-gradient(to bottom,#eef1ef 1px,transparent 1px) 0 0/100% 25%}
+ .dh-chart .yaxis{height:200px}
+ .dh-chart .tooltip{background:#fff;border:1px solid var(--line);color:#374151}
+ .dh-chart .months{font-size:11.5px;color:#6b7280}
+ .dh-rooms{list-style:none;margin:0;padding:0;flex:1;display:flex;flex-direction:column;justify-content:space-evenly}
+ .dh-rooms li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f3f1;font-size:13.5px}
+ .dh-rooms li:last-child{border-bottom:0}.dh-rooms i{width:12px;height:12px;border-radius:50%}.dh-rooms b{margin-left:auto;font-weight:700}
+ .dh-occ{display:flex;justify-content:space-between;font-size:12.5px;color:#4b5563;margin-top:10px}.dh-occ b{color:#111}
+ .dh-bar{height:7px;border-radius:4px;background:#e9efeb;overflow:hidden;margin-top:6px}.dh-bar i{display:block;height:100%;background:var(--g700);border-radius:4px}
+ .dh-resort{padding:0;overflow:hidden}.dh-resort img{width:100%;flex:1;min-height:150px;max-height:260px;object-fit:cover;display:block}
+ .dh-resort-txt{padding:12px 16px 14px}.dh-resort-txt b{display:block;font-size:15px}.dh-resort-txt small{display:block;color:#6b7280;font-size:12.5px;margin-top:2px}
+ .dh-resort-txt span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#6b7280;margin-top:8px}.dh-resort-txt svg{width:13px;height:13px;fill:none;stroke:#6b7280;stroke-width:2}
+ .dh-table{width:100%;border-collapse:collapse;font-size:13px}
+ .dh-table th{text-align:left;background:var(--g50);color:#4b5563;font-weight:600;font-size:12px;padding:9px 10px}
+ .dh-table th:first-child{border-radius:8px 0 0 8px}.dh-table th:last-child{border-radius:0 8px 8px 0}
+ .dh-table td{padding:10px 10px;border-bottom:1px solid #f0f3f1;white-space:nowrap}.dh-table tr:last-child td{border-bottom:0}.dh-table tbody tr{cursor:pointer}.dh-table tbody tr:hover{background:#fafcfa}
+ .dh-pill{display:inline-block;padding:4px 10px;border-radius:14px;font-size:11.5px;font-weight:600}
+ .dh-pill.checked_in{background:var(--g100);color:var(--g800)}.dh-pill.confirmed{background:var(--blue100);color:#1e4f8f}.dh-pill.pending{background:var(--purple100);color:#4b3a8f}
+ .dh-pill.checked_out{background:#eceff0;color:#4b5563}.dh-pill.departing{background:var(--amber100);color:#7a5400}
+ .dh-empty{color:#9ca3af;font-size:13px;text-align:center;padding:16px 0!important}
+ .dh-list .dh-table tbody tr:only-child td.dh-empty{padding:28px 0!important}
+ .dh-activity .dh-timeline li.dh-empty{display:block;text-align:left;padding:6px 0!important;line-height:1.5}
+ .dh-promo{flex-wrap:nowrap}.dh-promo>div{min-width:0}.dh-promo b{white-space:nowrap}
+ .dh-timeline{list-style:none;margin:0;padding:0}
+ .dh-timeline li{display:grid;grid-template-columns:58px 14px minmax(0,1fr);gap:10px;align-items:start;padding:8px 0;position:relative}
+ .dh-timeline li .t{font-size:11.5px;color:#6b7280;padding-top:2px}
+ .dh-timeline li i{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--g500)}.dh-timeline li i.lime{background:var(--g500)}.dh-timeline li i.mint{background:var(--blue)}
+ .dh-timeline li:not(:last-child) i::after{content:'';position:absolute;left:63px;top:22px;bottom:-8px;width:2px;background:#eef1ef}
+ .dh-timeline b{display:block;font-size:13px;font-weight:600}.dh-timeline small{display:block;font-size:11.5px;color:#6b7280;margin-top:2px}
+ .dh-hkgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+ .dh-hkgrid>div{padding:0 10px;border-left:1px solid #eef1ef;min-width:0}.dh-hkgrid>div:first-child{padding-left:0;border-left:0}
+ .dh-hkic{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;font-size:14px;font-weight:800}
+ .dh-hkgrid small{display:block;font-size:12px;color:#6b7280;margin-top:6px}.dh-hkgrid b{display:block;font-size:20px;font-weight:800}.dh-hkgrid em{display:block;font-style:normal;font-size:11px;color:#6b7280;text-align:right;margin-top:3px}
+ .dh-promo{display:flex;align-items:center;gap:14px;background:linear-gradient(90deg,#f1f8f3,#fff)!important;flex-wrap:wrap}
+ .dh-promo img{width:48px;height:48px;border-radius:50%}.dh-promo b{display:block;font-size:14px;line-height:1.25}.dh-promo small{display:block;font-size:12px;color:#6b7280;margin-top:4px}
+ .dh-promo .dh-btn{margin-left:auto;height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
+ .dh-promo>div{flex:1;min-width:140px}
+ .dh-tasklist{list-style:none;margin:0;padding:0}
+ .dh-tasklist li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0f3f1;cursor:pointer}.dh-tasklist li:last-child{border-bottom:0}
+ .dh-tasklist li i{width:18px;height:18px;border:1.6px solid #cfd6d2;border-radius:5px;flex:0 0 18px;margin-top:1px}.dh-tasklist li.done i{background:var(--g700);border-color:var(--g700)}.dh-tasklist li.done b{text-decoration:line-through;color:#9ca3af}
+ .dh-tasklist b{display:block;font-size:13px;font-weight:600}.dh-tasklist small{display:block;font-size:11.5px;color:#6b7280;margin-top:2px}
+ .dh-grid{grid-template-areas:'chart chart rooms' 'arr dep resort' 'hk act act' 'promo tasks tasks';grid-auto-rows:auto;align-items:stretch}
+ .dh-card{display:flex;flex-direction:column}
+ .dh-list .dh-table{flex:1}
+ .dh-grid>.dh-list:nth-of-type(5) .dh-table th:nth-child(3),.dh-grid>.dh-list:nth-of-type(5) .dh-table td:nth-child(3){display:table-cell}
+ .dh-grid>.dh-chart{grid-area:chart}.dh-grid>.dh-card:nth-of-type(2){grid-area:rooms}.dh-grid>.dh-resort{grid-area:resort}
+ .dh-grid>.dh-list:nth-of-type(4){grid-area:arr}.dh-grid>.dh-list:nth-of-type(5){grid-area:dep}
+ .dh-grid>.dh-activity{grid-area:act}.dh-grid>.dh-hk{grid-area:hk}.dh-grid>.dh-promo{grid-area:promo}.dh-grid>.dh-tasks{grid-area:tasks}
+ .dh-activity .dh-timeline{flex:1}
+ /* Laptops keep the single row of five stats plus the action buttons; the tiles just get
+    tighter. Stacking them only kicks in once a row of six genuinely cannot fit. */
+ @media(max-width:1660px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr)) 158px;gap:9px}.dh-stat{padding:11px;gap:9px}.dh-ic{width:30px;height:30px;flex-basis:30px}.dh-body small{font-size:11.5px;line-height:1.3}.dh-body b{font-size:21px}.dh-body b.dh-money{font-size:15.5px}.dh-delta{font-size:10.5px}.dh-delta i{display:none}.dh-ring{width:36px;height:36px;right:10px;top:10px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:42px}.dh-tag{display:none}.dh-btn{height:37px;font-size:12px;padding:0 10px}.dh-btn svg{width:14px;height:14px}}
+ @media(max-width:1340px){.dh-stats{grid-template-columns:repeat(5,minmax(0,1fr)) 142px;gap:8px}.dh-stat{padding:10px;gap:8px}.dh-ic{width:27px;height:27px;flex-basis:27px}.dh-ic svg{width:15px;height:15px}.dh-body small{font-size:11px;line-height:1.3}.dh-body b{font-size:19px}.dh-body b.dh-money{font-size:14px}.dh-delta i{display:none}.dh-delta{font-size:10px}.dh-ring{width:32px;height:32px;right:9px;top:9px}.dh-ring i{inset:5px}.dh-stat.has-ring .dh-body{padding-right:38px}.dh-btn{height:34px;font-size:11.5px;padding:0 8px;gap:5px}.dh-btn svg{width:13px;height:13px}}
+ @media(max-width:1180px){.dh-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.dh-actions{grid-column:1 / -1;flex-direction:row}.dh-actions .dh-btn{flex:1}.dh-body small{white-space:nowrap}}
+ @media(max-width:1200px){.dh-grid{grid-template-columns:1fr 1fr;grid-template-areas:'chart chart' 'rooms resort' 'arr dep' 'hk hk' 'act act' 'promo tasks'}}
+ @media(max-width:1000px){.dh-grid{grid-template-columns:1fr;grid-template-areas:'chart' 'rooms' 'resort' 'arr' 'dep' 'hk' 'act' 'promo' 'tasks'}.dh-stats{grid-template-columns:1fr 1fr}.dh-hkgrid{grid-template-columns:1fr 1fr}}
+}
+</style>
     <style>
         /* ===== Phone dashboard (Figma clone). Rendered only on screens up to 768px; desktop layout is untouched. ===== */
         .m-dash{display:none}
@@ -400,7 +510,74 @@
         </section>
         @include('partials.mobile-nav')
     </section>
-    <header class="top"><h1>Dashboard</h1><div class="actions"><label class="search" for="dashboardSearch"><input id="dashboardSearch" type="search" placeholder="Search room, guest, booking, etc" onkeydown="if(event.key==='Enter'){location.href='{{ url('/reservation') }}?q='+encodeURIComponent(this.value)}"></label><span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span><span class="user">{{ auth()->user()->name }}<small>{{ ucfirst(auth()->user()->role) }}</small></span><button class="act" type="button" onclick="openAccount()">⚙</button><button class="act" type="button" onclick="showNotifications()">♧</button></div></header><div class="grid"><div><section class="stats"><article class="card stat"><span class="label">New Bookings</span><b class="num">{{ $newBookings }}</b><i class="miniicon">▣</i><span class="tag"><b class="{{ $deltas['bookings'] < 0 ? 'down' : '' }}">{{ $deltas['bookings'] < 0 ? '↘' : '↗' }} {{ number_format(abs($deltas['bookings']), 2) }}%</b> from last week</span></article><article class="card stat"><span class="label">Check-In</span><b class="num">{{ $checkIn }}</b><i class="miniicon">⇥</i><span class="tag"><b class="{{ $deltas['checkIn'] < 0 ? 'down' : '' }}">{{ $deltas['checkIn'] < 0 ? '↘' : '↗' }} {{ number_format(abs($deltas['checkIn']), 2) }}%</b> from last week</span></article><article class="card stat"><span class="label">Check-Out</span><b class="num">{{ $checkOut }}</b><i class="miniicon">⇤</i><span class="tag"><b class="{{ $deltas['checkOut'] < 0 ? 'down' : '' }}">{{ $deltas['checkOut'] < 0 ? '↘' : '↗' }} {{ number_format(abs($deltas['checkOut']), 2) }}%</b> from last week</span></article><article class="card stat"><span class="label">Total Revenue</span><b class="num">PKR {{ number_format($totalRevenue) }}</b><i class="miniicon">$</i><span class="tag"><b class="{{ $deltas['revenue'] < 0 ? 'down' : '' }}">{{ $deltas['revenue'] < 0 ? '↘' : '↗' }} {{ number_format(abs($deltas['revenue']), 2) }}%</b> from last week</span></article></section><section class="split"><article class="card rooms"><h2>Room Availability</h2><div class="strip"><i></i><i></i><i></i></div><div class="rstats"><div class="rs">Occupied<b>{{ $occupied }}</b></div><div class="rs">Reserved<b>{{ $reserved }}</b></div><div class="rs">Available<b>{{ $available }}</b></div><div class="rs">Not Ready<b>{{ $notReady }}</b></div></div></article><article class="card revenue"><h2>Revenue</h2><select class="select" id="revRange" style="-webkit-appearance:none;appearance:none;padding-right:26px;cursor:pointer"><option value="3">Last 3 Months</option><option value="6" selected>Last 6 Months</option><option value="12">Last 12 Months</option></select><div class="chart-wrap"><div class="yaxis"><span>PKR 400K</span><span>PKR 300K</span><span>PKR 200K</span><span>PKR 100K</span><span>PKR 0</span></div><div class="chart"><span class="tooltip" id="revTip">Total Revenue<b>PKR 315,060</b></span><svg viewBox="0 0 500 120" preserveAspectRatio="none" id="revSvg"><defs><linearGradient id="a" y2="1"><stop stop-color="#cff3e3" stop-opacity=".75"/><stop offset="1" stop-color="#cff3e3" stop-opacity=".08"/></linearGradient></defs><path d="M0 60C45 21 85 98 130 65S190 8 230 49s64 46 105 12 65-89 109-37 46 66 66 36V120H0Z" fill="url(#a)"/><path d="M0 60C45 21 85 98 130 65S190 8 230 49s64 46 105 12 65-89 109-37 46 66 66 36" fill="none" stroke="#cddb77" stroke-width="2"/><line x1="230" y1="49" x2="230" y2="120" stroke="#cddb77" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="230" cy="49" r="6" fill="#fff" stroke="#cddb77" stroke-width="2.5"/></svg></div></div><div class="months" id="revMonths"><span>Dec 2027</span><span>Jan 2028</span><span>Feb 2028</span><span>Mar 2028</span><span>Apr 2028</span><span>May 2028</span></div></article></section><section class="lower"><article class="card"><h2>Reservations</h2><span class="select" style="cursor:default">Last 7 Days</span><div class="legend"><i></i>Booked <i></i>Canceled</div><div class="res-chart"><div class="res-yaxis"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="bars" id="resBars"><div class="bar" style="--h:60%"><span>12 Jun</span></div><div class="bar" style="--h:67%"><span>13 Jun</span></div><div class="bar" style="--h:64%"><span>14 Jun</span></div><div class="bar" style="--h:71%"><span>15 Jun</span></div><div class="bar" style="--h:77%"><span>16 Jun</span></div><div class="bar" style="--h:66%"><span>17 Jun</span></div><div class="bar" style="--h:50%"><span>18 Jun</span></div></div></div></article><article class="card"><h2>Booking by Platform</h2><div class="platform"><i class="donut" id="pfDonut"></i><div id="pfLegend"><p><i class="dot"></i><b>61%</b> Direct Booking</p><p><i class="dot"></i><b>12%</b> Booking.com</p><p><i class="dot" style="background:var(--olive)"></i><b>11%</b> Agoda</p><p><i class="dot" style="background:var(--lime)"></i><b>9%</b> Airbnb</p><p><i class="dot"></i><b>5%</b> Hotels.com</p><p><i class="dot"></i><b>2%</b> Others</p></div></div></article></section></div><aside class="right"><section class="card rating"><h2>Overall Rating</h2><div class="scoreline"><b class="score">{{ $ratingAvg }}<small>/5</small></b><div><b>{{ $reviewCount === 0 ? 'No reviews yet' : ($ratingAvg >= 4.5 ? 'Excellent' : ($ratingAvg >= 4 ? 'Impressive' : ($ratingAvg >= 3 ? 'Good' : 'Needs attention'))) }}</b><small>from {{ number_format($reviewCount) }} reviews</small></div></div>@forelse($ratingCats->filter(fn($c) => $c['score'] > 0) as $c)<div class="rate">{{ $c['name'] }}<span><i style="width:{{ min(100, $c['score'] / 5 * 100) }}%"></i></span><b>{{ number_format($c['score'], 1) }}</b></div>@empty<div class="rate" style="grid-template-columns:1fr;color:#aaa">No category ratings yet</div>@endforelse</section><section class="card tasks">@if(auth()->user()->role !== 'staff')<button class="plus" onclick="openModal('addTask')">＋</button>@endif<h2>Tasks</h2>@foreach($tasks as $t)<div class="task {{ $t->done?'tdone':'' }}" onclick="post('/tasks/{{ $t->id }}/toggle','POST')" style="cursor:pointer"><small>{{ $t->date }}</small>{{ $t->title }}</div>@endforeach</section><section class="activities"><h2>Recent Activities</h2>@forelse($activities as $a)<div class="activity"><i class="act-icon {{ $a->icon }}">▣</i><small>{{ $a->time }}</small><b>{{ $a->title }}</b><p>{{ $a->description }}</p></div>@empty<div style="color:#aaa;font-size:13px">No activity yet. Reservations, check-ins and check-outs appear here.</div>@endforelse</section></aside></div><footer class="footer"><div class="f-links"><span>Copyright © 2026 Indus Resort Restaurant</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div><div class="f-socials"><a href="https://www.facebook.com/people/Indus-Resort/61590518813137/" target="_blank" rel="noopener" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a><a href="https://wa.me/923000053333" target="_blank" rel="noopener" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5 5 16.3A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.4 7.8c.2-.5.5-.5.7-.5h.5c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.5.6c-.1.1-.1.3 0 .4.4.8 1.1 1.5 1.9 1.9.1.1.3.1.4 0l.6-.5c.2-.2.4-.2.7-.1l1.8.8c.3.1.4.3.4.5v.5c0 .2-.1.5-.5.7-.4.2-1.2.4-2.3-.1-1-.5-2.2-1.4-3.2-2.4-1-1-1.9-2.2-2.4-3.2-.5-1.1-.3-1.9-.1-2.3Z"/></svg></a><a href="https://www.instagram.com/indus_resort/" target="_blank" rel="noopener" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a></div></footer></main>
+    <header class="top"><h1 class="dh-only-mobile-title">Dashboard</h1><div class="actions"><label class="search" for="dashboardSearch"><input id="dashboardSearch" type="search" placeholder="Search guest, booking, room..." onkeydown="if(event.key==='Enter'){location.href='{{ url('/reservation') }}?q='+encodeURIComponent(this.value)}"></label><span class="dh-date"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>{{ now()->format('D, M j, Y') }}</span><button class="act" type="button" title="My account" onclick="openAccount()"></button><button class="act" type="button" title="Notifications" onclick="showNotifications()"></button><span class="avatar hdr-avatar" style="cursor:pointer;overflow:hidden" onclick="openAccount()" title="My account">@if(auth()->user()->avatar)<img src="{{ asset(auth()->user()->avatar) }}" alt="">@else{{ auth()->user()->initials() }}@endif</span><span class="user" onclick="openAccount()" style="cursor:pointer">{{ auth()->user()->name }}<small>{{ ucfirst(auth()->user()->role) }}</small></span></div></header><div class="page-body" id="deskDash">
+<div class="dh-hero"><div><div class="dh-greet">{{ (now()->hour < 12 ? 'Good morning' : (now()->hour < 17 ? 'Good afternoon' : 'Good evening')) }}, {{ explode(' ', auth()->user()->name)[0] }}</div><div class="dh-sub">{{ now()->format('l, F j, Y') }} <span class="dh-sep">|</span> <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Indus Resort Murree</div></div><div class="dh-tag">Mountain Views<br>Better Stays</div></div>
+<div class="dh-stats">
+ <article class="dh-stat has-ring"><div class="dh-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a5 5 0 0 1 5.5 4.5"/></svg></div><div class="dh-body"><small>Occupancy</small><b>{{ $occupancyPct }}%</b><span class="dh-delta {{ $deltas['checkIn'] < 0 ? 'dn' : '' }}">{{ $deltas['checkIn'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['checkIn']), 0) }}% <i>vs. last week</i></span></div><div class="dh-ring" style="--p:{{ $occupancyPct }}"><i></i></div></article>
+ <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/><path d="m9 15 2 2 4-4"/></svg></div><div class="dh-body"><small>Today's Check-ins</small><b>{{ $arrivals->count() }}</b><span class="dh-delta {{ $deltas['checkIn'] < 0 ? 'dn' : '' }}">{{ $deltas['checkIn'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['checkIn']), 0) }}% <i>vs. last week</i></span></div></article>
+ <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="m16 8 4 4-4 4M10 12h10"/></svg></div><div class="dh-body"><small>Today's Check-outs</small><b>{{ $departures->count() }}</b><span class="dh-delta {{ $deltas['checkOut'] < 0 ? 'dn' : '' }}">{{ $deltas['checkOut'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['checkOut']), 0) }}% <i>vs. last week</i></span></div></article>
+ <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></div><div class="dh-body"><small>Available Rooms</small><b>{{ $available }}</b><span class="dh-delta"><i>of {{ $totalUnits ?: ($occupied + $available + $reserved + $notReady) }} rooms</i></span></div></article>
+ <article class="dh-stat"><div class="dh-ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></div><div class="dh-body"><small>Today's Revenue</small><b class="dh-money">PKR {{ number_format($todayRevenue) }}</b><span class="dh-delta {{ $deltas['revenue'] < 0 ? 'dn' : '' }}">{{ $deltas['revenue'] < 0 ? '↓' : '↑' }} {{ number_format(abs($deltas['revenue']), 0) }}% <i>vs. last week</i></span></div></article>
+ <div class="dh-actions">@if(auth()->user()->role !== 'staff')<a class="dh-btn primary" href="{{ url('/reservation') }}?new=1"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Reservation</a>@endif<a class="dh-btn soft" href="{{ url('/reservation') }}?status=confirmed"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Check-in</a></div>
+</div>
+<div class="dh-grid">
+ <section class="dh-card dh-chart">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></div><div><h3>Revenue</h3><small id="revRangeLabel">Last 6 months</small></div><div class="dh-legend"><span><i style="background:#2f6b4f"></i>Revenue (PKR)</span></div><select class="dh-sel" id="revRange"><option value="3">Last 3 Months</option><option value="6" selected>Last 6 Months</option><option value="12">Last 12 Months</option></select></div>
+  <div class="chart-wrap"><div class="yaxis"><span>PKR 400K</span><span>PKR 300K</span><span>PKR 200K</span><span>PKR 100K</span><span>PKR 0</span></div><div class="chart"><span class="tooltip" id="revTip">Total Revenue<b>PKR 0</b></span><svg viewBox="0 0 500 120" preserveAspectRatio="none" id="revSvg"></svg></div></div>
+  <div class="months" id="revMonths"></div>
+ </section>
+ <section class="dh-card">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></div><h3>Room Status</h3><small class="dh-right">Total Rooms: {{ $totalUnits ?: ($occupied + $available + $reserved + $notReady) }}</small></div>
+  <ul class="dh-rooms">
+   <li><i style="background:#8fd3a6"></i>Available<b>{{ $available }}</b></li>
+   <li><i style="background:#2f6b4f"></i>Occupied<b>{{ $occupied }}</b></li>
+   <li><i style="background:#f2c14e"></i>Reserved<b>{{ $reserved }}</b></li>
+   <li><i style="background:#3b82f6"></i>Cleaning<b>{{ $hkCounts['progress'] + $hkCounts['needs'] }}</b></li>
+   <li><i style="background:#e04b4b"></i>Maintenance<b>{{ $hkCounts['inspect'] }}</b></li>
+  </ul>
+  <div class="dh-occ"><span>Occupancy Rate</span><b>{{ $occupancyPct }}%</b></div><div class="dh-bar"><i style="width:{{ $occupancyPct }}%"></i></div>
+ </section>
+ <section class="dh-card dh-resort">
+  <img src="{{ asset('images/rooms/resort-exterior.jpg') }}" alt="">
+  <div class="dh-resort-txt"><b>Indus Resort Murree</b><small>Nature. Comfort. Hospitality.</small><span><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Murree, Pakistan</span></div>
+ </section>
+ <section class="dh-card dh-list">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><h3>Today's Arrivals</h3><small class="dh-right">{{ $arrivals->count() }} guests</small><a class="dh-link" href="{{ url('/reservation') }}">View All</a></div>
+  <table class="dh-table"><thead><tr><th>Guest Name</th><th>Room</th><th>Guests</th><th>Source</th><th>Status</th></tr></thead><tbody>
+  @forelse($arrivals as $a)<tr onclick="location.href='{{ url('/guest-profile?id='.$a->id) }}'"><td><b>{{ $a->guest_name }}</b></td><td>{{ $a->room_label }}</td><td>{{ $a->guests ?: 2 }}</td><td>{{ $a->source ?: 'Direct' }}</td><td><span class="dh-pill {{ $a->status }}">{{ ['pending'=>'Pending','confirmed'=>'Arriving','checked_in'=>'Checked In'][$a->status] ?? ucfirst($a->status) }}</span></td></tr>@empty<tr><td colspan="5" class="dh-empty">No arrivals today</td></tr>@endforelse
+  </tbody></table>
+ </section>
+ <section class="dh-card dh-list">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="m16 8 4 4-4 4M10 12h10"/></svg></div><h3>Today's Departures</h3><small class="dh-right">{{ $departures->count() }} guests</small><a class="dh-link" href="{{ url('/reservation') }}">View All</a></div>
+  <table class="dh-table"><thead><tr><th>Guest Name</th><th>Room</th><th>Nights</th><th>Status</th></tr></thead><tbody>
+  @forelse($departures as $d)<tr onclick="location.href='{{ url('/guest-profile?id='.$d->id) }}'"><td><b>{{ $d->guest_name }}</b></td><td>{{ $d->room_label }}</td><td>{{ $d->duration }}</td><td><span class="dh-pill {{ $d->status === 'checked_out' ? 'checked_out' : 'departing' }}">{{ $d->status === 'checked_out' ? 'Checked Out' : 'Departing' }}</span></td></tr>@empty<tr><td colspan="4" class="dh-empty">No departures today</td></tr>@endforelse
+  </tbody></table>
+ </section>
+ <section class="dh-card dh-activity">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Recent Activity</h3><a class="dh-link" href="{{ url('/reservation') }}">View All</a></div>
+  <ul class="dh-timeline">@forelse($activities as $a)<li><span class="t">{{ \Illuminate\Support\Str::of($a->time)->afterLast(', ') }}</span><i class="{{ $a->icon }}"></i><div><b>{{ $a->title }}</b><small>{{ $a->description }}</small></div></li>@empty<li class="dh-empty">No activity yet. Reservations, check-ins and check-outs appear here.</li>@endforelse</ul>
+ </section>
+ <section class="dh-card dh-hk">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><path d="M3 21v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3>Housekeeping</h3><small class="dh-right">Progress Today</small></div>
+  @php $hkTotal = max(1, array_sum($hkCounts)); @endphp
+  <div class="dh-hkgrid">
+   <div><span class="dh-hkic" style="background:#e6f4ea;color:#2f6b4f">✓</span><small>Clean</small><b>{{ $hkCounts['ready'] }}</b><div class="dh-bar"><i style="width:{{ round($hkCounts['ready']/$hkTotal*100) }}%;background:#2f6b4f"></i></div><em>{{ round($hkCounts['ready']/$hkTotal*100) }}%</em></div>
+   <div><span class="dh-hkic" style="background:#fde2e5;color:#b3352f">✕</span><small>Dirty</small><b>{{ $hkCounts['needs'] }}</b><div class="dh-bar"><i style="width:{{ round($hkCounts['needs']/$hkTotal*100) }}%;background:#e04b4b"></i></div><em>{{ round($hkCounts['needs']/$hkTotal*100) }}%</em></div>
+   <div><span class="dh-hkic" style="background:#dfebfb;color:#1e4f8f">◔</span><small>In Cleaning</small><b>{{ $hkCounts['progress'] }}</b><div class="dh-bar"><i style="width:{{ round($hkCounts['progress']/$hkTotal*100) }}%;background:#3b82f6"></i></div><em>{{ round($hkCounts['progress']/$hkTotal*100) }}%</em></div>
+   <div><span class="dh-hkic" style="background:#fdf3d2;color:#7a5400">⚠</span><small>Inspection</small><b>{{ $hkCounts['inspect'] }}</b><div class="dh-bar"><i style="width:{{ round($hkCounts['inspect']/$hkTotal*100) }}%;background:#f2c14e"></i></div><em>{{ round($hkCounts['inspect']/$hkTotal*100) }}%</em></div>
+  </div>
+ </section>
+ <section class="dh-card dh-promo">
+  <img src="{{ asset('images/logo.png') }}" alt="">
+  <div><b>Smooth Operations<br>Happy Guests</b><small>From reservations to check-outs, keep your resort running at its best.</small></div>
+  <a class="dh-btn soft" href="{{ url('/expenses') }}">View Full Reports →</a>
+ </section>
+ <section class="dh-card dh-tasks">
+  <div class="dh-h"><div class="dh-ic sm"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h3>Tasks</h3>@if(auth()->user()->role !== 'staff')<button class="dh-link" type="button" onclick="openModal('addTask')">+ Add</button>@endif</div>
+  <ul class="dh-tasklist">@forelse($tasks as $t)<li class="{{ $t->done ? 'done' : '' }}" onclick="post('/tasks/{{ $t->id }}/toggle','POST')"><i></i><div><b>{{ $t->title }}</b><small>{{ $t->date }}</small></div></li>@empty<li class="dh-empty">No tasks yet</li>@endforelse</ul>
+ </section>
+</div>
+</div><footer class="footer"><div class="f-links"><span>Copyright © 2026 Indus Resort Restaurant</span><a href="#">Privacy Policy</a><a href="#">Term and conditions</a><a href="#">Contact</a></div><div class="f-socials"><a href="https://www.facebook.com/people/Indus-Resort/61590518813137/" target="_blank" rel="noopener" title="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a><a href="https://wa.me/923000053333" target="_blank" rel="noopener" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5 5 16.3A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.4 7.8c.2-.5.5-.5.7-.5h.5c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.5.6c-.1.1-.1.3 0 .4.4.8 1.1 1.5 1.9 1.9.1.1.3.1.4 0l.6-.5c.2-.2.4-.2.7-.1l1.8.8c.3.1.4.3.4.5v.5c0 .2-.1.5-.5.7-.4.2-1.2.4-2.3-.1-1-.5-2.2-1.4-3.2-2.4-1-1-1.9-2.2-2.4-3.2-.5-1.1-.3-1.9-.1-2.3Z"/></svg></a><a href="https://www.instagram.com/indus_resort/" target="_blank" rel="noopener" title="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a></div></footer></main>
 <script>
 (function(){
  const rev=@json($revenues), res=@json($reservationStats), pf=@json($platforms);
@@ -412,13 +589,13 @@
   const pts=dt.map((r,i)=>[i*(W/(n-1)),110-(r.amount/max)*100]);
   function sm(p){let d='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6,c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;d+=' C'+c1x.toFixed(1)+' '+c1y.toFixed(1)+' '+c2x.toFixed(1)+' '+c2y.toFixed(1)+' '+p2[0].toFixed(1)+' '+p2[1].toFixed(1);}return d;}
   const line=sm(pts);let pi=0;dt.forEach((r,i)=>{if(r.amount>dt[pi].amount)pi=i;});const px=pts[pi][0],py=pts[pi][1];
-  svg.innerHTML='<defs><linearGradient id="a" y2="1"><stop stop-color="#cff3e3" stop-opacity=".75"/><stop offset="1" stop-color="#cff3e3" stop-opacity=".08"/></linearGradient></defs><path d="'+line+' L500 120 L0 120 Z" fill="url(#a)"/><path d="'+line+'" fill="none" stroke="#cddb77" stroke-width="2"/><line x1="'+px.toFixed(1)+'" y1="'+py.toFixed(1)+'" x2="'+px.toFixed(1)+'" y2="120" stroke="#cddb77" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="6" fill="#fff" stroke="#cddb77" stroke-width="2.5"/>';
-  const tip=document.getElementById('revTip');if(tip){tip.innerHTML='Total Revenue<b>PKR '+Number(dt[pi].amount).toLocaleString()+'</b>';tip.style.left=(px/500*100)+'%';}
+  svg.innerHTML='<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f6b4f" stop-opacity=".22"/><stop offset="1" stop-color="#2f6b4f" stop-opacity=".02"/></linearGradient></defs><path d="'+line+' L500 120 L0 120 Z" fill="url(#a)"/><path d="'+line+'" fill="none" stroke="#2f6b4f" stroke-width="2" vector-effect="non-scaling-stroke"/><line x1="'+px.toFixed(1)+'" y1="'+py.toFixed(1)+'" x2="'+px.toFixed(1)+'" y2="120" stroke="#2f6b4f" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/><circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="4" fill="#2f6b4f" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/>';
+  const tip=document.getElementById('revTip');if(tip){tip.innerHTML='Total Revenue<b>PKR '+Number(dt[pi].amount).toLocaleString()+'</b>';tip.style.setProperty('--tx',(px/500*100)+'%');tip.style.top=(py/120*100)+'%';}
   const mo=document.getElementById('revMonths');if(mo)mo.innerHTML=dt.map(r=>'<span>'+r.label+'</span>').join('');
   const fmt=v=>v>=1000?'PKR '+(v/1000).toFixed(v%1000?1:0)+'K':'PKR '+Math.round(v);
   const ya=document.querySelector('.yaxis');if(ya)ya.innerHTML=[max,max*.75,max*.5,max*.25,0].map(v=>'<span>'+fmt(v)+'</span>').join('');
  }
- const rr=document.getElementById('revRange');if(rr)rr.addEventListener('change',e=>renderRevenue(+e.target.value));
+ const rr=document.getElementById('revRange');if(rr)rr.addEventListener('change',e=>{renderRevenue(+e.target.value);const l=document.getElementById('revRangeLabel');if(l)l.textContent='Last '+e.target.value+' months';});
  renderRevenue(6);
  /* Phone dashboard: greeting + revenue chart (same data, drawn to the mobile panel's real pixel size). */
  const greet=document.getElementById('mdGreet');if(greet){const h=new Date().getHours();greet.textContent=(h<12?'Good Morning':h<17?'Good Afternoon':'Good Evening')+',';}

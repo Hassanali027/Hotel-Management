@@ -101,6 +101,55 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ /* Review statistics: distinct positive/negative colours and a readable axis. */
+ .legend{gap:22px;font-size:13px;color:#55605a;margin:16px 0 10px}
+ .legend i{width:10px;height:10px;border-radius:3px}
+ .legend .lp{background:#2f6b4f!important}.legend .ln{background:#e8a0a0!important}
+ .mo .up{background:#2f6b4f!important;width:18px}
+ .mo .dn{background:#e8a0a0!important;width:18px}
+ .ey{color:#9ca3af;font-size:11.5px}
+ .rv-sum{display:flex;gap:10px;margin:0 0 4px;flex-wrap:wrap}
+ .rv-sum span{display:inline-flex;align-items:center;gap:7px;background:#f4f8f5;border-radius:9px;padding:7px 12px;font-size:12.5px;color:#55605a}
+ .rv-sum span b{color:#123527;font-size:13.5px}
+ .rv-sum i{width:8px;height:8px;border-radius:50%;display:inline-block}
+ /* Overall rating: score-driven bar colours + a star line under the gauge. */
+ .impress{background:var(--g100)!important;color:var(--g800)!important;border-radius:12px}
+ .impress small{color:#4f7d64!important}
+ .gstars{text-align:center;color:#f2c14e;font-size:15px;letter-spacing:2px;margin-top:8px}
+ .rrow{grid-template-columns:104px 1fr 34px;font-size:13.5px}
+ .rrow .bar{height:8px;background:#eef2ef}
+ .rrow .bar i{background:#2f6b4f}
+ .rrow .bar i.mid{background:#79b394}
+ .rrow .bar i.low{background:#f2c14e}
+ /* Customer reviews: header bar + fuller cards. */
+ .crhead{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:0 0 16px}
+ .crhead h2{font-size:17px}
+ .rv-add{height:40px;border-radius:10px;background:var(--g800)!important;color:#fff!important;font-size:14px!important}
+ .rv-add svg{stroke:#fff!important}
+ .rev-grid{gap:16px}
+ .rev{border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+ .rev::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--g700)}
+ .rev.mid::before{background:#79b394}.rev.low::before{background:#f2c14e}
+ .person{margin-bottom:10px;gap:10px}
+ .person .av{width:38px;height:38px;background:var(--g100)!important;color:var(--g800);font-size:13px}
+ .person b{font-size:14.5px}
+ .rev .rscore{margin-left:auto;background:#f4f8f5;border-radius:8px;padding:4px 9px;font-size:12.5px;font-weight:700;color:#123527}
+ .stars{font-size:13.5px;margin-bottom:10px}
+ .stars small{font-size:12px}
+ .rev p{font-size:13.5px;line-height:1.6;color:#55605a;position:relative;padding-left:16px}
+ .rev p::before{content:'\201C';position:absolute;left:0;top:-4px;font:700 26px Georgia,serif;color:#cfe0d6;line-height:1}
+ .rev .rmeta{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:12px;color:#8b948f}
+ .rv-foot{padding-top:10px}
+ .rv-del{height:30px;padding:0 10px;font-size:12px}
+ @media(max-width:1400px){.rev-grid{grid-template-columns:repeat(3,1fr)}}
+ @media(max-width:1100px){.rev-grid{grid-template-columns:repeat(2,1fr)}}
+}
+</style>
+
 <main class="main">
 <section class="m-page">
 @php $rAvg = round((float) $reviews->avg('rating'), 1); $rCount = $reviews->count(); $rDist = collect([5,4,3,2,1])->map(fn($n) => ['n'=>$n,'c'=>$reviews->where('rating',$n)->count(),'p'=>$rCount ? round($reviews->where('rating',$n)->count()/$rCount*100) : 0]); @endphp
@@ -123,9 +172,18 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Reviews','pgSub'=>'Guest ratings and feedback.'])
     <section class="grid2">
         <div class="card">
             <div class="chd"><h2>Review Statistics</h2><span class="sel" style="cursor:default">Last 7 Days</span></div>
+            @php
+                $wkPos = collect($trend)->sum('positive'); $wkNeg = collect($trend)->sum('negative');
+            @endphp
+            <div class="rv-sum">
+                <span><i style="background:#2f6b4f"></i>Positive <b>{{ $wkPos }}</b></span>
+                <span><i style="background:#e8a0a0"></i>Negative <b>{{ $wkNeg }}</b></span>
+                <span><i style="background:#c9d4ce"></i>This week <b>{{ $wkPos + $wkNeg }}</b></span>
+            </div>
             <div class="legend"><span><i class="lp"></i>Positive</span><span><i class="ln"></i>Negative</span></div>
             <div class="ec">
                 <div class="ey" id="revY"></div>
@@ -140,9 +198,10 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                         <svg viewBox="0 0 200 118"><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#e6f4ec" stroke-width="20" stroke-linecap="round"/><path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#bfe8d3" stroke-width="20" stroke-linecap="round" stroke-dasharray="270" stroke-dashoffset="{{ round(270 - 270 * min(5, $avg) / 5) }}"/></svg>
                         <div class="gscore"><small>Rating</small><b>{{ number_format($avg, 1) }}<span>/5</span></b></div>
                     </div>
+                    <div class="gstars">{{ str_repeat('★', (int) round($avg)) }}{{ str_repeat('☆', 5 - (int) round($avg)) }}</div>
                     <div class="impress">{{ $count === 0 ? 'No reviews yet' : ($avg >= 4.5 ? 'Excellent' : ($avg >= 4 ? 'Impressive' : ($avg >= 3 ? 'Good' : 'Needs attention'))) }}<small>from {{ number_format($count) }} reviews</small></div>
                 </div>
-                <div class="rlist">@forelse($cats->filter(fn($c) => $c['score'] > 0) as $c)<div class="rrow">{{ $c['name'] }}<span class="bar"><i style="width:{{ min(100, $c['score'] / 5 * 100) }}%"></i></span><b>{{ number_format($c['score'], 1) }}</b></div>@empty<div class="rrow" style="color:#aaa">Category scores appear once reviews with ratings are added.</div>@endforelse</div>
+                <div class="rlist">@forelse($cats->filter(fn($c) => $c['score'] > 0) as $c)<div class="rrow">{{ $c['name'] }}<span class="bar"><i class="{{ $c['score'] >= 4.5 ? '' : ($c['score'] >= 4 ? 'mid' : 'low') }}" style="width:{{ min(100, $c['score'] / 5 * 100) }}%"></i></span><b>{{ number_format($c['score'], 1) }}</b></div>@empty<div class="rrow" style="color:#aaa">Category scores appear once reviews with ratings are added.</div>@endforelse</div>
             </div>
         </div>
     </section>
@@ -163,14 +222,16 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 // Positive vs negative reviews per day for the last 7 days (from the reviews table).
 const trend=@json($trend);
 const H=105,MAX=Math.max(1,...trend.map(t=>Math.max(t.positive,t.negative)));
-document.getElementById('revY').innerHTML=[MAX,Math.round(MAX/2),0,-Math.round(MAX/2),-MAX].map(v=>'<span>'+v+'</span>').join('');
+// Ticks must stay distinct: with a max of 1 a half-step would print "1, 1, 0, -1, -1".
+const TICKS=MAX>=4?[MAX,Math.round(MAX/2),0,-Math.round(MAX/2),-MAX]:[MAX,0,-MAX];
+document.getElementById('revY').innerHTML=TICKS.map(v=>'<span>'+v+'</span>').join('');
 document.getElementById('eplot').insertAdjacentHTML('beforeend',trend.map(m=>`<div class="mo"><div class="up" style="height:${Math.round(m.positive/MAX*H)}px"></div><div class="dn" style="height:${Math.round(m.negative/MAX*H)}px"></div><span class="ml">${m.label}</span></div>`).join(''));
 // customer reviews
 const st=n=>'★★★★★☆☆☆☆☆'.slice(5-n,10-n);
 const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const revs=@json($reviews);
 function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map((r,i)=>`<article class="ms-card mv-rev"><div class="ms-top"><span class="ms-av c${(i%4)+1}">${ini(r.customer_name)}</span><div class="ms-name"><b>${r.customer_name}</b><small>${r.date||''}</small></div><span class="stars">${st(r.rating)}</span></div><p>${r.text||''}</p>${IS_ADMIN?`<div class="rv-foot"><button class="rv-del" type="button" onclick="if(confirm('Delete this review?'))post('/reviews/${r.id}','DELETE')">Delete</button></div>`:''}</article>`).join('')||'<div class="ms-empty">No reviews yet</div>';}
-function render(list){renderMobile(list);document.getElementById('revgrid').innerHTML=list.map(r=>`<article class="rev"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div></div><div class="stars">${st(r.rating)}<small>${r.date||''}</small></div><p>${r.text||''}</p>${IS_ADMIN?`<div class="rv-foot"><button class="rv-del" type="button" onclick="if(confirm('Delete this review?'))post('/reviews/${r.id}','DELETE')"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>Delete</button></div>`:''}</article>`).join('')||'<div style="color:#aaa;padding:20px">No reviews yet</div>';}
+function render(list){renderMobile(list);document.getElementById('revgrid').innerHTML=list.map(r=>{const tone=r.rating>=5?'':(r.rating>=4?'mid':'low');const room=r.room_type||r.room||'';return `<article class="rev ${tone}"><div class="person"><span class="av">${ini(r.customer_name)}</span><div><b>${r.customer_name}</b></div><span class="rscore">${Number(r.rating).toFixed(1)}</span></div><div class="stars">${st(r.rating)}<small>${r.date||''}</small></div><p>${r.text||''}</p><div class="rmeta"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/></svg>${room||'Verified stay'}</div>${IS_ADMIN?`<div class="rv-foot"><button class="rv-del" type="button" onclick="if(confirm('Delete this review?'))post('/reviews/${r.id}','DELETE')"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>Delete</button></div>`:''}</article>`}).join('')||'<div style="color:#aaa;padding:20px">No reviews yet</div>';}
 msMirror([['mSort','fSort']]);
 document.getElementById('fSort').addEventListener('change',e=>{const s=e.target.value;let l=[...revs];if(s==='newest')l.sort((a,b)=>b.id-a.id);else if(s==='oldest')l.sort((a,b)=>a.id-b.id);else if(s==='high')l.sort((a,b)=>b.rating-a.rating);else if(s==='low')l.sort((a,b)=>a.rating-b.rating);render(l);});
 render(revs);

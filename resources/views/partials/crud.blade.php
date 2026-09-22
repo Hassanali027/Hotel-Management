@@ -52,7 +52,7 @@ select.fsel.lime{background-color:#e8fb82;color:#2f3a0c;font-weight:700}
 @if(session('ok'))<div class="flash" id="flash">{{ session('ok') }}</div>@endif
 @php $me = auth()->user(); @endphp
 <style>
-.acct-av{width:74px;height:74px;border-radius:50%;background:#e8fb82;display:grid;place-items:center;font-weight:800;font-size:24px;color:#2f3a0c;overflow:hidden;flex:0 0 74px}
+.acct-av{width:74px;height:74px;border-radius:50%;background:#e6f4ea;display:grid;place-items:center;font-weight:800;font-size:24px;color:#1e4a36;overflow:hidden;flex:0 0 74px}
 .acct-av img{width:100%;height:100%;object-fit:cover}
 .acct-row{display:flex;align-items:center;gap:16px;margin:6px 0 4px}
 .acct-row small{display:block;color:#888;font-size:12px;margin-top:4px}
@@ -60,7 +60,7 @@ select.fsel.lime{background-color:#e8fb82;color:#2f3a0c;font-weight:700}
 .acct-tabs button{flex:1;height:36px;border:0;border-radius:8px;background:none;font:700 13px Lato,Arial,sans-serif;color:#555;cursor:pointer}
 .acct-tabs button.on{background:#fff;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .acct-pane{display:none}.acct-pane.on{display:block}
-.modal label.acct-upload{display:inline-flex!important;align-items:center;justify-content:center;gap:8px;height:36px!important;padding:0 14px!important;margin:0!important;border-radius:9px;background:#e8fb82;color:#2f3a0c!important;font-weight:700;font-size:13px!important;line-height:1;cursor:pointer;white-space:nowrap}
+.modal label.acct-upload{display:inline-flex!important;align-items:center;justify-content:center;gap:8px;height:36px!important;padding:0 14px!important;margin:0!important;border-radius:9px;background:#1e4a36;color:#fff!important;font-weight:700;font-size:13px!important;line-height:1;cursor:pointer;white-space:nowrap}
 .acct-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .acct-upload input{display:none}
 .acct-remove{display:inline-flex;align-items:center;height:36px;padding:0 12px;border-radius:9px;background:#fff1f1;color:#b3352f;font-weight:700;font-size:13px;cursor:pointer;border:0}

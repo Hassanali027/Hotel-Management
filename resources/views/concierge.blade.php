@@ -64,6 +64,8 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
 <main class="main">
 <section class="m-page">
 @php $msAct = '<button class="ms-add" type="button" onclick="openConciergeCreator()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add Staff</button>'; @endphp
@@ -84,6 +86,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
+@include('partials.page-head', ['pgTitle'=>'Staff','pgSub'=>'Concierge team, schedules and contacts.'])
     <section class="panel">
         <div class="filters">
             <div class="fl">

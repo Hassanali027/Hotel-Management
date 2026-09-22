@@ -71,6 +71,48 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ .rs-head{margin:20px var(--gutter,28px) 14px}
+ .rs-head h2{margin:0;font-size:26px;font-weight:800;letter-spacing:-.4px}
+ .rs-head h2::before{display:none}
+ .rs-head p{margin:5px 0 0;font-size:13.5px;color:#6b7280}
+ .rs-filters{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 var(--gutter,28px) 14px}
+ .rs-search{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:44px;border:1px solid var(--line);border-radius:10px;padding:0 14px;background:#fff}
+ .rs-search svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke:#9ca3af;stroke-width:2;stroke-linecap:round}
+ .rs-search input{flex:1;min-width:0;border:0;outline:0;background:none;font:400 13.5px Inter,Lato,sans-serif;color:#111}
+ .rs-sel{height:44px;border:1px solid var(--line);border-radius:10px;padding:0 34px 0 14px;font:500 13.5px Inter,Lato,sans-serif;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center/14px no-repeat;-webkit-appearance:none;appearance:none;color:#111}
+ .rs-dates{display:flex;align-items:center;gap:8px;height:44px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:#fff;color:#6b7280;font-size:13px}
+ .rs-dates svg{width:17px;height:17px;fill:none;stroke:#6b7280;stroke-width:2}
+ .rs-dates input{border:0;outline:0;background:none;font:500 13px Inter,Lato,sans-serif;color:#111;width:112px}
+ .rs-add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--g800);color:#fff;font:700 13.5px Inter,Lato,sans-serif;cursor:pointer;white-space:nowrap}
+ .rs-add:hover{background:var(--g900)}
+ .rs-add svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+ .rs-panel{padding:0!important;overflow:hidden}
+ .rs-panel .tbl{padding:0}
+ .rs-panel .thead,.rs-panel .trow{grid-template-columns:1.5fr 1.1fr .8fr .8fr 1fr 1fr 1fr 1.25fr!important;min-width:1080px!important;align-items:center}
+ .rs-panel .thead{background:#f7faf8!important;border-radius:0!important;padding:14px 22px!important;border-bottom:1px solid var(--line)}
+ .rs-panel .trow{padding:14px 22px!important;font-size:13.5px!important;border-bottom:1px solid #f1f4f2!important}
+ .rs-guest{display:flex;align-items:center;gap:11px;min-width:0}
+ .rs-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:0 0 40px;background:#e6f4ea;color:#2f6b4f}
+ .rs-av.c1{background:#dfebfb;color:#1e4f8f}.rs-av.c2{background:#fdf3d2;color:#7a5400}.rs-av.c3{background:#e6f4ea;color:#2f6b4f}.rs-av.c4{background:#ece7fb;color:#4b3a8f}
+ .rs-guest b,.rs-room b,.rs-date b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .rs-guest small,.rs-room small,.rs-date small{display:block;color:#9ca3af;font-size:12px;margin-top:2px}
+ .rs-status{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;font-style:normal;white-space:nowrap}
+ .rs-status i{width:7px;height:7px;border-radius:50%;background:currentColor}
+ .rs-status.confirmed{background:#e6f4ea;color:#2f6b4f}.rs-status.checked_in{background:#dfebfb;color:#1e4f8f}.rs-status.pending{background:#fdf0da;color:#a86b00}.rs-status.checked_out{background:#eceff0;color:#6b7280}
+ .rs-panel .act{display:flex;gap:7px;align-items:center;justify-content:flex-end}
+ .rs-ib{height:34px;min-width:34px;padding:0 9px;border:1px solid var(--line);background:#fff;border-radius:9px;display:inline-grid;place-items:center;cursor:pointer;color:#4b5563;font:700 12px Inter,Lato,sans-serif}
+ .rs-ib:hover{background:#f7faf8}
+ .rs-ib svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .rs-ib.next{background:var(--g100);border-color:#cfe3d6;color:var(--g800);padding:0 12px}
+ .rs-ib.del{background:#fff5f5;border-color:#f3d4d4;color:#b3352f}
+ .rs-panel .tbottom{padding:16px 22px!important;border-top:1px solid var(--line);color:#6b7280}
+ .main>.rs-head+.rs-filters{margin-top:0}
+}
+</style>
 <style>
 /* ===== Phone reservations (Figma clone). Only on screens up to 768px; desktop table untouched. ===== */
 .m-res{display:none}
@@ -170,25 +212,24 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
         </div>
     </header>
-    <section class="panel">
-        <div class="pt">
-            <h2>Reservation List</h2>
-            <div class="pt-r">
-                <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search guest, status, etc"></div>
-                <select class="fsel" id="fStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
-                <div class="pill date-filter"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fDateStart" type="date" aria-label="Start date"><span class="date-separator">to</span><input id="fDateEnd" type="date" aria-label="End date"></div>
-                @if(auth()->user()->role !== 'staff')<button class="pill lime" onclick="openBookingCreator()">Add Reservation</button>@endif
-            </div>
-        </div>
+    <div class="rs-head"><h2>Reservations</h2><p>Manage all room reservations, check-ins and check-outs.</p></div>
+    <section class="rs-filters">
+        <div class="rs-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fSearch" placeholder="Search guest name, email, phone, or booking ID..."></div>
+        <select class="rs-sel" id="fStatus"><option value="">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="checked_in">Checked-In</option><option value="checked_out">Checked-Out</option></select>
+        <div class="rs-dates"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fDateStart" type="date" aria-label="Start date"><span>→</span><input id="fDateEnd" type="date" aria-label="End date"></div>
+        @if(auth()->user()->role !== 'staff')<button class="rs-add" type="button" onclick="openBookingCreator()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Reservation</button>@endif
+    </section>
+    <section class="panel rs-panel">
         <div class="tbl">
             <div class="thead">
-                <span onclick="sortCol('res','guest_name',applyFilters)" style="cursor:pointer">Guest @include('partials.sort')</span>
-                <span onclick="sortCol('res','room_label',applyFilters)" style="cursor:pointer">Room @include('partials.sort')</span>
-                <span onclick="sortCol('res','request',applyFilters)" style="cursor:pointer">Request @include('partials.sort')</span>
-                <span onclick="sortCol('res','duration',applyFilters)" style="cursor:pointer">Duration @include('partials.sort')</span>
-                <span onclick="sortCol('res','check_in',applyFilters)" style="cursor:pointer">Check-In &amp; Check-Out @include('partials.sort')</span>
-                <span onclick="sortCol('res','status',applyFilters)" style="cursor:pointer">Status @include('partials.sort')</span>
-                <span>Action @include('partials.sort')</span>
+                <span onclick="sortCol('res','guest_name',applyFilters)" style="cursor:pointer">Guest</span>
+                <span onclick="sortCol('res','room_label',applyFilters)" style="cursor:pointer">Room</span>
+                <span onclick="sortCol('res','guests',applyFilters)" style="cursor:pointer">Guests</span>
+                <span onclick="sortCol('res','duration',applyFilters)" style="cursor:pointer">Duration</span>
+                <span onclick="sortCol('res','check_in',applyFilters)" style="cursor:pointer">Check-In</span>
+                <span onclick="sortCol('res','check_out',applyFilters)" style="cursor:pointer">Check-Out</span>
+                <span onclick="sortCol('res','status',applyFilters)" style="cursor:pointer">Status</span>
+                <span>Action</span>
             </div>
             <div id="rows"></div>
         </div>
@@ -224,6 +265,9 @@ function openBookingEditor(id){const b=data.find(x=>x.id===id);if(!b)return;cons
  if(f.elements.room_type){f.elements.room_type.value=b.room_type||'';fillRoomUnits(b.room_type||'',b.room_number);}
  openModal('addBooking');}
 function fillRoomPrice(roomType){const rate=roomRates[roomType];if(rate!==undefined)document.getElementById('bookingPrice').value=rate;fillRoomUnits(roomType);}
+const rsInitials=n=>String(n||'').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
+const trash='<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>';
+const fmtShort=d=>{if(!d)return '—';const p=String(d).slice(0,10).split('-');const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0];};
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 const STL={pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'};
 const NEXT={pending:['confirmed','Confirm'],confirmed:['checked_in','Check-In'],checked_in:['checked_out','Check-Out']};
@@ -246,13 +290,23 @@ function renderMobile(list){
 function mPage(d){PGSTATE.res.page+=d;paginateRender('res',lastFiltered,8,render);window.scrollTo({top:0,behavior:'smooth'});}
 function render(list){
  renderMobile(list);
- document.getElementById('rows').innerHTML=list.map(b=>{
-  let action;
-  if(NEXT[b.status])action=`<button class="abtn confirm" onclick="event.stopPropagation();post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`;
-  else action=`<span class="abtn done">Done</span>`;
-  const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="abtn cancel" onclick="event.stopPropagation();if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  const editBtn=(CAN_MANAGE&&b.status!=='checked_out')?`<button class="ib" title="Edit reservation" onclick="event.stopPropagation();openBookingEditor(${b.id})">${edit}</button>`:'';
-  return `<div class="trow" style="cursor:pointer" onclick="location.href='/guest-profile?id=${b.id}'"><span class="g"><b>${b.guest_name}</b><small>${b.code}</small></span><span>${b.room_label||''}</span><span>${b.request||''}</span><span>${b.duration||''}</span><span>${fmt(b.check_in)} &nbsp;-&nbsp; ${fmt(b.check_out)}</span><span><em class="st ${b.status}">${STL[b.status]||b.status}</em></span><span class="act"><button class="ib" title="View guest profile" onclick="event.stopPropagation();location.href='/guest-profile?id=${b.id}'">${eye}</button>${editBtn}${action}${cancel}</span></div>`;
+ document.getElementById('rows').innerHTML=list.map((b,i)=>{
+  const avatar = `<span class="rs-av c${(i%4)+1}">${rsInitials(b.guest_name)}</span>`;
+  const label = {pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'}[b.status]||b.status;
+  return `<div class="trow" style="cursor:pointer" onclick="location.href='/guest-profile?id=${b.id}'">
+   <span class="rs-guest">${avatar}<span><b>${b.guest_name||''}</b><small>#${b.code||''}</small></span></span>
+   <span class="rs-room"><b>${b.room_type||''}</b><small>${b.room_number?('Room '+String(b.room_number).replace(/^Room /i,'')):''}</small></span>
+   <span>${b.guests||2} ${(b.guests||2)==1?'Adult':'Adults'}</span>
+   <span>${b.duration?(/night/i.test(b.duration)?b.duration:b.duration+' Nights'):'—'}</span>
+   <span class="rs-date"><b>${fmtShort(b.check_in)}</b>${b.check_in?'<small>12:00 PM</small>':''}</span>
+   <span class="rs-date"><b>${fmtShort(b.check_out)}</b>${b.check_out?'<small>12:00 PM</small>':''}</span>
+   <span><em class="rs-status ${b.status}"><i></i>${label}</em></span>
+   <span class="act" onclick="event.stopPropagation()">
+     <button class="rs-ib" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>
+     ${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="rs-ib" title="Edit reservation" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}
+     ${NEXT[b.status]?`<button class="rs-ib next" title="${NEXT[b.status][1]}" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:''}
+     ${(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="rs-ib del" title="Cancel booking" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">${trash}</button>`:''}
+   </span></div>`;
  }).join('')||'<div class="trow"><span>No results</span></div>';
 }
 function applyFilters(){
@@ -282,9 +336,9 @@ applyFilters();
 <div class="msec">Stay details</div>
 <div class="mrow"><div><label>Room Type</label><select name="room_type" onchange="fillRoomPrice(this.value)" required><option value="">Select room type</option>@foreach($rooms->pluck('name')->filter()->unique()->values() as $roomType)<option value="{{ $roomType }}">{{ $roomType }}</option>@endforeach</select></div><div><label>Room Number</label><select name="room_number" id="bookingRoomNumber"><option value="">Select room type first</option></select><input name="room_number" id="bookingRoomInput" placeholder="101" style="display:none" disabled></div></div>
 <div class="amenity-box"><h4>Room Features, Facilities &amp; Amenities</h4><div class="amenity-grid"><label><input type="checkbox" name="amenities[]" value="Free Wi-Fi">Free Wi-Fi</label><label><input type="checkbox" name="amenities[]" value="Air Conditioning">Air Conditioning</label><label><input type="checkbox" name="amenities[]" value="Smart TV">Smart TV</label><label><input type="checkbox" name="amenities[]" value="Mini Fridge">Mini Fridge</label><label><input type="checkbox" name="amenities[]" value="Coffee / Tea Maker">Coffee / Tea Maker</label><label><input type="checkbox" name="amenities[]" value="In-room Safe">In-room Safe</label><label><input type="checkbox" name="amenities[]" value="24-hour Room Service">24-hour Room Service</label><label><input type="checkbox" name="amenities[]" value="Balcony / City View">Balcony / City View</label></div><label style="margin-top:10px">Other facility or amenity</label><input name="amenity_notes" placeholder="e.g. Extra bed, hairdryer, work desk"></div>
-<div class="mrow three"><div><label>Guests</label><input type="number" name="guests" value="2" min="1" max="20"></div><div><label>Request</label><input name="request" placeholder="None"></div><div><label>Duration</label><input name="duration" placeholder="3 nights"></div></div>
+<div class="mrow three"><div><label>Guests</label><input type="number" name="guests" value="2" min="1" max="20"></div><div><label>Request</label><input name="request" placeholder="None"></div><div><label>Duration</label><input name="duration" placeholder="Set from the dates" readonly style="background:#f4f8f5;color:#55605a"></div></div>
 <div class="mrow"><div><label>Booking Source</label><select name="source"><option>Direct Booking</option><option>Booking.com</option><option>Agoda</option><option>Airbnb</option><option>Hotels.com</option><option>Walk-in</option><option>Phone</option><option>Other</option></select></div><div><label>Status</label><select name="status"><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select></div></div>
-<div class="mrow"><div><label>Check In</label><input type="date" name="check_in"></div><div><label>Check Out</label><input type="date" name="check_out"></div></div>
+<div class="mrow"><div><label>Check In *</label><input type="date" name="check_in" required></div><div><label>Check Out *</label><input type="date" name="check_out" required></div></div>
 <div class="msec">Payment</div>
 <div class="mrow"><div><label>Price / night</label><input id="bookingPrice" type="number" name="price_per_night" min="1" required placeholder="Select a room type"></div><div><label>Extra Charges (PKR)</label><input type="number" name="extra_charges" value="0" min="0" placeholder="0 if none"></div></div>
 <label class="partial-payment-toggle"><input type="checkbox" name="partial_payment" value="1" onchange="document.getElementById('partialPaymentFields').style.display=this.checked?'block':'none'"><span><b>Partial Payment</b><small>Record the advance payment received from the guest</small></span></label>
@@ -294,6 +348,27 @@ applyFilters();
 </div>
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addBooking')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
-@if($errors->any())<script>document.addEventListener('DOMContentLoaded',function(){openModal('addBooking');});</script>@endif
+@if($errors->any())<script>document.addEventListener('DOMContentLoaded',function(){openModal('addBooking');});
+
+</script>@endif
+<script>
+// Duration mirrors the two dates so the form can never save a mismatched night count.
+(function(){
+  function sync(form){
+    const ci=form.querySelector('[name="check_in"]'), co=form.querySelector('[name="check_out"]'), du=form.querySelector('[name="duration"]');
+    if(!ci||!co||!du) return;
+    const a=new Date(ci.value), b=new Date(co.value);
+    if(!ci.value||!co.value||isNaN(a)||isNaN(b)||b<=a){ du.value=''; return; }
+    const n=Math.round((b-a)/86400000);
+    du.value=n+(n===1?' Night':' Nights');
+  }
+  document.addEventListener('change',e=>{
+    if(e.target.name==='check_in'||e.target.name==='check_out'){
+      const f=e.target.closest('form'); if(f) sync(f);
+    }
+  });
+  document.querySelectorAll('form').forEach(sync);
+})();
+</script>
 </body>
 </html>

@@ -68,7 +68,15 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 /* room info */
 .roominfo{background:#fbfbfb}
 .rimg{width:100%;height:190px;object-fit:cover;border-radius:12px;margin-bottom:16px}
-.rspecs{display:flex;gap:18px;color:#555;font-size:14px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.gstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.gstats div{background:#f4f8f5;border-radius:11px;padding:11px 10px;text-align:center}
+.gstats b{display:block;font-size:19px;line-height:1.2;color:#123527}
+.gstats small{display:block;color:var(--label);font-size:11.5px;margin-top:3px}
+.gsince{color:var(--label);font-size:12.5px}
+.rname{font-size:15px;font-weight:700;margin:0 0 12px;color:#123527}
+.rname small{display:block;color:var(--label);font-size:12.5px;font-weight:500;margin-top:3px}
+.bbtn.soft{background:#e6f4ea;color:#1e4a36}
+.rspecs{display:flex;flex-wrap:wrap;gap:10px 16px;color:#555;font-size:13.5px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 .rspecs span{display:inline-flex;align-items:center;gap:7px}
 .rspecs svg{width:17px;height:17px;fill:none;stroke:#777;stroke-width:1.7}
 .psum{display:flex;align-items:center;gap:10px;margin:18px 0 14px}
@@ -114,6 +122,23 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @include('partials.crud')
 @include('partials.sidebar')
 @include('partials.responsive')
+@include('partials.desktop-theme')
+@include('partials.mobile-theme')
+<style>
+@media(min-width:769px){
+ /* The amenity list used to run as one tall column and stretched the middle card
+    far past the Room Info card beside it. Two columns keep the three cards level. */
+ .amen{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px}
+ .amen div{font-size:13.5px}
+ .amen svg{width:14px;height:14px}
+ .gtop{align-items:stretch}
+ .gtop>.card{display:flex;flex-direction:column}
+ .binfo-btns{margin-top:auto;padding-top:18px}
+ .brow{margin-bottom:16px}
+ .divider{margin:2px 0 16px}
+ @media(min-width:1500px){.amen{grid-template-columns:repeat(3,minmax(0,1fr))}}
+}
+</style>
 <style>
 /* ===== Phone booking details (Figma clone). Only on screens up to 768px; desktop layout untouched. ===== */
 .m-gp{display:none}
@@ -319,7 +344,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div><span class="ci"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg></span>{{ $guest->phone }}</div>
                 <div><span class="ci"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7L22 6"/></svg></span>{{ $guest->email }}</div>
             </div>
-            <div class="sec"><h3>Personal Information</h3><div class="pairs"><div class="pair"><div class="l">Date of Birth</div><div class="v">{{ $guest->dob }}</div></div><div class="pair"><div class="l">Gender</div><div class="v">{{ $guest->gender }}</div></div><div class="pair"><div class="l">Nationality</div><div class="v">{{ $guest->nationality }}</div></div><div class="pair"><div class="l">Passport No.</div><div class="v">{{ $guest->passport_no }}</div></div></div></div>
+            <div class="sec"><h3>Personal Information</h3><div class="pairs"><div class="pair"><div class="l">Date of Birth</div><div class="v">{{ $guest->dob ?: '—' }}</div></div><div class="pair"><div class="l">Gender</div><div class="v">{{ $guest->gender ?: '—' }}</div></div><div class="pair"><div class="l">Nationality</div><div class="v">{{ $guest->nationality ?: '—' }}</div></div><div class="pair"><div class="l">Passport No.</div><div class="v">{{ $guest->passport_no ?: '—' }}</div></div></div></div>
+            <div class="sec"><h3>Stay Summary</h3>
+                <div class="gstats">
+                    <div><b>{{ $stats['bookings'] }}</b><small>{{ $stats['bookings'] == 1 ? 'Booking' : 'Bookings' }}</small></div>
+                    <div><b>{{ $stats['nights'] }}</b><small>{{ $stats['nights'] == 1 ? 'Night' : 'Nights' }}</small></div>
+                    <div><b>{{ number_format($stats['spend'] / 1000, 1) }}K</b><small>PKR Spent</small></div>
+                </div>
+                <div class="gsince">Guest since {{ $stats['since'] ?: '—' }} &middot; {{ $booking->source ?: 'Direct Booking' }}</div>
+            </div>
         </section>
         <section class="card">
             <div class="chd"><h2>Booking Info</h2><span class="dots">···</span></div>
@@ -333,13 +366,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             </div>
             <div class="brow">
                 <div class="pair"><div class="l">Guests</div><div class="v">{{ $booking->guests ?: 2 }} {{ ($booking->guests ?: 2) == 1 ? 'Guest' : 'Guests' }}</div></div>
-                <div class="pair"><div class="l">Requests</div><div class="v">{{ $booking->request }}</div></div>
-                <div></div>
+                <div class="pair"><div class="l">Booking Source</div><div class="v">{{ $booking->source ?: 'Direct Booking' }}</div></div>
+                <div class="pair"><div class="l">Status</div><div class="v">{{ ucfirst($booking->status) }}</div></div>
             </div>
             <div class="brow">
-                <div class="pair"><div class="l">Check In</div><div class="v">{{ \Carbon\Carbon::parse($booking->check_in)->format('F j, Y') }}</div><div class="sub">12:00 PM</div></div>
-                <div class="pair"><div class="l">Check Out</div><div class="v">{{ \Carbon\Carbon::parse($booking->check_out)->format('F j, Y') }}</div><div class="sub">12:00 PM</div></div>
-                <div class="pair"><div class="l">Duration</div><div class="v">{{ $booking->duration }}</div></div>
+                <div class="pair"><div class="l">Check In</div><div class="v">{{ $booking->check_in ? \Carbon\Carbon::parse($booking->check_in)->format('F j, Y') : 'Not set' }}</div><div class="sub">{{ $booking->check_in ? '12:00 PM' : 'Add a date from Edit' }}</div></div>
+                <div class="pair"><div class="l">Check Out</div><div class="v">{{ $booking->check_out ? \Carbon\Carbon::parse($booking->check_out)->format('F j, Y') : 'Not set' }}</div><div class="sub">{{ $booking->check_out ? '12:00 PM' : 'Add a date from Edit' }}</div></div>
+                <div class="pair"><div class="l">Duration</div><div class="v">{{ $booking->duration }} {{ (int) $booking->duration === 1 ? 'Night' : 'Nights' }}</div></div>
             </div>
             <div class="pair" style="margin-bottom:20px"><div class="notes-l">Notes</div><div class="v" style="font-size:14px">{{ $booking->request ?: 'None' }}</div></div>
             <div class="divider"></div>
@@ -348,7 +381,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 @forelse($selectedAmenities as $amenity)
                     <div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>{{ $amenity }}</div>
                 @empty
-                    <div class="v">No amenities selected</div>
+                    @unless($booking->amenity_notes)<div class="v">No amenities selected</div>@endunless
                 @endforelse
                 @if($booking->amenity_notes)
                     <div><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></svg>{{ $booking->amenity_notes }}</div>
@@ -366,12 +399,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 $remainingBalance = max(0, $bookingTotal - $advancePaid);
             @endphp
             <div class="chd"><h2>Room Info</h2><a href="{{ url('/rooms') }}" class="vd">View Detail</a></div>
-            <img class="rimg" src="{{ asset('images/room-info-hero.jpg') }}" alt="Room">
-            <div class="rspecs"><span><svg viewBox="0 0 24 24"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>35 m²</span><span><svg viewBox="0 0 24 24"><path d="M2 10V6h20v12M2 14h20"/></svg>King Bed</span><span><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0"/></svg>2 guests</span></div>
+            <img class="rimg" src="{{ asset($room->image ?? 'images/room-info-hero.jpg') }}" alt="{{ $room->name ?? 'Room' }}">
+            <div class="rname">{{ $room->name ?? $booking->room_type }}<small>Room {{ $booking->room_number }}</small></div>
+            <div class="rspecs"><span><svg viewBox="0 0 24 24"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>{{ $room->size ?? '35 m²' }}</span><span><svg viewBox="0 0 24 24"><path d="M2 10V6h20v12M2 14h20"/></svg>{{ $room->bed ?? 'King Bed' }}</span><span><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0"/></svg>{{ $room->guests ?? '2 guests' }}</span></div>
             <div class="psum"><h3>Price Summary</h3><span class="{{ $booking->invoice_status === 'paid' ? 'paid' : ($booking->invoice_status === 'partial' ? 'partial' : 'unpaid') }}">{{ $booking->invoice_status === 'paid' ? 'Paid' : ($booking->invoice_status === 'partial' ? 'Partial' : 'Unpaid') }}</span></div>
             <div class="pline"><span>Room Total ({{ $nights }} {{ $nights === 1 ? 'night' : 'nights' }})</span><span>PKR {{ number_format($roomTotal) }}</span></div>@if($extraCharges > 0)<div class="pline"><span>Extra Charges</span><span>PKR {{ number_format($extraCharges) }}</span></div>@endif
             <div class="ptotal"><span>Total Price</span><span>PKR {{ number_format($bookingTotal) }}</span></div>
-            @if(auth()->user()->can_access('invoice'))<div class="binfo-btns" style="justify-content:flex-start;margin:0 0 16px">@if($booking->status !== 'pending')<button class="bbtn edit" onclick="showInvoice({{ $booking->id }})">View Invoice</button><button class="bbtn" style="background:var(--lime);color:#2f3a0c" onclick="downloadInvoice({{ $booking->id }})">Download PDF</button>@else<span class="pnote">Invoice becomes available once the booking is confirmed.</span>@endif</div>@endif
+            @if(auth()->user()->can_access('invoice'))<div class="binfo-btns" style="justify-content:flex-start;margin:0 0 16px">@if($booking->status !== 'pending')<button class="bbtn edit" onclick="showInvoice({{ $booking->id }})">View Invoice</button><button class="bbtn soft" onclick="downloadInvoice({{ $booking->id }})">Download PDF</button>@else<span class="pnote">Invoice becomes available once the booking is confirmed.</span>@endif</div>@endif
             @if($booking->partial_payment || $booking->advance_amount > 0)
             <div class="partial-summary"><h4>Partial Payment</h4><div class="pline"><span>Advance Paid</span><span>PKR {{ number_format($advancePaid) }}</span></div><div class="pline"><span>Remaining Balance</span><span>PKR {{ number_format($remainingBalance) }}</span></div>@if($booking->advance_receipt_path)<div style="margin-top:8px"><a href="{{ asset($booking->advance_receipt_path) }}" target="_blank" style="font-size:12px;color:#52613b;font-weight:700">View advance receipt</a></div>@endif</div>
             @endif
