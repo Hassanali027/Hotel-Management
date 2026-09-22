@@ -986,7 +986,9 @@ class PageController extends Controller
         if ($data['quantity'] > $i->quantity_stock) {
             return back()->with('ok', 'Only '.$i->quantity_stock.' '.$i->name.' in stock');
         }
-        $i->adjust(-(int) $data['quantity'], $data['reason'] ?: 'Used by staff');
+        // A nullable field that is not submitted at all is absent from the validated array,
+        // so reading it directly threw "Undefined index: reason".
+        $i->adjust(-(int) $data['quantity'], ($data['reason'] ?? null) ?: 'Used by staff');
         return back()->with('ok', $data['quantity'].' '.$i->name.' used, '.$i->quantity_stock.' left');
     }
 
