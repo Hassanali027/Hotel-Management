@@ -132,9 +132,9 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .mr-ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .mr-ib.bell:after{content:'';position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:#ff3b30;border:2px solid #fff}
     .mr-avatar{width:48px;height:48px;border-radius:50%;background:#d7f0a0;color:#1f5f3f;display:grid;place-items:center;font-weight:800;font-size:16px;margin-left:4px}
-    .mr-title{display:flex;align-items:center;justify-content:space-between;margin:2px 0 16px}
-    .mr-title h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.4px}
-    .mr-add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border:0;border-radius:12px;background:#dff55f;color:#1f2a08;font:700 15px Lato,Arial,sans-serif;cursor:pointer}
+    .mr-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 16px;flex-wrap:wrap}
+    .mr-title h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.4px;min-width:0;flex:1 1 auto}
+    .mr-add{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 14px;border:0;border-radius:12px;background:#dff55f;color:#1f2a08;font:700 14px Lato,Arial,sans-serif;cursor:pointer;flex:0 0 auto;white-space:nowrap}
     .mr-add svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
     .mr-filters{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;margin-bottom:14px}
     .mr-search{display:flex;align-items:center;gap:9px;height:50px;border-radius:14px;background:#fff;padding:0 14px;min-width:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -174,7 +174,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     .mr-pager button:disabled{opacity:.4;cursor:default}
 }
 @media(max-width:360px){
-    .m-res .mr-title h1{font-size:25px}.m-res .mr-add{height:40px;padding:0 12px;font-size:14px}
+    .m-res .mr-title h1{font-size:22px}.m-res .mr-add{height:40px;padding:0 12px;font-size:14px}
     /* Narrow phones keep the calendar button too: forcing the raw date inputs open here
        is what made them show as dd/mm/yyyy instead of the icon. */
     .m-res .mr-filters{grid-template-columns:minmax(0,1fr) auto auto;gap:6px}

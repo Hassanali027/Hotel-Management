@@ -15,8 +15,14 @@
     .ms-btn.mint{background:#e6f4ea!important;color:#1e4a36!important}
     .ms-fab,.mr-fab{background:#1e4a36!important;color:#fff!important}
 
-    /* ---------- Avatars ---------- */
-    .ms-avatar,.md-avatar,.mr-avatar{background:#e6f4ea!important;color:#1e4a36!important}
+    /* ---------- Avatars ----------
+       The photo bled straight into the light page background, so its pale edges
+       vanished and the circle did not read as round. A white ring defines it. */
+    .ms-avatar,.md-avatar,.mr-avatar{background:#e6f4ea!important;color:#1e4a36!important;
+        border:2px solid #fff!important;box-shadow:0 0 0 1px rgba(18,53,39,.14),0 2px 6px rgba(16,24,40,.10)!important;
+        overflow:hidden!important;flex-shrink:0!important}
+    .ms-avatar img,.md-avatar img,.mr-avatar img{width:100%!important;height:100%!important;
+        object-fit:cover!important;border-radius:50%!important;display:block!important}
     .ms-av.c3{background:#e6f4ea!important;color:#1e4a36!important}
 
     /* ---------- Chips and segmented toggles ---------- */
