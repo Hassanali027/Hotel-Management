@@ -1,6 +1,6 @@
 {{-- Desktop design system (Figma): dark green sidebar, mountain header, white cards on a soft grey-green canvas,
      green primary buttons, soft status pills. Applied on screens wider than 768px; phone layouts are untouched. --}}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
+{{-- The Inter/Great Vibes stylesheet now loads from partials.theme-head, in <head>. --}}
 <style>
 @media(min-width:769px){
     :root{--g900:#123527;--g800:#1e4a36;--g700:#2f6b4f;--g600:#3b8a63;--g500:#4aa374;--g100:#e6f4ea;--g50:#f1f8f3;

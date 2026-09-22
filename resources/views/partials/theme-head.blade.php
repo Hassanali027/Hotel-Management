@@ -4,7 +4,23 @@
      partials.desktop-theme, so the browser painted a white sidebar and then repainted it
      dark green. Loading the few colours that decide that first frame here, in <head>,
      removes the flash. The full theme still loads afterwards and refines everything else. --}}
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
+/* Same-origin navigations cross-fade instead of blanking, where the browser supports it. */
+@view-transition{navigation:auto}
+/* The sidebar is identical on every page, so name it and give its group no animation.
+   The browser then carries the same element across the navigation instead of tearing it
+   down and painting it again, which is what made it flash on each page change. */
+@media(min-width:769px){
+    .app-sidebar{view-transition-name:app-sidebar}
+    ::view-transition-group(app-sidebar){animation:none}
+    ::view-transition-old(app-sidebar),::view-transition-new(app-sidebar){animation:none;mix-blend-mode:normal}
+}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.14s}
+@media(prefers-reduced-motion:reduce){
+    ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
 @media(min-width:769px){
     body{background:#f3f6f4}
     .app-sidebar{background:#123527!important;color:#dfe9e2!important;border-right:0!important}
