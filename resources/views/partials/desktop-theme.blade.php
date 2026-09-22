@@ -38,7 +38,7 @@
         filter:saturate(.7);opacity:.95;
         -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
         pointer-events:none;z-index:0}
-    .app-sidebar::after{content:'Relax · Unwind · Belong\A Indus Resort Murree';white-space:pre-line;position:absolute;left:0;bottom:104px;width:230px;text-align:center;font-size:11.5px;line-height:1.75;color:rgba(255,255,255,.88);letter-spacing:.3px;text-shadow:0 1px 10px rgba(0,0,0,.75);z-index:1;pointer-events:none}
+    .app-sidebar::after{white-space:pre-line;position:absolute;left:0;bottom:104px;width:230px;text-align:center;font-size:11.5px;line-height:1.75;color:rgba(255,255,255,.88);letter-spacing:.3px;text-shadow:0 1px 10px rgba(0,0,0,.75);z-index:1;pointer-events:none}
     /* Pin the whole sidebar instead of only the menu: the brand was scrolling out of view.
        It is a flex column so Logout can sit at the very bottom without being fixed. */
     .app-sidebar{position:sticky!important;top:0!important;height:100vh!important;min-height:100vh!important;align-self:flex-start!important;
