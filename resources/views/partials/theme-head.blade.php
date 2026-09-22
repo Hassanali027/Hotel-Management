@@ -26,24 +26,31 @@
    loaded. Settling it here means it is never painted. The dropdown still opens, because
    .app-menu.open is more specific than the rule below. */
 @media(max-width:768px){
-    .app-menu-toggle{display:none!important}
-    .app-sidebar>.app-brand{display:none!important}
-    .app-sidebar .app-menu{display:none!important}
-    .app-sidebar{width:100%!important;min-height:0!important;padding:0!important;position:static!important;flex:0 0 auto!important;background:transparent!important;border:0!important;height:auto!important}
-    .app-sidebar::before,.app-sidebar::after{display:none!important}
+    html body .app-menu-toggle{display:none!important}
+    html body .app-sidebar>.app-brand{display:none!important}
+    html body .app-sidebar .app-menu{display:none!important}
+    html body .app-sidebar{width:100%!important;min-height:0!important;padding:0!important;position:static!important;flex:0 0 auto!important;background:transparent!important;border:0!important;height:auto!important}
+    html body .app-sidebar::before,html body .app-sidebar::after{display:none!important}
 }
 /* Some pages scroll and some do not. Without a reserved gutter the content width
    changes between them, and that shift is what snapped on every tab switch. */
 html{scrollbar-gutter:stable}
 @media(min-width:769px){
+    /* partials.sidebar also uses !important and is parsed later in <body>, so a plain
+       .app-sidebar rule here loses the tie and the light sidebar paints first. The
+       html body prefix raises specificity so these win regardless of order. */
     body{background:#f3f6f4}
-    .app-sidebar{background:#123527!important;color:#dfe9e2!important;border-right:0!important}
-    .app-sidebar>.app-brand{background:#123527!important;color:#fff!important}
-    .app-sidebar .app-menu>a,.app-sidebar .financial-toggle,
-    .app-sidebar .financial-submenu a{color:#c9d8ce!important;background:transparent!important}
-    .app-sidebar .app-menu a.active{background:#e6f4ea!important;color:#123527!important}
-    .app-sidebar .app-logout{background:transparent!important;border-top:1px solid rgba(255,255,255,.10)!important}
-    .app-sidebar .app-logout button{color:#fff!important}
-    .app-sidebar .app-upgrade{display:none!important}
+    html body .app-sidebar{background:#123527!important;color:#dfe9e2!important;border-right:0!important}
+    html body .app-sidebar>.app-brand{background:#123527!important;color:#fff!important}
+    html body .app-sidebar .app-menu>a,
+    html body .app-sidebar .financial-toggle,
+    html body .app-sidebar .financial-submenu a{color:#c9d8ce!important;background:transparent!important}
+    html body .app-sidebar .app-menu a.active{background:#e6f4ea!important;color:#123527!important}
+    html body .app-sidebar .app-menu a.active .icon{stroke:#123527!important}
+    html body .app-sidebar .app-logout{background:transparent!important;border-top:1px solid rgba(255,255,255,.10)!important}
+    html body .app-sidebar .app-logout button{color:#fff!important}
+    html body .app-sidebar .app-logout button .icon{stroke:#fff!important}
+    html body .app-sidebar .app-upgrade{display:none!important}
+    html body .app-sidebar .app-brand-mark i{background:#2f6b4f!important}
 }
 </style>
