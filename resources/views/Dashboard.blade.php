@@ -268,7 +268,7 @@
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addTask')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
 <script>
-function filterBL(query){const q=(query??document.getElementById('blSearch').value||'').toLowerCase();const st=(document.getElementById('blStatus').value||'').toLowerCase();document.querySelectorAll('.bl-table .bl-row').forEach(r=>{const txt=r.textContent.toLowerCase();const status=(r.children[6]?r.children[6].textContent:'').toLowerCase().trim();r.style.display=((!q||txt.includes(q))&&(!st||status===st))?'':'none';});}
+function filterBL(query){const q=((query??document.getElementById('blSearch').value)||'').toLowerCase();const st=(document.getElementById('blStatus').value||'').toLowerCase();document.querySelectorAll('.bl-table .bl-row').forEach(r=>{const txt=r.textContent.toLowerCase();const status=(r.children[6]?r.children[6].textContent:'').toLowerCase().trim();r.style.display=((!q||txt.includes(q))&&(!st||status===st))?'':'none';});}
 let blSort={i:-1,a:true};
 function sortBL(i){if(blSort.i===i)blSort.a=!blSort.a;else{blSort.i=i;blSort.a=true;}const cont=document.querySelector('.bl-table');const rows=[...cont.querySelectorAll('.bl-row')];rows.sort((x,y)=>{const xa=x.children[i].textContent.trim(),ya=y.children[i].textContent.trim();const nx=parseFloat(xa),ny=parseFloat(ya);if(!isNaN(nx)&&!isNaN(ny))return (nx-ny)*(blSort.a?1:-1);return xa.localeCompare(ya)*(blSort.a?1:-1);});rows.forEach(r=>cont.appendChild(r));}
 </script>
