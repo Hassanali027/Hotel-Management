@@ -165,6 +165,9 @@
     .top{position:sticky;top:0;z-index:20;background:var(--card)!important;border-bottom:1px solid var(--line);margin:0 0 0!important;padding:12px 28px!important;min-height:64px;align-items:center!important}
     .top h1,.tl h1{font-size:19px!important;font-weight:800!important;letter-spacing:-.2px}
     .top .actions,.top .profile{gap:12px!important;align-items:center!important}
+    /* With the dashboard search gone the bar had nothing filling the left, so the
+       date, tools and profile drifted apart. Keep the whole cluster on the right. */
+    .top .actions{margin-left:auto!important;justify-content:flex-end!important;flex:0 0 auto!important}
     .top .search,.top .searchbox .search{background:var(--canvas)!important;border:1px solid var(--line)!important;border-radius:10px!important;height:40px!important;width:min(420px,32vw)!important;color:var(--ink)!important}
     .top .search input{font-size:13.5px!important}
     .top .search:before{filter:grayscale(1);opacity:.6}
