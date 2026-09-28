@@ -5,6 +5,9 @@
      dark green. Loading the few colours that decide that first frame here, in <head>,
      removes the flash. The full theme still loads afterwards and refines everything else. --}}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}?v=2">
+<link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon.png') }}?v=2">
+<link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
 <style>
 /* Same-origin navigations cross-fade instead of blanking, where the browser supports it. */
