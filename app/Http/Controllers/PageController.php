@@ -259,12 +259,28 @@ class PageController extends Controller
         return back()->with('ok', 'Reservation updated');
     }
 
-    public function bookingConfirm($id)
+    public function bookingConfirm(Request $r, $id)
     {
         $booking = Booking::findOrFail($id);
-        $booking->update(['status' => 'confirmed', 'invoice_status' => $booking->partial_payment ? 'partial' : 'paid']);
+        $r->validate([
+            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+        ], ['payment_proof.required' => 'Payment proof is required before confirming this reservation.']);
+
+        $directory = public_path('uploads/booking-payments');
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+        $file = $r->file('payment_proof');
+        $name = 'confirmation_proof_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+        $file->move($directory, $name);
+
+        $booking->update([
+            'status' => 'confirmed',
+            'invoice_status' => $booking->partial_payment ? 'partial' : 'paid',
+            'payment_proof_path' => 'uploads/booking-payments/'.$name,
+        ]);
         $this->syncRoomForBooking($booking);
-        return back();
+        return back()->with('ok', 'Reservation confirmed and payment proof saved');
     }
 
     public function bookingStatus($id, $status)
@@ -278,8 +294,9 @@ class PageController extends Controller
         $data = ['status' => $status];
         $note = null;
 
+        // Confirmation is handled by bookingConfirm(), where payment proof is mandatory.
         if ($status === 'confirmed') {
-            $data['invoice_status'] = $booking->partial_payment ? 'partial' : 'paid';
+            return back()->with('ok', 'Attach payment proof before confirming this reservation.');
         }
 
         // The desk stamps the real times, so the guest profile and the invoice can show

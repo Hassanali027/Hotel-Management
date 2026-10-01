@@ -259,6 +259,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <script>
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const edit='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const proofIcon='<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 14h8M8 18h5"/></svg>';
 const data=@json($bookings);
 const roomRates=@json($rooms->pluck('price','name'));
 const roomUnits=@json($units);
@@ -287,9 +288,10 @@ let lastFiltered=[];
 function renderMobile(list){
  const el=document.getElementById('mRows');if(!el)return;
  el.innerHTML=list.map((b,i)=>{
-  const next=NEXT[b.status]?`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
+  const next=NEXT[b.status]?(b.status==='pending'?`<button class="mr-btn next" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`):`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
   const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="mr-btn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
-  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span>${(b.check_in||b.check_out)?`<span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span>`:''}<span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
+  const proof=b.payment_proof_path?`<a class="mr-eye" title="View payment proof" href="/${b.payment_proof_path}" target="_blank" rel="noopener">${proofIcon}</a>`:'';
+  return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span>${(b.check_in||b.check_out)?`<span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span>`:''}<span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${proof}${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
  }).join('')||'<div class="mr-empty">No reservations found</div>';
  const pg=document.getElementById('mPager'),st=(window.PGSTATE&&PGSTATE.res)||{page:1},pages=Math.max(1,Math.ceil(lastFiltered.length/8));
  if(pg)pg.innerHTML=pages>1?`<button ${st.page<=1?'disabled':''} onclick="mPage(-1)">\u2039 Prev</button><span>Page ${st.page} of ${pages}</span><button ${st.page>=pages?'disabled':''} onclick="mPage(1)">Next \u203a</button>`:'';
@@ -310,8 +312,9 @@ function render(list){
    <span><em class="rs-status ${b.status}"><i></i>${label}</em></span>
    <span class="act" onclick="event.stopPropagation()">
      <button class="rs-ib" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>
+     ${b.payment_proof_path?`<a class="rs-ib" title="View payment proof" href="/${b.payment_proof_path}" target="_blank" rel="noopener">${proofIcon}</a>`:''}
      ${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="rs-ib" title="Edit reservation" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}
-     ${NEXT[b.status]?`<button class="rs-ib next" title="${NEXT[b.status][1]}" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`:''}
+     ${NEXT[b.status]?(b.status==='pending'?`<button class="rs-ib next" title="Confirm reservation" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="rs-ib next" title="${NEXT[b.status][1]}" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`):''}
      ${(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="rs-ib del" title="Cancel booking" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">${trash}</button>`:''}
    </span></div>`;
  }).join('')||'<div class="trow"><span>No results</span></div>';
@@ -355,6 +358,29 @@ applyFilters();
 </div>
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addBooking')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
+<style>
+#paymentProofModal .payment-proof-card{width:520px;border-radius:20px;overflow:hidden}
+#paymentProofModal .payment-proof-title{position:static;display:flex;align-items:center;gap:12px;margin:0;padding:23px 26px 17px;border:0;background:linear-gradient(135deg,#f5fbf7,#fff);font-size:22px;color:#182332}
+.payment-proof-icon{width:42px;height:42px;border-radius:13px;background:#e4f4e9;color:#287452;display:grid;place-items:center;flex:0 0 42px}.payment-proof-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#paymentProofModal form{padding:0 26px 0}.proof-intro{margin:0;padding:0 0 18px;color:#687076;font-size:14px;line-height:1.55}.proof-ref{color:#2f6b4f;font-weight:800;white-space:nowrap}
+.proof-label{display:flex!important;align-items:center;justify-content:space-between;color:#27333d!important;font-weight:800;font-size:13px!important;margin:0 0 8px!important}.proof-label small{color:#a33c3c;font-size:11px;font-weight:700}
+.proof-drop{display:flex!important;align-items:center;gap:13px;min-height:86px;margin:0!important;padding:14px!important;border:1.5px dashed #9ec7aa!important;border-radius:14px!important;background:#f9fdf9!important;color:#294e39!important;cursor:pointer;transition:.18s ease}.proof-drop:hover{border-color:#2f8059!important;background:#f1fbf3!important;transform:translateY(-1px)}.proof-drop.has-file{border-style:solid!important;border-color:#77af89!important;background:#eef9f0!important}
+.proof-drop-icon{width:40px;height:40px;border-radius:11px;background:#e1f2e6;color:#2f8059;display:grid;place-items:center;flex:0 0 40px}.proof-drop-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.proof-drop-text{min-width:0;display:block!important;color:#294e39;font-size:13px!important;font-weight:800!important}.proof-drop-text small{display:block;margin:4px 0 0;color:#7a8c80;font-size:11.5px;font-weight:500;white-space:normal;overflow:visible;text-overflow:clip}.proof-drop input{display:none!important}
+.proof-note{display:flex;align-items:flex-start;gap:8px;margin:13px 0 1px;color:#78827b;font-size:11.5px;line-height:1.45}.proof-note svg{width:15px;height:15px;margin-top:1px;flex:0 0 15px;fill:none;stroke:#548062;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#paymentProofModal .mact{margin:20px -26px 0;padding:15px 26px 18px;gap:10px;background:#fff}#paymentProofModal .mbtn{height:44px;border-radius:11px;padding:0 19px}#paymentProofModal .mbtn.save{background:#287452;color:#fff;box-shadow:0 6px 14px rgba(40,116,82,.18)}#paymentProofModal .mbtn.save:hover{background:#1e6243}
+@media(max-width:640px){#paymentProofModal .payment-proof-title{padding:19px 18px 14px;font-size:19px}#paymentProofModal form{padding:0 18px}#paymentProofModal .mact{margin:20px -18px 0;padding:13px 18px 16px}.proof-drop{min-height:80px!important}}
+</style>
+<div class="modal-ov" id="paymentProofModal"><div class="modal payment-proof-card"><h3 class="payment-proof-title"><span class="payment-proof-icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></span>Confirm Reservation</h3><form id="paymentProofForm" method="POST" enctype="multipart/form-data">@csrf
+<p class="proof-intro">Attach the guest's payment proof to confirm <span class="proof-ref" id="paymentProofCode"></span>.</p>
+<label class="proof-label">Payment proof <small>REQUIRED</small></label><label class="proof-drop" id="paymentProofDrop"><span class="proof-drop-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/></svg></span><span class="proof-drop-text" id="paymentProofName">Upload payment proof<small>JPG, PNG, WEBP or PDF · maximum 5 MB</small></span><input id="paymentProofInput" type="file" name="payment_proof" accept="image/jpeg,image/png,image/webp,application/pdf" required onchange="setPaymentProofName(this)"></label>
+<p class="proof-note"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Your uploaded file is stored securely with this reservation.</p>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('paymentProofModal')">Cancel</button><button class="mbtn save">Attach &amp; Confirm</button></div>
+</form></div></div>
+<script>
+function setPaymentProofName(input){const name=input.files[0]?.name||'';const el=document.getElementById('paymentProofName'),drop=document.getElementById('paymentProofDrop');el.innerHTML=name?`<span>${name}</span><small>Payment proof ready to attach</small>`:'Upload payment proof<small>JPG, PNG, WEBP or PDF · maximum 5 MB</small>';drop.classList.toggle('has-file',Boolean(name));}
+function openPaymentProof(id,code){const form=document.getElementById('paymentProofForm');form.action='/bookings/'+id+'/confirm';document.getElementById('paymentProofCode').textContent=code?'#'+code:'this reservation';const input=document.getElementById('paymentProofInput');input.value='';setPaymentProofName(input);openModal('paymentProofModal');}
+</script>
 @if($errors->any())<script>document.addEventListener('DOMContentLoaded',function(){openModal('addBooking');});
 
 </script>@endif
