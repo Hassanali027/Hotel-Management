@@ -33,9 +33,9 @@ class User extends Authenticatable
 
     /** Tabs each role may access (admin = all). */
     public const ACCESS = [
-        'admin'   => ['dashboard','reservation','rooms','housekeeping','inventory','calendar','invoice','expenses','reviews','concierge','guest-profile'],
-        'manager' => ['dashboard','reservation','rooms','housekeeping','inventory','calendar','invoice','expenses','reviews','concierge','guest-profile'],
-        'staff'   => ['dashboard','reservation','housekeeping','inventory','calendar','guest-profile'],
+        'admin'   => ['dashboard','reservation','rooms','housekeeping','inventory','kitchen','calendar','invoice','expenses','reviews','concierge','guest-profile'],
+        'manager' => ['dashboard','reservation','rooms','housekeeping','inventory','kitchen','calendar','invoice','expenses','reviews','concierge','guest-profile'],
+        'staff'   => ['dashboard','reservation','housekeeping','inventory','kitchen','calendar','guest-profile'],
     ];
 
     public function can_access($tab)

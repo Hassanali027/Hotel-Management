@@ -28,6 +28,25 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .fin-top{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;margin-bottom:20px}
 .fin-left{display:grid;gap:20px;align-content:start}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.fin-row2{margin-top:16px}
+.sc-sub{width:100%;color:#8b948f;font-size:11.5px;margin-top:2px}
+.sc-num.neg{color:#b3352f}
+.sc-ic.amber{background:#fdf1d3}.sc-ic.amber svg{stroke:#9a7100}
+.sc-ic.red{background:#fde3e5}.sc-ic.red svg{stroke:#b3352f}
+.sc-go{margin-left:auto;font-size:12px;font-weight:700;color:#1e4a36;text-decoration:none;background:#e6f4ea;border-radius:8px;padding:4px 9px}
+/* Ledger rows: money in is green with a plus, money out is red with a minus. */
+.lg-name b{display:block;font-weight:600;font-size:13.5px}
+.lg-name small{display:block;color:#9ca3af;font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-amt{font-weight:700;white-space:nowrap}
+.lg-amt.in{color:#2f6b4f}.lg-amt.out{color:#b3352f}
+.lg-type{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:20px;font-size:12.5px;font-weight:700;font-style:normal;width:max-content}
+.lg-type:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+.lg-type.in{background:#e6f4ea;color:#2f6b4f}.lg-type.out{background:#fde3e5;color:#b3352f}
+.lg-open{display:inline-flex;align-items:center;height:34px;padding:0 13px;border-radius:9px;border:1px solid #d5e8dc;background:#e6f4ea;color:#1e4a36;font-size:12.5px;font-weight:700;text-decoration:none}
+a.dl{text-decoration:none}
+.lg-sum{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.lg-sum span{display:inline-flex;align-items:center;gap:7px;background:#f4f8f5;border-radius:9px;padding:7px 12px;font-size:12.5px;color:#55605a}
+.lg-sum b{color:#123527;font-size:13.5px}
 .scard{background:#fff;border-radius:16px;padding:20px}
 .sc-head{display:flex;align-items:center;gap:10px;color:#7a7a7a;font-size:15px;margin-bottom:14px}
 .sc-ic{width:34px;height:34px;border-radius:9px;background:var(--mint);display:grid;place-items:center;flex:0 0 34px}
@@ -91,7 +110,13 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .search{height:44px;width:250px;border:0;border-radius:11px;background:#f4f4f4;padding:0 16px 0 42px;font-size:14px;color:#333;font-family:inherit}
 .search::placeholder{color:#b0b0b0}
 .tbl{width:100%;overflow-x:auto}
-.thead,.trow{display:grid;grid-template-columns:1.4fr 1.6fr .9fr 1fr 1.2fr 1.1fr 1.4fr;align-items:center;min-width:1000px}
+/* Every row is its own grid. Plain fr tracks grow with their content, so a row with
+   four action buttons sized its columns differently from a row with one and the cells
+   stopped lining up. minmax(0, fr) plus a fixed action track makes all rows identical. */
+.thead,.trow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.3fr) minmax(0,.7fr) minmax(0,.95fr) minmax(0,1.1fr) minmax(0,.85fr) 284px;column-gap:12px;align-items:center;min-width:1060px}
+.trow>span{min-width:0}
+.trow>span:nth-child(2),.trow>span:nth-child(5){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .act{justify-content:flex-start;flex-wrap:nowrap}
 .thead{background:#eefaf3;border-radius:12px;padding:16px 24px;color:#8a8a8a;font-size:15px;font-weight:600}
 .thead span{display:inline-flex;align-items:center;gap:6px}
 .thead svg{width:12px;height:12px;fill:none;stroke:#b5b5b5;stroke-width:2}
@@ -181,12 +206,15 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <article class="mx-stat {{ $balanceChange < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h2"/></svg></i>Total Balance</div><div class="v">PKR {{ number_format($totalBalance) }}</div><div class="d"><b>{!! $balanceChange < 0 ? '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M15 17H7V9"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>' !!}{{ number_format(abs($balanceChange), 2) }}%</b>from last week</div></article>
 <article class="mx-stat {{ $incomeChange < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></i>Total Income</div><div class="v">PKR {{ number_format($totalIncome) }}</div><div class="d"><b>{!! $incomeChange < 0 ? '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M15 17H7V9"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>' !!}{{ number_format(abs($incomeChange), 2) }}%</b>from last week</div></article>
 <article class="mx-stat {{ $expenseChange < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></i>Total Expenses</div><div class="v">PKR {{ number_format($totalExpense) }}</div><div class="d"><b>{!! $expenseChange < 0 ? '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M15 17H7V9"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>' !!}{{ number_format(abs($expenseChange), 2) }}%</b>from last week</div></article>
+<article class="mx-stat"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></i>Room Income</div><div class="v">PKR {{ number_format($roomIncome) }}</div><div class="d">paid bookings</div></article>
+<article class="mx-stat"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 0-3.5 2.2-3.5 5.5S15 13 17 13v8"/></svg></i>Kitchen Sales</div><div class="v">PKR {{ number_format($kitchenIncome) }}</div><div class="d">paid orders</div></article>
+<article class="mx-stat {{ $kitchenIncome - $kitchenCosts < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></i>Kitchen Profit</div><div class="v">PKR {{ number_format($kitchenIncome - $kitchenCosts) }}</div><div class="d">after PKR {{ number_format($kitchenCosts) }} costs</div></article>
 </div>
 <section class="mx-card"><div class="mx-h"><h2>Earnings Overview</h2><span class="mx-year"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div><div class="mx-leg"><span><i style="background:#2f6b4f"></i>Income</span><span><i style="background:#bcd9c8"></i>Expense</span></div><div class="mx-chart"><div class="mx-y" id="mxY"></div><div class="mx-plot" id="mxPlot"><div class="zero"></div></div></div><div class="mx-x" id="mxX"></div></section>
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
 <div class="mx-h"><h2>Transactions</h2><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
-<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search expense..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Status</option><option>Completed</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
+<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search records..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 </section>
 @include('partials.mobile-nav')
@@ -217,6 +245,21 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <div class="scard">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l-4 4 4 4"/></svg></span>Total Expenses<span class="dots">···</span></div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p {{ $expenseChange < 0 ? 'down' : '' }}">{{ $expenseChange < 0 ? '↘' : '↗' }} {{ number_format(abs($expenseChange), 2) }}%</span><small>from last week</small></div></div>
+                </div>
+            </div>
+            {{-- Where the money comes from, and how the restaurant is doing on its own. --}}
+            <div class="stat-row fin-row2">
+                <div class="scard">
+                    <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></span>Room Income</div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($roomIncome) }}</div><div class="sc-sub">{{ $totalIncome ? round($roomIncome / $totalIncome * 100) : 0 }}% of income · paid bookings</div></div>
+                </div>
+                <div class="scard">
+                    <div class="sc-head"><span class="sc-ic amber"><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 0-3.5 2.2-3.5 5.5S15 13 17 13v8"/></svg></span>Kitchen Sales<a class="sc-go" href="{{ url('/kitchen') }}">Open</a></div>
+                    <div class="sc-body"><div class="sc-num">PKR {{ number_format($kitchenIncome) }}</div><div class="sc-sub">{{ $totalIncome ? round($kitchenIncome / $totalIncome * 100) : 0 }}% of income · paid orders</div></div>
+                </div>
+                <div class="scard">
+                    <div class="sc-head"><span class="sc-ic {{ $kitchenIncome - $kitchenCosts < 0 ? 'red' : '' }}"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Kitchen Profit</div>
+                    <div class="sc-body"><div class="sc-num {{ $kitchenIncome - $kitchenCosts < 0 ? 'neg' : '' }}">PKR {{ number_format($kitchenIncome - $kitchenCosts) }}</div><div class="sc-sub">sales minus PKR {{ number_format($kitchenCosts) }} kitchen costs</div></div>
                 </div>
             </div>
             <div class="earn">
@@ -251,22 +294,23 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
         <div class="pt">
             <h2>Transactions</h2>
             <div class="pt-r">
-                <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search expense"></div>
+                <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search records"></div>
                 <select class="fsel" id="fCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select>
-                <select class="fsel" id="fStatus"><option value="">All Status</option><option>Completed</option></select>
+                <select class="fsel" id="fStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select>
                 <div class="pill" style="padding:0 12px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fFrom" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="From"><span style="color:#9a9a9a">to</span><input id="fTo" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="To"></div>
                 <button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openExpenseCreator()">+ Add Expense</button>
             </div>
         </div>
+        <div class="lg-sum" id="lgSum"></div>
         <div class="tbl">
             <div class="thead">
-                <span onclick="sortCol('exp','name',applyFilters)" style="cursor:pointer">Expense @include('partials.sort')</span>
+                <span onclick="sortCol('exp','name',applyFilters)" style="cursor:pointer">Record @include('partials.sort')</span>
                 <span onclick="sortCol('exp','category',applyFilters)" style="cursor:pointer">Category @include('partials.sort')</span>
                 <span onclick="sortCol('exp','quantity',applyFilters)" style="cursor:pointer">Quantity @include('partials.sort')</span>
                 <span onclick="sortCol('exp','amount',applyFilters)" style="cursor:pointer">Amount @include('partials.sort')</span>
                 <span onclick="sortCol('exp','date',applyFilters)" style="cursor:pointer">Date @include('partials.sort')</span>
-                <span>Status @include('partials.sort')</span>
-                <span>Action @include('partials.sort')</span>
+                <span onclick="sortCol('exp','kind',applyFilters)" style="cursor:pointer">Type @include('partials.sort')</span>
+                <span>Action</span>
             </div>
             <div id="rows"></div>
         </div>
@@ -309,12 +353,26 @@ function showDonut(type){const categories=type==='income'?incomeDonut:expenseDon
 const eye='<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const dl='<svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg>';
 const data=@json($expenses);
+// One ledger: expenses, plus paid restaurant orders and paid bookings as income.
+const KITCHEN_CATS=@json($kitchenCats);
+const ledger=[...data.map(e=>({...e,kind:'expense'})),...@json($incomeRecords)];
+const isKitchen=r=>r.kind==='income'?r.source==='kitchen':KITCHEN_CATS.includes(r.category);
+const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 function mExpDetail(id){const e=data.find(x=>x.id===id);if(e)showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed');}
 function mExpDownload(id){const e=data.find(x=>x.id===id);if(e)downloadFile('expense-'+e.id+'.pdf','INDUS RESORT RESTAURANT EXPENSE\n===============\nExpense: '+e.name+'\nCategory: '+(e.category||'')+'\nQuantity: '+e.quantity+'\nAmount: PKR '+e.amount+'\nDate: '+fmt(e.date));}
 const mxIcons={'Supplies':['mint','<path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'],'Utilities':['blue','<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'],'Marketing and Advertising':['gold','<path d="M3 11v2a2 2 0 0 0 2 2h2l6 4V5L7 9H5a2 2 0 0 0-2 2z"/><path d="M17 8a5 5 0 0 1 0 8"/>'],'Maintenance and Repairs':['pink','<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.1-2.1z"/>'],'Salaries and Wages':['purple','<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15.5a5 5 0 0 1 5.5 4.5"/>']};
-function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(e=>{const ic=mxIcons[e.category]||['gray','<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'];return `<div class="mx-row" onclick="viewExpense(${e.id})"><span class="ic ${ic[0]}"><svg viewBox="0 0 24 24">${ic[1]}</svg></span><div class="tx"><b>${e.name}</b><small>${e.category||''}</small><small>Qty: ${e.quantity} &nbsp;•&nbsp; ${msDate(e.date)}</small></div><div class="amt"><b>${msMoney(e.amount)}</b><span class="ms-pill completed">Completed</span>${CAN_MANAGE?`<span class="ms-pill blue" style="margin-left:4px" onclick="event.stopPropagation();openExpenseEditor(${e.id})">Edit</span>`:''}</div><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>`;}).join('')||'<div class="ms-empty">No transactions found</div>';}
-function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(e=>`<div class="trow"><span>${e.name}</span><span>${e.category||''}</span><span>${e.quantity}</span><span>PKR ${e.amount}</span><span>${fmt(e.date)}</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed')">${eye}</button><button class="dl" onclick="downloadFile('expense-'+e.id+'.pdf','INDUS RESORT RESTAURANT EXPENSE\\n===============\\nExpense: '+e.name+'\\nCategory: '+(e.category||'')+'\\nQuantity: '+e.quantity+'\\nAmount: PKR '+e.amount+'\\nDate: '+fmt(e.date))">${dl} Download</button>${deleteExpenseButton(e.id)}</span></div>`).join('')||'<div class="trow"><span>No results</span></div>';}
+function renderMobile(list){const el=document.getElementById('mRows');if(!el)return;el.innerHTML=list.map(e=>{
+  if(e.kind==='income'){const svg=e.source==='kitchen'?'<path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 0-3.5 2.2-3.5 5.5S15 13 17 13v8"/>':'<path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/>';
+    return `<div class="mx-row" onclick="location.href='${e.link}'"><span class="ic mint"><svg viewBox="0 0 24 24">${svg}</svg></span><div class="tx"><b>${esc(e.name)}</b><small>${esc(e.category)}</small><small>${esc(e.detail||'')} &nbsp;•&nbsp; ${msDate(e.date)}</small></div><div class="amt"><b style="color:#2f6b4f">+ ${msMoney(e.amount)}</b><span class="ms-pill completed">Income</span></div><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>`;}
+  const ic=mxIcons[e.category]||['gray','<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'];
+  return `<div class="mx-row" onclick="viewExpense(${e.id})"><span class="ic ${ic[0]}"><svg viewBox="0 0 24 24">${ic[1]}</svg></span><div class="tx"><b>${esc(e.name)}</b><small>${esc(e.category||'')}</small><small>Qty: ${e.quantity} &nbsp;•&nbsp; ${msDate(e.date)}</small></div><div class="amt"><b style="color:#b3352f">− ${msMoney(e.amount)}</b><span class="ms-pill red">Expense</span>${CAN_MANAGE?`<span class="ms-pill blue" style="margin-left:4px" onclick="event.stopPropagation();openExpenseEditor(${e.id})">Edit</span>`:''}</div><svg class="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></div>`;
+}).join('')||'<div class="ms-empty">No records found</div>';}
+function render(list){renderMobile(list);document.getElementById('rows').innerHTML=list.map(e=>{
+  if(e.kind==='income'){
+    return `<div class="trow"><span class="lg-name"><b>${esc(e.name)}</b><small title="${esc(e.detail||'')}">${esc(e.detail||'')}</small></span><span>${esc(e.category)}</span><span>${e.quantity} ${e.source==='room'?(e.quantity===1?'night':'nights'):(e.quantity===1?'item':'items')}</span><span class="lg-amt in">+ PKR ${Number(e.amount).toLocaleString()}</span><span>${fmt(e.date)}</span><span><em class="lg-type in">Income</em></span><span class="act"><a class="lg-open" href="${e.link}">${e.source==='kitchen'?'Open Kitchen':'View Booking'}</a></span></div>`;}
+  return `<div class="trow" style="cursor:pointer" onclick="viewExpense(${e.id})"><span class="lg-name"><b>${esc(e.name)}</b></span><span>${esc(e.category||'')}</span><span>${e.quantity}</span><span class="lg-amt out">− PKR ${Number(e.amount).toLocaleString()}</span><span>${fmt(e.date)}</span><span><em class="lg-type out">Expense</em></span><span class="act"><button class="eye" title="View" onclick="event.stopPropagation();viewExpense(${e.id})">${eye}</button><a class="dl" href="/expenses/${e.id}/download" onclick="event.stopPropagation()">${dl} Download</a>${editExpenseButton(e.id)}${deleteExpenseButton(e.id)}</span></div>`;
+}).join('')||'<div class="trow"><span>No results</span></div>';}
 const expensesById=Object.fromEntries(data.map(expense=>[expense.id,expense]));
 function viewExpense(id){const e=expensesById[id];if(!e)return;const receipt=e.receipt_path?'<div style="margin-top:14px"><b>Receipt Image</b><br><img src="/'+e.receipt_path+'" alt="Expense receipt" style="display:block;max-width:100%;max-height:320px;margin-top:8px;border:1px solid #e5e5e5;border-radius:8px"></div>':'<div style="margin-top:14px;color:#888">No receipt image uploaded.</div>';showDetail(e.name,'Category: '+(e.category||'-')+'<br>Quantity: '+e.quantity+'<br>Amount: PKR '+e.amount+'<br>Date: '+fmt(e.date)+'<br>Status: Completed'+receipt);}
 function downloadExpensePdf(id){const e=expensesById[id];if(!e)return;const content=['INDUS RESORT RESTAURANT EXPENSE','================================','Expense: '+e.name,'Category: '+(e.category||''),'Quantity: '+e.quantity,'Amount: PKR '+e.amount,'Date: '+fmt(e.date)].join(String.fromCharCode(10));downloadFile('expense-'+e.id+'.pdf',content);}
@@ -330,8 +388,20 @@ function openExpenseCreator(){const f=document.getElementById('expForm');f.reset
 function openExpenseEditor(id){const e=(window.expensesById&&expensesById[id])||data.find(x=>x.id===id);if(!e)return;const f=document.getElementById('expForm');f.reset();f.action='{{ url('/expenses') }}/'+e.id;document.getElementById('expMethod').value='PUT';document.getElementById('expModalTitle').textContent='Edit Expense';['name','quantity','amount'].forEach(k=>{if(f.elements[k])f.elements[k].value=e[k]??'';});if(f.elements.date)f.elements.date.value=String(e.date||'').slice(0,10);if(f.elements.category)f.elements.category.value=e.category||'';openModal('addExp');}
 function editExpenseButton(id){return CAN_MANAGE?'<button class="eye" title="Edit" onclick="event.stopPropagation();openExpenseEditor('+id+')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>':'';}
 function deleteExpenseButton(id){return IS_ADMIN?'<button class="eye" title="Delete" onclick="event.stopPropagation();if(confirm(\'Delete this expense?\'))post(\'/expenses/'+id+'\',\'DELETE\')">🗑</button>':'';}
-render=list=>{renderMobile(list);const html=list.map(e=>'<div class="trow" style="cursor:pointer" onclick="viewExpense('+e.id+')"><span>'+e.name+'</span><span>'+(e.category||'')+'</span><span>'+e.quantity+'</span><span>PKR '+e.amount+'</span><span>'+fmt(e.date)+'</span><span><em class="st">Completed</em></span><span class="act"><button class="eye" title="View" onclick="event.stopPropagation();viewExpense('+e.id+')">'+eye+'</button><a class="dl" href="/expenses/'+e.id+'/download" onclick="event.stopPropagation()">'+dl+' Download</a>'+editExpenseButton(e.id)+deleteExpenseButton(e.id)+'</span></div>').join('');document.getElementById('rows').innerHTML=html||'<div class="trow"><span>No results</span></div>';};
-function applyFilters(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;pgReset('exp');paginateRender('exp',sortList('exp',data.filter(e=>(!mxDate()||String(e.date||'').slice(0,10)===mxDate())&&(!(document.getElementById('fFrom')||{}).value||String(e.date||'').slice(0,10)>=document.getElementById('fFrom').value)&&(!(document.getElementById('fTo')||{}).value||String(e.date||'').slice(0,10)<=document.getElementById('fTo').value)&&(!cat||e.category===cat)&&(!q||[e.name,e.category].join(' ').toLowerCase().includes(q)))),8,render);}
+function applyFilters(){
+  const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;const kind=document.getElementById('fStatus').value;
+  const from=(document.getElementById('fFrom')||{}).value, to=(document.getElementById('fTo')||{}).value;
+  const day=r=>String(r.date||'').slice(0,10);
+  const list=ledger.filter(r=>(!mxDate()||day(r)===mxDate())&&(!from||day(r)>=from)&&(!to||day(r)<=to)
+    &&(!cat||r.category===cat)
+    &&(!kind||(kind==='kitchen'?isKitchen(r):r.kind===kind))
+    &&(!q||[r.name,r.category,r.detail].join(' ').toLowerCase().includes(q)));
+  // Newest first unless a column sort is active.
+  list.sort((a,b)=>day(b).localeCompare(day(a)));
+  const inc=list.filter(r=>r.kind==='income').reduce((t,r)=>t+Number(r.amount||0),0), exp=list.filter(r=>r.kind==='expense').reduce((t,r)=>t+Number(r.amount||0),0);
+  const sum=document.getElementById('lgSum');
+  if(sum)sum.innerHTML=`<span>Records <b>${list.length}</b></span><span>Income <b style="color:#2f6b4f">PKR ${inc.toLocaleString()}</b></span><span>Expenses <b style="color:#b3352f">PKR ${exp.toLocaleString()}</b></span><span>Net <b style="color:${inc-exp<0?'#b3352f':'#123527'}">PKR ${(inc-exp).toLocaleString()}</b></span>`;
+  pgReset('exp');paginateRender('exp',sortList('exp',list),8,render);}
 msMirror([['mSearch','fSearch','input'],['mCat','fCat'],['mStatus','fStatus']]);
 function mxDate(){const d=document.getElementById('mDate');return d?d.value:'';}
 (function(){const d=document.getElementById('mDate');if(d)d.addEventListener('change',applyFilters);})();

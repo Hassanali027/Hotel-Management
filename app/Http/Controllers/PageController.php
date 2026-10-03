@@ -16,6 +16,7 @@ use App\Models\Concierge;
 use App\Models\Review;
 use App\Models\Task;
 use App\Models\Activity;
+use App\Models\KitchenOrder;
 
 class PageController extends Controller
 {
@@ -708,10 +709,14 @@ class PageController extends Controller
             return $g->sum('amount');
         })->sortDesc();
         $totalExpense = (int) $expenses->sum('amount');
-        $totalIncome  = (int) Booking::where('invoice_status', 'paid')->sum('amount');
+        // Income has two sources: paid room bookings and paid restaurant orders.
+        $roomIncome = (int) Booking::where('invoice_status', 'paid')->sum('amount');
+        $kitchenIncome = (int) KitchenOrder::sales()->sum('total');
+        $totalIncome  = $roomIncome + $kitchenIncome;
         $weekStart = now()->startOfWeek();
         $previousWeekStart = (clone $weekStart)->subWeek();
-        $incomeFor = fn ($from, $to) => (int) Booking::where('invoice_status', 'paid')->whereBetween('check_in', [$from, $to])->sum('amount');
+        $incomeFor = fn ($from, $to) => (int) Booking::where('invoice_status', 'paid')->whereBetween('check_in', [$from, $to])->sum('amount')
+            + (int) KitchenOrder::sales()->whereBetween('order_date', [$from, $to])->sum('total');
         $expenseFor = fn ($from, $to) => (int) Expense::whereBetween('date', [$from, $to])->sum('amount');
         $change = fn ($current, $previous) => $previous ? round((($current - $previous) / abs($previous)) * 100, 2) : ($current ? 100 : 0);
         $weekEnd = now()->endOfWeek();
@@ -721,11 +726,12 @@ class PageController extends Controller
         $previousIncome = $incomeFor($previousWeekStart, $previousWeekEnd);
         $previousExpense = $expenseFor($previousWeekStart, $previousWeekEnd);
         $year = (int) (request('year') ?: now()->year);
-        $years = collect([now()->year])->merge(Expense::selectRaw('YEAR(date) as y')->pluck('y'))->merge(Booking::selectRaw('YEAR(check_in) as y')->pluck('y'))->filter()->unique()->sortDesc()->values();
+        $years = collect([now()->year])->merge(Expense::selectRaw('YEAR(date) as y')->pluck('y'))->merge(Booking::selectRaw('YEAR(check_in) as y')->pluck('y'))->merge(KitchenOrder::selectRaw('YEAR(order_date) as y')->pluck('y'))->filter()->unique()->sortDesc()->values();
         $earnings = collect(range(1, 12))->map(function ($month) use ($year) {
             return [
                 'month' => now()->setDate($year, $month, 1)->format('M'),
-                'income' => (int) Booking::where('invoice_status', 'paid')->whereYear('check_in', $year)->whereMonth('check_in', $month)->sum('amount'),
+                'income' => (int) Booking::where('invoice_status', 'paid')->whereYear('check_in', $year)->whereMonth('check_in', $month)->sum('amount')
+                    + (int) KitchenOrder::sales()->whereYear('order_date', $year)->whereMonth('order_date', $month)->sum('total'),
                 'expense' => (int) Expense::whereYear('date', $year)->whereMonth('date', $month)->sum('amount'),
             ];
         })->values();
@@ -737,7 +743,8 @@ class PageController extends Controller
                 'name'    => $name,
                 'amount'  => (int) $amt,
                 'percent' => $totalExpense ? round($amt / $totalExpense * 100, 2) : 0,
-                'color'   => $palette[$name] ?? '#d2f3e4',
+                // Unlisted categories used to share one colour, so the donut read as a single slice.
+                'color'   => $palette[$name] ?? ['#2f6b4f', '#79b394', '#f2c14e', '#9dc7b0', '#3b82f6', '#e8a0a0', '#bcd9c8', '#7a5400'][count($cats) % 8],
             ];
         }
         $incomeCats = [];
@@ -751,7 +758,51 @@ class PageController extends Controller
             ];
         }
 
+        // The restaurant is its own slice of the income donut, beside the room types.
+        if ($kitchenIncome > 0) {
+            $incomeCats[] = [
+                'name' => 'Kitchen & Restaurant',
+                'amount' => $kitchenIncome,
+                'percent' => $totalIncome ? round($kitchenIncome / $totalIncome * 100, 2) : 0,
+                'color' => '#f2c14e',
+            ];
+            usort($incomeCats, fn ($a, $b) => $b['amount'] <=> $a['amount']);
+        }
+
+        // Kitchen figures for the second row of cards.
+        $kitchenCats = KitchenController::expenseCategories();
+        $kitchenCosts = (int) $expenses->whereIn('category', $kitchenCats)->sum('amount');
+
+        // Income records for the ledger: every paid restaurant order and every paid booking.
+        // They are listed beside the expenses so the page reads as one record of money in and out.
+        $incomeRecords = KitchenOrder::sales()->with('items')->orderByDesc('id')->get()->map(fn ($o) => [
+            'kind' => 'income', 'source' => 'kitchen', 'ref' => $o->id,
+            'name' => $o->code.($o->customer_name ? ' · '.$o->customer_name : ''),
+            'category' => 'Kitchen Sales',
+            'detail' => $o->items->map(fn ($i) => $i->name.($i->quantity > 1 ? ' x'.$i->quantity : ''))->implode(', '),
+            'quantity' => (int) $o->items->sum('quantity'),
+            'amount' => (int) $o->total,
+            'date' => $o->order_date,
+            'link' => url('/kitchen'),
+        ])->concat(
+            Booking::where('invoice_status', 'paid')->orderByDesc('id')->get()->map(fn ($b) => [
+                'kind' => 'income', 'source' => 'room', 'ref' => $b->id,
+                'name' => $b->code.' · '.$b->guest_name,
+                'category' => 'Room Booking',
+                'detail' => trim(($b->room_type ?: '').' '.($b->room_number ? 'Room '.$b->room_number : '')),
+                'quantity' => max(1, (int) preg_replace('/\D+/', '', (string) $b->duration)),
+                'amount' => (int) $b->amount,
+                'date' => $b->check_in ?: optional($b->updated_at)->toDateString(),
+                'link' => url('/guest-profile').'?id='.$b->id,
+            ])
+        )->values();
+
         return view('expenses', [
+            'roomIncome'    => $roomIncome,
+            'kitchenIncome' => $kitchenIncome,
+            'kitchenCosts'  => $kitchenCosts,
+            'kitchenCats'   => $kitchenCats,
+            'incomeRecords' => $incomeRecords,
             'expenses'     => $expenses,
             'cats'         => $cats,
             'incomeCats'   => $incomeCats,

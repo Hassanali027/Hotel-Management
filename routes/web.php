@@ -5,6 +5,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\KitchenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [PageController::class, 'inventory']);
     Route::get('/calendar', [PageController::class, 'calendar']);
     Route::get('/guest-profile', [PageController::class, 'guestProfile']);
+
+    // ---- Kitchen: everyone can see the page and ring up an order ----
+    Route::get('/kitchen', [KitchenController::class, 'index']);
+    Route::post('/kitchen', [KitchenController::class, 'store']);
 
     // Keeps the session fresh for open tabs and hands back the current CSRF token.
     Route::get('/session/ping', fn () => response()->json(['token' => csrf_token()]));
@@ -75,6 +80,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/reviews', [PageController::class, 'reviewStore']);
         Route::post('/invoices/{id}/toggle', [PageController::class, 'invoiceToggle']);
         Route::get('/invoices/{id}/download', [PageController::class, 'invoiceDownload']);
+        Route::put('/kitchen/{id}', [KitchenController::class, 'update']);
+        Route::post('/kitchen/{id}/paid', [KitchenController::class, 'togglePaid']);
     });
 
     // ---- Admin only: deletes ----
@@ -88,6 +95,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/reviews/{id}', [PageController::class, 'reviewDestroy']);
         Route::delete('/inventory/{id}', [PageController::class, 'invDestroy']);
         Route::delete('/room-units/{id}', [PageController::class, 'unitDestroy']);
+        Route::delete('/kitchen/{id}', [KitchenController::class, 'destroy']);
 
         // ---- Team accounts ----
         Route::get('/users', [UserController::class, 'index']);
