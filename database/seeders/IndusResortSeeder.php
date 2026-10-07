@@ -38,7 +38,7 @@ class IndusResortSeeder extends Seeder
                 'image' => $img('mountain-view-main'),
                 'gallery' => [$img('mountain-view-main'), $img('mountain-view-1'), $img('mountain-view-2'), $img('mountain-view-3'), $img('mountain-view-4'), $img('mountain-view-5'), $img('mountain-view-6')],
                 'is_featured' => true,
-                'units' => ['MV-1'], 'floor' => 'First',
+                'units' => ['MV-FULL'], 'floor' => 'First',
             ],
             [
                 'name' => '3 Room Portion (Lawn Access)', 'size' => '10 Marla', 'bed' => '3 Bedrooms', 'guests' => '8 guests', 'price' => 30000,
@@ -47,7 +47,7 @@ class IndusResortSeeder extends Seeder
                 'image' => $img('lawn-access-main'),
                 'gallery' => [$img('lawn-access-main'), $img('lawn-access-1'), $img('lawn-access-2'), $img('lawn-access-3')],
                 'is_featured' => false,
-                'units' => ['LA-1'], 'floor' => 'Ground',
+                'units' => ['LA-FULL'], 'floor' => 'Ground',
             ],
             [
                 'name' => '2 Rooms Suite', 'size' => '2 Bedrooms', 'bed' => '2 Double Beds', 'guests' => '4 guests', 'price' => 22000,
@@ -56,7 +56,7 @@ class IndusResortSeeder extends Seeder
                 'image' => $img('two-room-suite-main'),
                 'gallery' => [$img('two-room-suite-main'), $img('two-room-suite-1'), $img('two-room-suite-2')],
                 'is_featured' => false,
-                'units' => ['SU-1'], 'floor' => 'First',
+                'units' => ['SU-FULL'], 'floor' => 'First',
             ],
             [
                 'name' => 'Executive Room', 'size' => '1 Bedroom', 'bed' => 'Double Bed', 'guests' => '3 guests', 'price' => 15000,
