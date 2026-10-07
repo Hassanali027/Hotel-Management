@@ -284,7 +284,7 @@ class PageController extends Controller
         return back()->with('ok', 'Reservation confirmed and payment proof saved');
     }
 
-    public function bookingStatus($id, $status)
+    public function bookingStatus(Request $request, $id, $status)
     {
         $allowed = ['pending', 'confirmed', 'checked_in', 'checked_out'];
         if (! in_array($status, $allowed)) {
@@ -295,6 +295,22 @@ class PageController extends Controller
         $data = ['status' => $status];
         $note = null;
 
+        if (in_array($status, ['checked_in', 'checked_out'], true)) {
+            $stampData = $request->validate([
+                'actual_date' => 'required|date_format:Y-m-d',
+                'actual_time' => 'required|date_format:H:i',
+            ]);
+            $actualAt = \Carbon\Carbon::createFromFormat(
+                'Y-m-d H:i',
+                $stampData['actual_date'].' '.$stampData['actual_time'],
+                config('app.timezone')
+            );
+
+            if ($status === 'checked_out' && $booking->checked_in_at && $actualAt->lt($booking->checked_in_at)) {
+                return back()->withErrors(['actual_date' => 'Check-out date and time must be after check-in.'])->withInput();
+            }
+        }
+
         // Confirmation is handled by bookingConfirm(), where payment proof is mandatory.
         if ($status === 'confirmed') {
             return back()->with('ok', 'Attach payment proof before confirming this reservation.');
@@ -302,12 +318,12 @@ class PageController extends Controller
 
         // The desk stamps the real times, so the guest profile and the invoice can show
         // when the stay actually started and ended rather than a fixed 12:00 PM label.
-        if ($status === 'checked_in' && ! $booking->checked_in_at) {
-            $data['checked_in_at'] = now();
+        if ($status === 'checked_in') {
+            $data['checked_in_at'] = $actualAt;
         }
 
         if ($status === 'checked_out') {
-            $data['checked_out_at'] = $booking->checked_out_at ?: now();
+            $data['checked_out_at'] = $actualAt;
             $data = array_merge($data, $this->settleStay($booking, $data['checked_out_at']));
             $note = $this->stayNote($booking, $data);
         }

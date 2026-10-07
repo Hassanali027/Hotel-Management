@@ -279,6 +279,8 @@ const fmtShort=d=>{if(!d)return '—';const p=String(d).slice(0,10).split('-');c
 const fmt=d=>{if(!d)return'';const p=String(d).slice(0,10).split('-');const M=['January','February','March','April','May','June','July','August','September','October','November','December'];return M[+p[1]-1]+' '+(+p[2])+', '+p[0]};
 const STL={pending:'Pending',confirmed:'Confirmed',checked_in:'Checked-In',checked_out:'Checked-Out'};
 const NEXT={pending:['confirmed','Confirm'],confirmed:['checked_in','Check-In'],checked_in:['checked_out','Check-Out']};
+const PAKISTAN_NOW=@json(now()->format('Y-m-d\\TH:i'));
+function openStayStamp(id,status,code){const form=document.getElementById('stayStampForm');form.action='/bookings/'+id+'/status/'+status;const parts=PAKISTAN_NOW.split('T');document.getElementById('stayStampDate').value=parts[0];document.getElementById('stayStampTime').value=parts[1];document.getElementById('stayStampTitle').textContent=status==='checked_in'?'Record Check-In':'Record Check-Out';document.getElementById('stayStampBooking').textContent=code?'Reservation #'+code:'';openModal('stayStampModal');}
 const mIcon={bed:'<svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg>',cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>',moon:'<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',chev:'<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>'};
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function mRange(ci,co){const a=ci?String(ci).slice(0,10).split('-'):null,b=co?String(co).slice(0,10).split('-'):null;const f=(p,y)=>MON[+p[1]-1]+' '+(+p[2])+(y?', '+p[0]:'');if(a&&b){if(a[0]===b[0]&&a[1]===b[1])return MON[+a[1]-1]+' '+(+a[2])+' \u2013 '+(+b[2])+', '+b[0];return f(a,a[0]!==b[0])+' \u2013 '+f(b,true);}if(a)return f(a,true);if(b)return f(b,true);return '';}
@@ -288,7 +290,7 @@ let lastFiltered=[];
 function renderMobile(list){
  const el=document.getElementById('mRows');if(!el)return;
  el.innerHTML=list.map((b,i)=>{
-  const next=NEXT[b.status]?(b.status==='pending'?`<button class="mr-btn next" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="mr-btn next" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`):`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
+  const next=NEXT[b.status]?(b.status==='pending'?`<button class="mr-btn next" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="mr-btn next" onclick="openStayStamp(${b.id},'${NEXT[b.status][0]}','${b.code||''}')">${NEXT[b.status][1]}</button>`):`<span class="mr-btn done" style="display:inline-flex;align-items:center">Done</span>`;
   const cancel=(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="mr-btn cancel" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">Cancel</button>`:'';
   const proof=b.payment_proof_path?`<a class="mr-eye" title="View payment proof" href="/${b.payment_proof_path}" target="_blank" rel="noopener">${proofIcon}</a>`:'';
   return `<article class="mr-card"><div class="mr-top"><span class="mr-av c${(i%4)+1}">${mInitials(b.guest_name)}</span><div class="mr-name"><b>${b.guest_name||''}</b><small>${b.code||''}</small></div><em class="mr-st ${b.status}">${STL[b.status]||b.status}</em><a class="mr-go" href="/guest-profile?id=${b.id}" aria-label="Open">${mIcon.chev}</a></div><div class="mr-meta"><span>${mIcon.bed}${b.room_label||((b.room_type||'')+' '+(b.room_number||''))}</span>${(b.check_in||b.check_out)?`<span>${mIcon.cal}<i>${mRange(b.check_in,b.check_out)}</i></span>`:''}<span>${mIcon.moon}${mNights(b)}</span></div><div class="mr-act"><button class="mr-eye" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>${proof}${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="mr-eye" title="Edit" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}${next}${cancel}</div></article>`;
@@ -314,7 +316,7 @@ function render(list){
      <button class="rs-ib" title="View guest profile" onclick="location.href='/guest-profile?id=${b.id}'">${eye}</button>
      ${b.payment_proof_path?`<a class="rs-ib" title="View payment proof" href="/${b.payment_proof_path}" target="_blank" rel="noopener">${proofIcon}</a>`:''}
      ${(CAN_MANAGE&&b.status!=='checked_out')?`<button class="rs-ib" title="Edit reservation" onclick="openBookingEditor(${b.id})">${edit}</button>`:''}
-     ${NEXT[b.status]?(b.status==='pending'?`<button class="rs-ib next" title="Confirm reservation" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="rs-ib next" title="${NEXT[b.status][1]}" onclick="post('/bookings/${b.id}/status/${NEXT[b.status][0]}','POST')">${NEXT[b.status][1]}</button>`):''}
+     ${NEXT[b.status]?(b.status==='pending'?`<button class="rs-ib next" title="Confirm reservation" onclick="openPaymentProof(${b.id},'${b.code||''}')">Confirm</button>`:`<button class="rs-ib next" title="${NEXT[b.status][1]}" onclick="openStayStamp(${b.id},'${NEXT[b.status][0]}','${b.code||''}')">${NEXT[b.status][1]}</button>`):''}
      ${(IS_ADMIN&&(b.status==='pending'||b.status==='confirmed'))?`<button class="rs-ib del" title="Cancel booking" onclick="if(confirm('Cancel this booking?'))post('/bookings/${b.id}','DELETE')">${trash}</button>`:''}
    </span></div>`;
  }).join('')||'<div class="trow"><span>No results</span></div>';
@@ -381,6 +383,12 @@ applyFilters();
 function setPaymentProofName(input){const name=input.files[0]?.name||'';const el=document.getElementById('paymentProofName'),drop=document.getElementById('paymentProofDrop');el.innerHTML=name?`<span>${name}</span><small>Payment proof ready to attach</small>`:'Upload payment proof<small>JPG, PNG, WEBP or PDF · maximum 5 MB</small>';drop.classList.toggle('has-file',Boolean(name));}
 function openPaymentProof(id,code){const form=document.getElementById('paymentProofForm');form.action='/bookings/'+id+'/confirm';document.getElementById('paymentProofCode').textContent=code?'#'+code:'this reservation';const input=document.getElementById('paymentProofInput');input.value='';setPaymentProofName(input);openModal('paymentProofModal');}
 </script>
+<div class="modal-ov" id="stayStampModal"><div class="modal"><h3 id="stayStampTitle">Record Check-In</h3><form id="stayStampForm" method="POST">@csrf
+<p style="margin:10px 0 14px;color:#687076;font-size:13px" id="stayStampBooking"></p>
+<div class="mrow"><div><label for="stayStampDate">Date</label><input id="stayStampDate" name="actual_date" type="date" required></div><div><label for="stayStampTime">Time</label><input id="stayStampTime" name="actual_time" type="time" required></div></div>
+<p style="margin:10px 0 0;color:#78827b;font-size:12px">Time Pakistan Standard Time (PKT) ke mutabiq save hoga.</p>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('stayStampModal')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
 @if($errors->any())<script>document.addEventListener('DOMContentLoaded',function(){openModal('addBooking');});
 
 </script>@endif
