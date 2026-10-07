@@ -44,7 +44,7 @@ table{width:100%;border-collapse:collapse}
 <td width="49%" style="padding:4mm 2mm">
 <div class="brand">INDUS RESORT</div><div class="brand-sub">RESTAURANT</div><div class="tag">Your Perfect Stay in Murree</div>
 </td>
-<td width="35%" class="contact" style="padding:4mm 0 4mm 3mm">Governor House Road, Aliot Bazar,<br>Kohala Road, Murree<br>0300-0053333<br>indusresort7861@gmail.com</td>
+<td width="35%" class="contact" style="padding:4mm 0 4mm 3mm">Governor House Road, Aliot Bazar,<br>Kohala Road, Murree<br>03352015555<br>indusresort7861@gmail.com</td>
 </tr></table>
 </htmlpageheader>
 <htmlpagefooter name="reportFooter"><table class="footer"><tr><td>INDUS RESORT RESTAURANT · EXPENSES</td><td class="num">Page {PAGENO} of {nbpg}</td></tr></table></htmlpagefooter>
