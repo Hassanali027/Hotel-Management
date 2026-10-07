@@ -95,7 +95,7 @@
                 <td width="48%" valign="middle" style="padding-left:2mm">
                     <table cellpadding="0" cellspacing="0">
                         <tr><td class="ci"><img src="{{ $img('pin.svg') }}" style="width:6mm;height:6mm"></td><td class="ct">Governor House Road, Aliot Bazar,<br>Kohala Road, Murree</td></tr>
-                        <tr><td class="ci"><img src="{{ $img('phone.svg') }}" style="width:6mm;height:6mm"></td><td class="ct">0300-0053333</td></tr>
+                        <tr><td class="ci"><img src="{{ $img('phone.svg') }}" style="width:6mm;height:6mm"></td><td class="ct">03352015555</td></tr>
                         <tr><td class="ci"><img src="{{ $img('mail.svg') }}" style="width:6mm;height:6mm"></td><td class="ct">indusresort7861@gmail.com</td></tr>
                     </table>
                 </td>
