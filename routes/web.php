@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/room-units/{id}/status', [PageController::class, 'unitStatus']);
         Route::post('/inventory/{id}/settings', [PageController::class, 'invSettings']);
         Route::post('/expenses', [PageController::class, 'expenseStore']);
+        Route::get('/expenses/export/pdf', [PageController::class, 'expenseReportPdf']);
         Route::get('/expenses/{id}/download', [PageController::class, 'expenseDownload']);
         Route::post('/concierge', [PageController::class, 'conciergeStore']);
         Route::post('/housekeeping', [PageController::class, 'hkStore']);

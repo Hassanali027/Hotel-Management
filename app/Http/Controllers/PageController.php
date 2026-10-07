@@ -945,6 +945,63 @@ class PageController extends Controller
         ]);
     }
 
+    public function expenseReportPdf(Request $r)
+    {
+        $data = $r->validate([
+            'from' => 'required|date_format:Y-m-d',
+            'to' => 'required|date_format:Y-m-d|after_or_equal:from',
+            'area' => 'required|in:kitchen,rooms,both',
+        ]);
+
+        $kitchenCategories = KitchenController::expenseCategories();
+        $roomCategories = array_merge(
+            self::EXPENSE_CATEGORIES['Housekeeping & Supplies'],
+            self::EXPENSE_CATEGORIES['Maintenance & Repairs']
+        );
+        $categories = $data['area'] === 'kitchen' ? $kitchenCategories : $roomCategories;
+        if ($data['area'] === 'both') {
+            $categories = array_values(array_unique(array_merge($kitchenCategories, $roomCategories)));
+        }
+
+        $expenses = Expense::whereBetween('date', [$data['from'], $data['to']])
+            ->whereIn('category', $categories)
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get();
+        $dailyExpenses = $expenses->groupBy(fn ($expense) => (string) $expense->date);
+        $total = (int) $expenses->sum('amount');
+        $areaLabel = ['kitchen' => 'Kitchen', 'rooms' => 'Room', 'both' => 'Kitchen and Room'][$data['area']];
+        $html = view('pdf.expense-report', compact('dailyExpenses', 'total', 'areaLabel', 'data'))->render();
+
+        $tempDir = storage_path('app/mpdf');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0775, true);
+        }
+        $fontDirs = (new \Mpdf\Config\ConfigVariables())->getDefaults()['fontDir'];
+        $fontData = (new \Mpdf\Config\FontVariables())->getDefaults()['fontdata'];
+        $pdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'margin_top' => 13,
+            'margin_bottom' => 13,
+            'margin_left' => 12,
+            'margin_right' => 12,
+            'tempDir' => $tempDir,
+            'fontDir' => array_merge($fontDirs, [resource_path('fonts')]),
+            'fontdata' => $fontData + [
+                'lato' => ['R' => 'Lato-Regular.ttf', 'B' => 'Lato-Bold.ttf', 'I' => 'Lato-Italic.ttf'],
+            ],
+            'default_font' => 'lato',
+        ]);
+        $pdf->SetTitle($areaLabel.' Expense Report');
+        $pdf->WriteHTML($html);
+
+        return response($pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="expenses-'.$data['area'].'-'.$data['from'].'-'.$data['to'].'.pdf"',
+        ]);
+    }
+
     private function makeExpensePdf(array $lines, ?string $receiptPath): string
     {
         $text = ['BT', '/F1 16 Tf', '50 790 Td'];

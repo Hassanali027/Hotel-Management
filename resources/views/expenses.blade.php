@@ -102,6 +102,7 @@ a.dl{text-decoration:none}
 .pt{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
 .pt h2{font-size:20px;margin:0}
 .pt-r{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.exp-report-btn{height:42px;padding:0 14px;border:1px solid #d6e7dc;border-radius:10px;background:#eef8f0;color:#245a3c;font:700 13px Lato,Arial,sans-serif;cursor:pointer;white-space:nowrap}
 .pill{height:44px;border:0;border-radius:11px;padding:0 16px;display:inline-flex;align-items:center;gap:9px;font-size:15px;background:#f4f4f4;color:#333;cursor:pointer;white-space:nowrap}
 .pill.lime{background:var(--lime)}
 .pill svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
@@ -213,7 +214,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <section class="mx-card"><div class="mx-h"><h2>Earnings Overview</h2><span class="mx-year"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div><div class="mx-leg"><span><i style="background:#2f6b4f"></i>Income</span><span><i style="background:#bcd9c8"></i>Expense</span></div><div class="mx-chart"><div class="mx-y" id="mxY"></div><div class="mx-plot" id="mxPlot"><div class="zero"></div></div></div><div class="mx-x" id="mxX"></div></section>
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
-<div class="mx-h"><h2>Transactions</h2><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div>
+<div class="mx-h"><h2>Transactions</h2><div style="display:flex;align-items:center;gap:12px"><button class="exp-report-btn" type="button" onclick="openExpenseReport()">Export PDF</button><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
 <div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search records..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 </section>
@@ -298,6 +299,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                 <select class="fsel" id="fCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select>
                 <select class="fsel" id="fStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select>
                 <div class="pill" style="padding:0 12px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fFrom" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="From"><span style="color:#9a9a9a">to</span><input id="fTo" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="To"></div>
+                <button class="exp-report-btn" type="button" onclick="openExpenseReport()">Export PDF</button>
                 <button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openExpenseCreator()">+ Add Expense</button>
             </div>
         </div>
@@ -388,6 +390,7 @@ function openExpenseCreator(){const f=document.getElementById('expForm');f.reset
 function openExpenseEditor(id){const e=(window.expensesById&&expensesById[id])||data.find(x=>x.id===id);if(!e)return;const f=document.getElementById('expForm');f.reset();f.action='{{ url('/expenses') }}/'+e.id;document.getElementById('expMethod').value='PUT';document.getElementById('expModalTitle').textContent='Edit Expense';['name','quantity','amount'].forEach(k=>{if(f.elements[k])f.elements[k].value=e[k]??'';});if(f.elements.date)f.elements.date.value=String(e.date||'').slice(0,10);if(f.elements.category)f.elements.category.value=e.category||'';openModal('addExp');}
 function editExpenseButton(id){return CAN_MANAGE?'<button class="eye" title="Edit" onclick="event.stopPropagation();openExpenseEditor('+id+')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>':'';}
 function deleteExpenseButton(id){return IS_ADMIN?'<button class="eye" title="Delete" onclick="event.stopPropagation();if(confirm(\'Delete this expense?\'))post(\'/expenses/'+id+'\',\'DELETE\')">🗑</button>':'';}
+function openExpenseReport(){document.getElementById('expenseReportForm').reset();document.getElementById('reportFrom').value='{{ now()->startOfMonth()->format('Y-m-d') }}';document.getElementById('reportTo').value='{{ now()->format('Y-m-d') }}';openModal('expenseReportModal');}
 function applyFilters(){
   const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;const kind=document.getElementById('fStatus').value;
   const from=(document.getElementById('fFrom')||{}).value, to=(document.getElementById('fTo')||{}).value;
@@ -429,6 +432,13 @@ applyFilters();
 <label>Date</label><input type="date" name="date" value="{{ now()->format('Y-m-d') }}">
 <label>Receipt / Picture</label><div style="display:flex;align-items:center;gap:10px"><label for="receipt" style="margin:0;background:var(--lime);color:#2f3a0c;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer">Upload Receipt Image</label><span id="receiptName" style="color:#777;font-size:13px">No image selected</span></div><input id="receipt" type="file" name="receipt" accept="image/*" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" onchange="document.getElementById('receiptName').textContent=this.files[0]?.name||'No image selected'">
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addExp')">Cancel</button><button class="mbtn save">Save</button></div>
+</form></div></div>
+<div class="modal-ov" id="expenseReportModal"><div class="modal"><h3>Export Expense PDF</h3><form id="expenseReportForm" method="GET" action="{{ url('/expenses/export/pdf') }}">
+<p style="margin:10px 0 14px;color:#687076;font-size:13px">Date-wise Kitchen aur Room expenses report download karein.</p>
+<div class="mrow"><div><label for="reportFrom">From date</label><input id="reportFrom" name="from" type="date" required></div><div><label for="reportTo">To date</label><input id="reportTo" name="to" type="date" required></div></div>
+<label for="reportArea">Report</label><select id="reportArea" name="area" required><option value="both">Kitchen + Room expenses</option><option value="kitchen">Kitchen expenses</option><option value="rooms">Room / housekeeping expenses</option></select>
+<p style="margin:10px 0 0;color:#78827b;font-size:12px">Room report mein Housekeeping &amp; Supplies aur Maintenance &amp; Repairs categories shamil hain.</p>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('expenseReportModal')">Cancel</button><button class="mbtn save">Download PDF</button></div>
 </form></div></div>
 </body>
 </html>
