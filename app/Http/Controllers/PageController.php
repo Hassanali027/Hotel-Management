@@ -473,7 +473,28 @@ class PageController extends Controller
     /* ===================== ROOMS ===================== */
     public function rooms()
     {
-        $rooms = Room::with('units')->orderBy('id')->get();
+        $rooms = Room::with('units')->get()->sortBy(function ($room) {
+            $fixedOrder = [
+                '3 Room Portion (Mountain View)' => 10,
+                '3 Room Portion (Lawn Access)' => 20,
+                '2 Rooms Suite' => 30,
+            ];
+            if (isset($fixedOrder[$room->name])) {
+                return $fixedOrder[$room->name];
+            }
+
+            if (preg_match('/^Mountain View Room (\d+)$/', $room->name, $matches)) {
+                return 40 + (int) $matches[1];
+            }
+            if (preg_match('/^Lawn Access Room (\d+)$/', $room->name, $matches)) {
+                return 50 + (int) $matches[1];
+            }
+            if (preg_match('/^Suite Room (\d+)$/', $room->name, $matches)) {
+                return 60 + (int) $matches[1];
+            }
+
+            return 1000 + $room->id;
+        })->values();
         $featured = $rooms->firstWhere('is_featured', true) ?: $rooms->first();
         return view('rooms', compact('rooms', 'featured'));
     }
