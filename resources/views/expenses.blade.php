@@ -391,6 +391,7 @@ function openExpenseEditor(id){const e=(window.expensesById&&expensesById[id])||
 function editExpenseButton(id){return CAN_MANAGE?'<button class="eye" title="Edit" onclick="event.stopPropagation();openExpenseEditor('+id+')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>':'';}
 function deleteExpenseButton(id){return IS_ADMIN?'<button class="eye" title="Delete" onclick="event.stopPropagation();if(confirm(\'Delete this expense?\'))post(\'/expenses/'+id+'\',\'DELETE\')">🗑</button>':'';}
 function openExpenseReport(){document.getElementById('expenseReportForm').reset();document.getElementById('reportFrom').value='{{ now()->startOfMonth()->format('Y-m-d') }}';document.getElementById('reportTo').value='{{ now()->format('Y-m-d') }}';openModal('expenseReportModal');}
+function submitExpenseReport(form){const button=form.querySelector('button[type="submit"]');if(button){button.disabled=true;button.textContent='Preparing PDF…';button.style.opacity='.7';}closeModal('expenseReportModal');return true;}
 function applyFilters(){
   const q=(document.getElementById('fSearch').value||'').toLowerCase();const cat=document.getElementById('fCat').value;const kind=document.getElementById('fStatus').value;
   const from=(document.getElementById('fFrom')||{}).value, to=(document.getElementById('fTo')||{}).value;
@@ -433,12 +434,12 @@ applyFilters();
 <label>Receipt / Picture</label><div style="display:flex;align-items:center;gap:10px"><label for="receipt" style="margin:0;background:var(--lime);color:#2f3a0c;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer">Upload Receipt Image</label><span id="receiptName" style="color:#777;font-size:13px">No image selected</span></div><input id="receipt" type="file" name="receipt" accept="image/*" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)" onchange="document.getElementById('receiptName').textContent=this.files[0]?.name||'No image selected'">
 <div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('addExp')">Cancel</button><button class="mbtn save">Save</button></div>
 </form></div></div>
-<div class="modal-ov" id="expenseReportModal"><div class="modal"><h3>Export Expense PDF</h3><form id="expenseReportForm" method="GET" action="{{ url('/expenses/export/pdf') }}">
+<div class="modal-ov" id="expenseReportModal"><div class="modal"><h3>Export Expense PDF</h3><form id="expenseReportForm" method="GET" action="{{ url('/expenses/export/pdf') }}" onsubmit="return submitExpenseReport(this)">
 <p style="margin:10px 0 14px;color:#687076;font-size:13px">Date-wise Kitchen aur Room expenses report download karein.</p>
 <div class="mrow"><div><label for="reportFrom">From date</label><input id="reportFrom" name="from" type="date" required></div><div><label for="reportTo">To date</label><input id="reportTo" name="to" type="date" required></div></div>
-<label for="reportArea">Report</label><select id="reportArea" name="area" required><option value="both">Kitchen + Room expenses</option><option value="kitchen">Kitchen expenses</option><option value="rooms">Room / housekeeping expenses</option></select>
+<label for="reportArea">Report</label><select id="reportArea" name="area" required><option value="all">All expenses</option><option value="both">Kitchen + Room expenses</option><option value="kitchen">Kitchen expenses</option><option value="rooms">Room / housekeeping expenses</option></select>
 <p style="margin:10px 0 0;color:#78827b;font-size:12px">Room report mein Housekeeping &amp; Supplies aur Maintenance &amp; Repairs categories shamil hain.</p>
-<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('expenseReportModal')">Cancel</button><button class="mbtn save">Download PDF</button></div>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('expenseReportModal')">Cancel</button><button type="submit" class="mbtn save">Download PDF</button></div>
 </form></div></div>
 </body>
 </html>

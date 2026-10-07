@@ -950,7 +950,7 @@ class PageController extends Controller
         $data = $r->validate([
             'from' => 'required|date_format:Y-m-d',
             'to' => 'required|date_format:Y-m-d|after_or_equal:from',
-            'area' => 'required|in:kitchen,rooms,both',
+            'area' => 'required|in:all,kitchen,rooms,both',
         ]);
 
         $kitchenCategories = KitchenController::expenseCategories();
@@ -959,18 +959,18 @@ class PageController extends Controller
             self::EXPENSE_CATEGORIES['Maintenance & Repairs']
         );
         $categories = $data['area'] === 'kitchen' ? $kitchenCategories : $roomCategories;
-        if ($data['area'] === 'both') {
+        if (in_array($data['area'], ['both', 'all'], true)) {
             $categories = array_values(array_unique(array_merge($kitchenCategories, $roomCategories)));
         }
 
-        $expenses = Expense::whereBetween('date', [$data['from'], $data['to']])
-            ->whereIn('category', $categories)
-            ->orderBy('date')
-            ->orderBy('id')
-            ->get();
+        $query = Expense::whereBetween('date', [$data['from'], $data['to']]);
+        if ($data['area'] !== 'all') {
+            $query->whereIn('category', $categories);
+        }
+        $expenses = $query->orderBy('date')->orderBy('id')->get();
         $dailyExpenses = $expenses->groupBy(fn ($expense) => (string) $expense->date);
         $total = (int) $expenses->sum('amount');
-        $areaLabel = ['kitchen' => 'Kitchen', 'rooms' => 'Room', 'both' => 'Kitchen and Room'][$data['area']];
+        $areaLabel = ['all' => 'All', 'kitchen' => 'Kitchen', 'rooms' => 'Room', 'both' => 'Kitchen and Room'][$data['area']];
         $html = view('pdf.expense-report', compact('dailyExpenses', 'total', 'areaLabel', 'data'))->render();
 
         $tempDir = storage_path('app/mpdf');
