@@ -95,8 +95,8 @@ class IndusResortSeeder extends Seeder
 
                 foreach ($units as $number) {
                     RoomUnit::create(['room_id' => $room->id, 'number' => $number, 'status' => 'available']);
-                    HousekeepingTask::create([
-                        'room_number' => 'Room '.$number, 'room_type' => $room->name, 'status' => 'ready', 'priority' => 'low',
+                    HousekeepingTask::firstOrCreate(['room_number' => 'Room '.$number], [
+                        'room_type' => $room->name, 'status' => 'ready', 'priority' => 'low',
                         'floor' => $floor, 'reservation_status' => 'Available', 'notes' => 'Ready for the next guest.', 'is_checked' => false,
                     ]);
                 }

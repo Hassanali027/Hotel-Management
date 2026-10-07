@@ -13,6 +13,39 @@ class RoomUnit extends Model
 
     public const STATUSES = ['available', 'reserved', 'occupied', 'not_ready'];
 
+    protected static function booted(): void
+    {
+        static::created(function (RoomUnit $unit) {
+            $room = $unit->room;
+            if (!$room) {
+                return;
+            }
+
+            $floor = str_contains(strtolower($room->name), 'lawn') || str_contains(strtolower($room->name), 'executive')
+                ? 'Ground'
+                : 'First';
+            $reservationStatus = [
+                'available' => 'Available',
+                'reserved' => 'Reserved',
+                'occupied' => 'Occupied',
+                'not_ready' => 'Needs Cleaning',
+            ][$unit->status] ?? 'Available';
+
+            HousekeepingTask::firstOrCreate(
+                ['room_number' => 'Room '.$unit->number],
+                [
+                    'room_type' => $room->name,
+                    'status' => $unit->status === 'not_ready' ? 'needs' : 'ready',
+                    'priority' => 'low',
+                    'floor' => $floor,
+                    'reservation_status' => $reservationStatus,
+                    'notes' => 'Ready for the next guest.',
+                    'is_checked' => false,
+                ]
+            );
+        });
+    }
+
     public function room()
     {
         return $this->belongsTo(Room::class);
