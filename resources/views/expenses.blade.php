@@ -439,7 +439,7 @@ applyFilters();
 <div class="mrow"><div><label for="reportFrom">From date</label><input id="reportFrom" name="from" type="date" required></div><div><label for="reportTo">To date</label><input id="reportTo" name="to" type="date" required></div></div>
 <label for="reportArea">Report</label><select id="reportArea" name="area" required><option value="all">All expenses</option><option value="both">Kitchen + Room expenses</option><option value="kitchen">Kitchen expenses</option><option value="rooms">Room / housekeeping expenses</option></select>
 <p style="margin:10px 0 0;color:#78827b;font-size:12px">Room report mein Housekeeping &amp; Supplies aur Maintenance &amp; Repairs categories shamil hain.</p>
-<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('expenseReportModal')">Cancel</button><button type="submit" class="mbtn save">Download PDF</button></div>
+<div class="mact"><button type="button" class="mbtn cancel" onclick="closeModal('expenseReportModal')">Cancel</button><button type="submit" class="mbtn save" onclick="closeModal('expenseReportModal')">Download PDF</button></div>
 </form></div></div>
 </body>
 </html>
