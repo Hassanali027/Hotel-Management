@@ -19,10 +19,6 @@ table{width:100%;border-collapse:collapse}
 .title{font-size:24pt;font-weight:bold;color:#111;margin:0 0 1mm}
 .muted{font-size:9pt;color:#68756d}
 .meta{background:#f5f8f5;border:1px solid #e1e7e2;border-radius:3mm;padding:3mm 4mm;margin-top:5mm}
-.cards{margin-top:5mm}
-.card{background:#e6f4ea;border:1px solid #d5e8da;border-radius:3mm;padding:3.5mm 4mm}
-.card-label{font-size:8pt;color:#53665a}
-.card-value{font-size:15pt;font-weight:bold;color:#1f5f3f;margin-top:1mm}
 .section{font-size:11pt;font-weight:bold;color:#2f5a45;margin:7mm 0 2mm}
 .items{border:1px solid #e1e7e2;border-radius:2mm}
 .items th{background:#e6f4ea;color:#26362c;text-align:left;font-size:8pt;padding:2.5mm 2.5mm;border-bottom:1px solid #d9e6dc}
@@ -54,11 +50,6 @@ table{width:100%;border-collapse:collapse}
 <div class="title">{{ $areaLabel }} Expenses</div>
 <div class="muted">Date-wise expense report · Generated {{ now()->format('d M Y, g:i A') }} PKT</div>
 <div class="meta"><strong>Report period:</strong> {{ $rangeLabel }} &nbsp;&nbsp; <strong>Area:</strong> {{ $areaLabel }}</div>
-<table class="cards" cellpadding="0" cellspacing="0"><tr>
-<td width="33%" style="padding-right:2mm"><div class="card"><div class="card-label">TOTAL EXPENSES</div><div class="card-value">PKR {{ number_format($total) }}</div></div></td>
-<td width="33%" style="padding:0 1mm"><div class="card"><div class="card-label">RECORDS</div><div class="card-value">{{ number_format($dailyExpenses->flatten(1)->count()) }}</div></div></td>
-<td width="34%" style="padding-left:2mm"><div class="card"><div class="card-label">DAYS WITH EXPENSES</div><div class="card-value">{{ number_format($dailyExpenses->count()) }}</div></div></td>
-</tr></table>
 @forelse($dailyExpenses as $date => $items)
 <div class="section">{{ \Carbon\Carbon::parse($date)->format('l, d M Y') }}</div>
 <table class="items"><thead><tr><th width="35%">EXPENSE</th><th width="30%">CATEGORY</th><th width="12%" class="num">QTY</th><th width="23%" class="num">AMOUNT</th></tr></thead><tbody>
