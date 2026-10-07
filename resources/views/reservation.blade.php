@@ -93,16 +93,19 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
  .rs-add svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
  .rs-panel{padding:0!important;overflow:hidden}
  .rs-panel .tbl{padding:0}
- .rs-panel .thead,.rs-panel .trow{grid-template-columns:1.5fr 1.1fr .8fr .8fr 1fr 1fr 1fr 1.25fr!important;min-width:1080px!important;align-items:center}
+ .rs-panel .thead,.rs-panel .trow{grid-template-columns:minmax(220px,1.55fr) minmax(190px,1.25fr) minmax(90px,.65fr) minmax(85px,.7fr) minmax(128px,1fr) minmax(128px,1fr) minmax(135px,1fr) minmax(92px,.85fr)!important;min-width:1200px!important;align-items:center}
  .rs-panel .thead{background:#f7faf8!important;border-radius:0!important;padding:14px 22px!important;border-bottom:1px solid var(--line)}
  .rs-panel .trow{padding:14px 22px!important;font-size:13.5px!important;border-bottom:1px solid #f1f4f2!important}
- .rs-guest{display:flex;align-items:center;gap:11px;min-width:0}
+ .rs-panel .trow>span{min-width:0}
+ .rs-guest{display:flex;align-items:center;gap:11px;min-width:0;overflow:hidden}
+ .rs-guest>span:last-child,.rs-room{display:block;min-width:0;overflow:hidden}
  .rs-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:0 0 40px;background:#e6f4ea;color:#2f6b4f}
  .rs-av.c1{background:#dfebfb;color:#1e4f8f}.rs-av.c2{background:#fdf3d2;color:#7a5400}.rs-av.c3{background:#e6f4ea;color:#2f6b4f}.rs-av.c4{background:#ece7fb;color:#4b3a8f}
  .rs-guest b,.rs-room b,.rs-date b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .rs-guest small,.rs-room small,.rs-date small{display:block;color:#9ca3af;font-size:12px;margin-top:2px}
  /* A stamped arrival or departure is real data; the 12:00 PM fallback is not. */
  .rs-date small.rs-real{color:#2f6b4f;font-weight:700}
+ .rs-panel .trow>span:nth-child(3),.rs-panel .trow>span:nth-child(4){white-space:nowrap}
  .rs-status{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;font-style:normal;white-space:nowrap}
  .rs-status i{width:7px;height:7px;border-radius:50%;background:currentColor}
  .rs-status.confirmed{background:#e6f4ea;color:#2f6b4f}.rs-status.checked_in{background:#dfebfb;color:#1e4f8f}.rs-status.pending{background:#fdf0da;color:#a86b00}.rs-status.checked_out{background:#eceff0;color:#6b7280}
