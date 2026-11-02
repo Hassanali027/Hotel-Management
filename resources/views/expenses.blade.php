@@ -29,6 +29,16 @@ body{margin:0;display:flex;background:var(--bg);font-family:Lato,Arial,sans-seri
 .fin-left{display:grid;gap:20px;align-content:start}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .fin-row2{margin-top:16px}
+.sc-click{cursor:pointer;transition:box-shadow .15s,border-color .15s;border:1px solid transparent}
+.sc-click:hover{box-shadow:0 6px 18px rgba(16,24,40,.08)}
+.sc-click.on{border-color:#2f6b4f;box-shadow:0 0 0 3px rgba(47,107,79,.12)}
+/* The theme pins .scard's border and background with !important, so the selected state
+   has to outrank it: green border, soft green fill and a "showing below" tag. */
+.scard.sc-click.on{border:1.5px solid #2f6b4f!important;background:#eef7f1!important;box-shadow:0 0 0 4px rgba(47,107,79,.14)!important;position:relative}
+.scard.sc-click.on::after{content:'Showing below';position:absolute;right:12px;bottom:10px;font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#1e4a36;background:#d9efe2;border-radius:7px;padding:3px 8px}
+.scard.sc-click.on .sc-ic{background:#2f6b4f!important}.scard.sc-click.on .sc-ic svg{stroke:#fff!important}
+.scard.sc-click.on .sc-sub,.scard.sc-click.on .sc-delta{padding-right:112px}
+.fin-top{align-items:start}
 .sc-sub{width:100%;color:#8b948f;font-size:11.5px;margin-top:2px}
 .sc-num.neg{color:#b3352f}
 .sc-ic.amber{background:#fdf1d3}.sc-ic.amber svg{stroke:#9a7100}
@@ -211,11 +221,13 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 <article class="mx-stat"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 0-3.5 2.2-3.5 5.5S15 13 17 13v8"/></svg></i>Kitchen Sales</div><div class="v">PKR {{ number_format($kitchenIncome) }}</div><div class="d">paid orders</div></article>
 <article class="mx-stat {{ $kitchenIncome - $kitchenCosts < 0 ? 'down' : '' }}"><div class="h"><i><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></i>Kitchen Profit</div><div class="v">PKR {{ number_format($kitchenIncome - $kitchenCosts) }}</div><div class="d">after PKR {{ number_format($kitchenCosts) }} costs</div></article>
 </div>
+{{-- Earnings chart disabled on request.
 <section class="mx-card"><div class="mx-h"><h2>Earnings Overview</h2><span class="mx-year"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>This Year<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div><div class="mx-leg"><span><i style="background:#2f6b4f"></i>Income</span><span><i style="background:#bcd9c8"></i>Expense</span></div><div class="mx-chart"><div class="mx-y" id="mxY"></div><div class="mx-plot" id="mxPlot"><div class="zero"></div></div></div><div class="mx-x" id="mxX"></div></section>
+--}}
 <section class="mx-card"><div class="mx-tog"><button type="button" id="mxIncBtn" onclick="mxDonut('income')">Income</button><button type="button" class="on" id="mxExpBtn" onclick="mxDonut('expense')">Expense</button></div><div class="mx-donut" id="mxDonut"><div class="c"><b id="mxTotal"></b><small id="mxLabel"></small></div></div><div class="mx-dl" id="mxLegend"></div></section>
 <section class="mx-card">
 <div class="mx-h"><h2>Transactions</h2><div style="display:flex;align-items:center;gap:12px"><button class="exp-report-btn" type="button" onclick="openExpenseReport()">Export PDF</button><a class="mx-link" href="javascript:void(0)" onclick="mxViewAll()">View All <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></a></div></div>
-<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search records..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
+<div class="mx-flt"><label class="ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="mSearch" type="search" placeholder="Search records..."></label><select class="ms-sel" id="mCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select><select class="ms-sel" id="mStatus"><option value="">All Records</option><option value="income">All Income</option><option value="room">Room Bookings</option><option value="kitchen_sales">Kitchen Sales</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select><button class="mx-cal" id="mCalBtn" type="button" aria-label="Filter by date" onclick="document.getElementById('mxDates').classList.toggle('open');this.classList.toggle('on')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></button></div><div class="mx-dates" id="mxDates"><input id="mDate" type="date" aria-label="Filter by date"></div>
 <div id="mRows"></div><div class="ms-pager" id="mPager"></div>
 </section>
 @include('partials.mobile-nav')
@@ -235,34 +247,35 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
     <div class="fin-top">
         <div class="fin-left">
             <div class="stat-row">
-                <div class="scard">
+                <div class="scard sc-click" data-filter="" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h2"/></svg></span>Total Balance<span class="dots">···</span></div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalBalance) }}</div><div class="sc-delta"><span class="p {{ $balanceChange < 0 ? 'down' : '' }}">{{ $balanceChange < 0 ? '↘' : '↗' }} {{ number_format(abs($balanceChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
-                <div class="scard">
+                <div class="scard sc-click" data-filter="income" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 14c0 1 1 2 2.5 2s2.5-.7 2.5-2-1-1.7-2.5-2-2.5-1-2.5-2 1-2 2.5-2 2.5 1 2.5 2"/></svg></span>Total Income<span class="dots">···</span></div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalIncome) }}</div><div class="sc-delta"><span class="p {{ $incomeChange < 0 ? 'down' : '' }}">{{ $incomeChange < 0 ? '↘' : '↗' }} {{ number_format(abs($incomeChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
-                <div class="scard">
+                <div class="scard sc-click" data-filter="expense" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l-4 4 4 4"/></svg></span>Total Expenses<span class="dots">···</span></div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($totalExpense) }}</div><div class="sc-delta"><span class="p {{ $expenseChange < 0 ? 'down' : '' }}">{{ $expenseChange < 0 ? '↘' : '↗' }} {{ number_format(abs($expenseChange), 2) }}%</span><small>from last week</small></div></div>
                 </div>
             </div>
             {{-- Where the money comes from, and how the restaurant is doing on its own. --}}
             <div class="stat-row fin-row2">
-                <div class="scard">
+                <div class="scard sc-click" data-filter="room" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-3a2 2 0 0 0-2-2h-8v5"/><path d="M5 11a2.5 2.5 0 0 1 5 0"/></svg></span>Room Income</div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($roomIncome) }}</div><div class="sc-sub">{{ $totalIncome ? round($roomIncome / $totalIncome * 100) : 0 }}% of income · paid bookings</div></div>
                 </div>
-                <div class="scard">
+                <div class="scard sc-click" data-filter="kitchen_sales" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic amber"><svg viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 0 0 4 0V3M8 12v9M17 3c-2 0-3.5 2.2-3.5 5.5S15 13 17 13v8"/></svg></span>Kitchen Sales<a class="sc-go" href="{{ url('/kitchen') }}">Open</a></div>
                     <div class="sc-body"><div class="sc-num">PKR {{ number_format($kitchenIncome) }}</div><div class="sc-sub">{{ $totalIncome ? round($kitchenIncome / $totalIncome * 100) : 0 }}% of income · paid orders</div></div>
                 </div>
-                <div class="scard">
+                <div class="scard sc-click" data-filter="kitchen" title="Show these records below">
                     <div class="sc-head"><span class="sc-ic {{ $kitchenIncome - $kitchenCosts < 0 ? 'red' : '' }}"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Kitchen Profit</div>
                     <div class="sc-body"><div class="sc-num {{ $kitchenIncome - $kitchenCosts < 0 ? 'neg' : '' }}">PKR {{ number_format($kitchenIncome - $kitchenCosts) }}</div><div class="sc-sub">sales minus PKR {{ number_format($kitchenCosts) }} kitchen costs</div></div>
                 </div>
             </div>
+            {{-- Earnings chart disabled on request. Remove this comment to bring it back.
             <div class="earn">
                 <div class="earn-top"><h2>Earnings</h2><select class="fsel" style="height:38px" onchange="location.href='{{ url('/expenses') }}?year='+this.value">@foreach($years as $y)<option value="{{ $y }}" {{ $y == $chartYear ? 'selected' : '' }}>{{ $y == now()->year ? 'This Year' : $y }}</option>@endforeach</select></div>
                 <div class="legend"><span><i class="li"></i>Income</span><span><i class="le"></i>Expense</span></div>
@@ -278,6 +291,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
                     <div class="eplot" id="eplot"><div class="gl g1"></div><div class="gl g0"></div><div class="gl g3"></div></div>
                 </div>
             </div>
+            --}}
         </div>
         <div class="donut-card">
             <div class="toggle"><button type="button" id="incomeToggle" onclick="showDonut('income')">Income</button><button type="button" id="expenseToggle" class="on" onclick="showDonut('expense')">Expense</button></div>
@@ -297,7 +311,7 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
             <div class="pt-r">
                 <div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input class="search" id="fSearch" placeholder="Search records"></div>
                 <select class="fsel" id="fCat"><option value="">All Category</option>@foreach($categoryGroups as $group => $items)<optgroup label="{{ $group }}">@foreach($items as $item)<option>{{ $item }}</option>@endforeach</optgroup>@endforeach</select>
-                <select class="fsel" id="fStatus"><option value="">All Records</option><option value="income">Income</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select>
+                <select class="fsel" id="fStatus"><option value="">All Records</option><option value="income">All Income</option><option value="room">Room Bookings</option><option value="kitchen_sales">Kitchen Sales</option><option value="expense">Expenses</option><option value="kitchen">Kitchen only</option></select>
                 <div class="pill" style="padding:0 12px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><input id="fFrom" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="From"><span style="color:#9a9a9a">to</span><input id="fTo" type="date" style="border:0;background:transparent;font:inherit;color:#333;width:130px" aria-label="To"></div>
                 <button class="exp-report-btn" type="button" onclick="openExpenseReport()">Export PDF</button>
                 <button class="pill" style="background:var(--lime);color:#2f3a0c;font-weight:700" onclick="openExpenseCreator()">+ Add Expense</button>
@@ -338,7 +352,7 @@ const H=140, MAX={{ $chartMax }};
 const earn=@json($earnings);
 // With nothing booked or spent this year the bars are all zero and the grid reads as broken.
 const hasEarnings = earn.some(m => Number(m.income) > 0 || Number(m.expense) > 0);
-if(!hasEarnings){
+if(!hasEarnings && document.querySelector('.ec')){
   document.querySelector('.ec').innerHTML =
     '<div class="ec-empty"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>'+
     '<b>No earnings recorded for {{ $chartYear }} yet</b>'+
@@ -398,7 +412,7 @@ function applyFilters(){
   const day=r=>String(r.date||'').slice(0,10);
   const list=ledger.filter(r=>(!mxDate()||day(r)===mxDate())&&(!from||day(r)>=from)&&(!to||day(r)<=to)
     &&(!cat||r.category===cat)
-    &&(!kind||(kind==='kitchen'?isKitchen(r):r.kind===kind))
+    &&(!kind||(kind==='kitchen'?isKitchen(r):kind==='room'?(r.kind==='income'&&r.source==='room'):kind==='kitchen_sales'?(r.kind==='income'&&r.source==='kitchen'):r.kind===kind))
     &&(!q||[r.name,r.category,r.detail].join(' ').toLowerCase().includes(q)));
   // Newest first unless a column sort is active.
   list.sort((a,b)=>day(b).localeCompare(day(a)));
@@ -407,6 +421,16 @@ function applyFilters(){
   if(sum)sum.innerHTML=`<span>Records <b>${list.length}</b></span><span>Income <b style="color:#2f6b4f">PKR ${inc.toLocaleString()}</b></span><span>Expenses <b style="color:#b3352f">PKR ${exp.toLocaleString()}</b></span><span>Net <b style="color:${inc-exp<0?'#b3352f':'#123527'}">PKR ${(inc-exp).toLocaleString()}</b></span>`;
   pgReset('exp');paginateRender('exp',sortList('exp',list),8,render);}
 msMirror([['mSearch','fSearch','input'],['mCat','fCat'],['mStatus','fStatus']]);
+// A card is a shortcut to the records it summarises.
+document.querySelectorAll('.sc-click').forEach(card=>card.addEventListener('click',e=>{
+  if(e.target.closest('a'))return;
+  const f=document.getElementById('fStatus'), m=document.getElementById('mStatus');
+  f.value=card.dataset.filter; if(m)m.value=card.dataset.filter;
+  applyFilters();
+  document.querySelectorAll('.sc-click').forEach(c=>c.classList.toggle('on',c===card));
+  const panel=document.querySelector('.main>.panel'); if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+document.getElementById('fStatus').addEventListener('change',()=>{const v=document.getElementById('fStatus').value;document.querySelectorAll('.sc-click').forEach(c=>c.classList.toggle('on',c.dataset.filter===v));});
 function mxDate(){const d=document.getElementById('mDate');return d?d.value:'';}
 (function(){const d=document.getElementById('mDate');if(d)d.addEventListener('change',applyFilters);})();
 function mxViewAll(){['mSearch','fSearch','mCat','fCat','mStatus','fStatus','mDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});applyFilters();}
